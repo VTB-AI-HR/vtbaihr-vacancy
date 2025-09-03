@@ -8,9 +8,21 @@ class CreateVacancyBody(BaseModel):
     red_flags: str
     skill_lvl: model.SkillLevel
     question_response_time: int
+
+class GenerateQuestionBody(BaseModel):
+    vacancy_id: int
     questions_type: model.QuestionsType
-    
-    
+    count_questions: int
+
+class GenerateQuestionResponse(BaseModel):
+    """
+    {
+        "question": str,
+        "question_type": str
+    }
+    """
+    questions: list[dict]
+
 class AddQuestionBody(BaseModel):
     vacancy_id: int
     question: str

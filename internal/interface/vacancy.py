@@ -19,6 +19,9 @@ class IVacancyController(Protocol):
     def delete_vacancy(self, vacancy_id: int) -> JSONResponse: pass
 
     @abstractmethod
+    def generate_question(self, body: GenerateQuestionBody) -> JSONResponse: pass
+
+    @abstractmethod
     def add_question(self, body: AddQuestionBody) -> JSONResponse: pass
 
     @abstractmethod

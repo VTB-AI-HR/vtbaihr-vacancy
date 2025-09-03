@@ -3,6 +3,7 @@ from pydantic import BaseModel
 class StartInterviewResponse(BaseModel):
     is_suitable: bool
     llm_response: str
+    total_question: int
 
 class SendAnswerResponse(BaseModel):
     question_id: int
