@@ -62,28 +62,26 @@ class Interview:
         ]
 
 @dataclass
-class CandidateResponse:
+class CandidateAnswer:
     id: int
     question_id: int
     interview_id: int
     response_time: int
-    ask_text: str
-    ask_audio_fid: str  # file_id
+    message_ids: list[int]
     llm_comment: str
     score: int  # [0;10]
 
     created_at: datetime
 
     @classmethod
-    def serialize(cls, rows) -> list['CandidateResponse']:
+    def serialize(cls, rows) -> list['CandidateAnswer']:
         return [
             cls(
                 id=row.id,
                 question_id=row.question_id,
                 interview_id=row.interview_id,
                 response_time=row.response_time,
-                ask_text=row.ask_text,
-                ask_audio_fid=row.ask_audio_fid,
+                message_ids=row.message_ids,
                 llm_comment=row.llm_comment,
                 score=row.score,
                 created_at=row.created_at
@@ -98,7 +96,7 @@ class InterviewMessage:
     id: int
     interview_id: str
     question_id: int
-
+    audio_fid: str
     role: str
     text: str
 
@@ -111,6 +109,7 @@ class InterviewMessage:
                 id=row.id,
                 interview_id=row.interview_id,
                 question_id=row.question_id,
+                audio_fid=row.audio_fid,
                 role=row.role,
                 text=row.text,
                 created_at=row.created_at,

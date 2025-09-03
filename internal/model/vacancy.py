@@ -21,7 +21,7 @@ class QuestionsType(Enum):
 class Vacancy:
     id: int
     name: str
-    tags: List[str]
+    tags: list[str]
     description: str
     red_flags: str
     skill_lvl: SkillLevel
@@ -51,8 +51,9 @@ class Vacancy:
 class VacancyQuestion:
     id: int
     vacancy_id: int
+    order_number: int # Номер вопроса
     question: str
-    hint: str
+    hint_for_evaluation: str
     weight: int  # [0;10]
     question_type: QuestionsType
 
@@ -64,8 +65,9 @@ class VacancyQuestion:
             cls(
                 id=row.id,
                 vacancy_id=row.vacancy_id,
+                order_number=row.order_number,
                 question=row.question,
-                hint=row.hint,
+                hint_for_evaluation=row.hint_for_evaluation,
                 weight=row.weight,
                 question_type=QuestionsType(row.question_type),
                 created_at=row.created_at

@@ -7,28 +7,26 @@ from opentelemetry.trace import Tracer
 from weed.util import WeedOperationResponse
 
 from internal import model
-from internal.controller.http.handler.vacancy.model import *
+from internal.controller.http.handler.interview.model import *
 
 class IInterviewController(Protocol):
     @abstractmethod
-    def start_interview(self, body: StartInterviewBody) -> StartInterviewResponse:
+    def start_interview(self, vacancy_id: int, candidate_email: str, candidate_resume_file: UploadFile) -> StartInterviewResponse:
         pass
 
     @abstractmethod
-    def send_answer(self, vacancy_id: int, question_id: int, audio_file: UploadFile) -> int:
+    def send_answer(self, vacancy_id: int, question_id: int, audio_file: UploadFile) -> SendAnswerResponse:
         pass
 
 
 class IInterviewService(Protocol):
     @abstractmethod
-    def create_interview(
-            self,
-            vacancy_id: int,
-            candidate_email: str,
-            candidate_resume_fid: str,
-    ) -> int:
+    def start_interview(self, vacancy_id: int, candidate_email: str, candidate_resume_file: UploadFile) -> StartInterviewResponse:
         pass
 
+    @abstractmethod
+    def send_answer(self, vacancy_id: int, question_id: int, audio_file: UploadFile) -> SendAnswerResponse:
+        pass    
 
 class IInterviewRepo(Protocol):
     @abstractmethod
@@ -43,6 +41,7 @@ class IInterviewRepo(Protocol):
     @abstractmethod
     def fill_interview_criterion(
             self,
+            interview_id, str,
             red_flag_score: float,
             hard_skill_score: float,
             soft_skill_score: float,
@@ -73,6 +72,7 @@ class IInterviewRepo(Protocol):
             self,
             interview_id: str,
             question_id: int,
+            audio_fid: str,
             role: str,
             text: str,
     ) -> int:
@@ -83,9 +83,33 @@ class IInterviewRepo(Protocol):
             self,
             question_id: int,
             interview_id: int,
-            duration: int,
-            text: str,
-            audio_fid: str,
-            llm_comment: str,
-            score: int
+            message_id:int
     ) -> int: pass
+    
+    @abstractmethod
+    def add_message_to_candidate_answer(
+        self,
+        message_id: int,
+        candidate_answer_id: int                         
+    ) -> None: pass
+    
+    @abstractmethod
+    def evaluation_candidate_answer(
+        self,
+        candidate_answer_id: int,
+        score: int,
+        llm_comment: str,
+        response_time: int
+    ) -> None: pass
+        
+    @abstractmethod
+    def get_interview_by_id(self, interview_id: int) -> list[model.Interview]:
+        pass
+
+    @abstractmethod
+    def get_candidate_answers(self, interview_id: int) -> list[model.CandidateAnswer]:
+        pass
+
+    @abstractmethod
+    def get_interview_messages(self, interview_id: int) -> list[model.InterviewMessage]:
+        pass
