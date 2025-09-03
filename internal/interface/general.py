@@ -103,3 +103,10 @@ class ILLMClient(Protocol):
             llm_model: str = "gpt-4o-mini",
             pdf_file: bytes = None,
     ) -> str: pass
+
+    @abstractmethod
+    async def transcribe_audio(
+            self,
+            audio_file: bytes,
+            filename: str = "audio.wav"
+    ) -> str: pass

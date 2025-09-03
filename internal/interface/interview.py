@@ -50,6 +50,7 @@ class IInterviewService(Protocol):
             self,
             vacancy_id: int,
             question_id: int,
+            interview_id: int,
             audio_file: UploadFile
     ) -> SendAnswerResponse:
         pass
@@ -68,7 +69,7 @@ class IInterviewRepo(Protocol):
     @abstractmethod
     async def fill_interview_criterion(
             self,
-            interview_id: str,
+            interview_id: int,
             red_flag_score: float,
             hard_skill_score: float,
             soft_skill_score: float,
@@ -97,7 +98,7 @@ class IInterviewRepo(Protocol):
     @abstractmethod
     async def create_interview_message(
             self,
-            interview_id: str,
+            interview_id: int,
             question_id: int,
             audio_fid: str,
             role: str,
@@ -130,6 +131,13 @@ class IInterviewRepo(Protocol):
     ) -> None: pass
 
     @abstractmethod
+    async def get_candidate_answer(
+            self,
+            question_id: int,
+            interview_id: int,
+    ) -> list[model.CandidateAnswer]: pass
+
+    @abstractmethod
     async def get_interview_by_id(self, interview_id: int) -> list[model.Interview]:
         pass
 
@@ -152,3 +160,31 @@ class IInterviewPromptGenerator(Protocol):
             vacancy_tags: list[str]
     ) -> str:
         pass
+
+    @abstractmethod
+    def get_interview_management_system_prompt(
+            self,
+            vacancy: model.Vacancy,
+            questions: list[model.VacancyQuestion],
+    ) -> str: pass
+
+    @abstractmethod
+    def get_answer_evaluation_system_prompt(
+            self,
+            question: model.VacancyQuestion,
+            vacancy: model.Vacancy
+    ) -> str: pass
+
+    @abstractmethod
+    def get_interview_summary_system_prompt(
+            self,
+            vacancy: model.Vacancy,
+            interview_messages: list[model.InterviewMessage],
+            candidate_answers: list[model.CandidateAnswer]
+    ) -> str: pass
+
+    @abstractmethod
+    def get_question_generation_system_prompt(
+            self,
+            vacancy: model.Vacancy
+    ) -> str: pass

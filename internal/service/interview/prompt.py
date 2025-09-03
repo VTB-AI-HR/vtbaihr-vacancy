@@ -1,6 +1,6 @@
 from opentelemetry.trace import Status, StatusCode, SpanKind
 
-from internal import interface
+from internal import interface, model
 
 
 class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
@@ -59,3 +59,119 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 """
 
         return system_prompt
+
+    def get_interview_management_system_prompt(
+            self,
+            vacancy: model.Vacancy,
+            questions: list[model.VacancyQuestion],
+    ) -> str:
+        questions_str = "\n".join([f"{i + 1}. {q.question} (Подсказка для оценки: {q.hint_for_evaluation})"
+                                   for i, q in enumerate(questions)])
+
+        return f"""Ты ведущий интервью для позиции "{vacancy.name}".
+
+ИНФОРМАЦИЯ О ВАКАНСИИ:
+Название: {vacancy.name}
+Описание: {vacancy.description}
+Уровень: {vacancy.skill_lvl.value}
+Красные флаги: {vacancy.red_flags}
+
+ВОПРОСЫ ДЛЯ ИНТЕРВЬЮ (по порядку):
+{questions_str}
+
+ТВОЯ ЗАДАЧА:
+1. Ведешь кандидата по вопросам строго по порядку
+2. Определяешь, достаточно ли полный ответ кандидата для перехода к следующему вопросу
+3. Если ответ неполный - просишь уточнить конкретные аспекты
+4. Сигнализируешь о завершении интервью после последнего вопроса
+
+ФОРМАТ ОТВЕТА:
+{{
+  "action": "continue" | "next_question" | "finish_interview",
+  "message": "Сообщение кандидату",
+  "current_question_number": номер текущего вопроса (1-{len(questions)}),
+  "reason": "Обоснование решения"
+}}
+
+ВАЖНО: Отвечай ТОЛЬКО валидным JSON без markdown разметки."""
+
+    def get_answer_evaluation_system_prompt(
+            self,
+            question: model.VacancyQuestion,
+            vacancy: model.Vacancy
+    ) -> str:
+        return f"""Ты эксперт по оценке ответов кандидатов на интервью.
+
+КОНТЕКСТ:
+Вакансия: {vacancy.name} ({vacancy.skill_lvl.value})
+Вопрос: {question.question}
+Подсказка для оценки: {question.hint_for_evaluation}
+Вес вопроса: {question.weight}/10
+
+ЗАДАЧА:
+Оцени полноту и качество ответа кандидата по шкале от 0 до 10, где:
+- 0-2: Неудовлетворительный ответ
+- 3-4: Слабый ответ
+- 5-6: Удовлетворительный ответ  
+- 7-8: Хороший ответ
+- 9-10: Отличный ответ
+
+ФОРМАТ ОТВЕТА:
+{{
+  "score": число от 0 до 10,
+  "comment": "Подробное обоснование оценки на русском языке"
+}}
+
+ВАЖНО: Отвечай ТОЛЬКО валидным JSON без markdown разметки."""
+
+    def get_interview_summary_system_prompt(
+            self,
+            vacancy: model.Vacancy,
+            interview_messages: list[model.InterviewMessage],
+            candidate_answers: list[model.CandidateAnswer]
+    ) -> str:
+        return f"""Ты эксперт по подведению итогов интервью.
+
+ИНФОРМАЦИЯ О ВАКАНСИИ:
+Название: {vacancy.name}
+Описание: {vacancy.description}
+Уровень: {vacancy.skill_lvl.value}
+Красные флаги: {vacancy.red_flags}
+
+ЗАДАЧА:
+На основе всего интервью оцени кандидата по следующим критериям (шкала 0-1):
+
+ФОРМАТ ОТВЕТА:
+{{
+  "red_flag_score": число от 0 до 1,
+  "hard_skill_score": число от 0 до 1,
+  "soft_skill_score": число от 0 до 1,
+  "logic_structure_score": число от 0 до 1,
+  "accordance_xp_vacancy_score": число от 0 до 1,
+  "accordance_skill_vacancy_score": число от 0 до 1,
+  "accordance_xp_resume_score": число от 0 до 1,
+  "accordance_skill_resume_score": число от 0 до 1,
+  "strong_areas": "Сильные стороны кандидата",
+  "weak_areas": "Слабые стороны кандидата",
+  "pause_detection_score": число от 0 до 1,
+  "emotional_coloring": "Описание эмоциональной окраски интервью"
+}}
+
+ВАЖНО: Отвечай ТОЛЬКО валидным JSON без markdown разметки."""
+
+    def get_question_generation_system_prompt(
+            self,
+            vacancy: model.Vacancy
+    ) -> str:
+        return f"""Ты эксперт по созданию вопросов для технических интервью.
+
+ИНФОРМАЦИЯ О ВАКАНСИИ:
+Название: {vacancy.name}
+Описание: {vacancy.description}
+Уровень: {vacancy.skill_lvl.value}
+Теги/навыки: {', '.join(vacancy.tags)}
+Тип вопросов: {vacancy.questions_type.value}
+
+ЗАДАЧА: Сгенерируй вопросы для интервью соответствующего типа и уровня сложности.
+
+ВАЖНО: Отвечай ТОЛЬКО валидным JSON без markdown разметки."""
