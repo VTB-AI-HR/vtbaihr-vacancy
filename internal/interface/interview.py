@@ -2,6 +2,7 @@ from abc import abstractmethod
 from typing import Protocol
 
 from fastapi import FastAPI, UploadFile
+from fastapi.responses import JSONResponse
 from opentelemetry.metrics import Meter
 from opentelemetry.trace import Tracer
 from weed.util import WeedOperationResponse
@@ -9,24 +10,50 @@ from weed.util import WeedOperationResponse
 from internal import model
 from internal.controller.http.handler.interview.model import *
 
+
 class IInterviewController(Protocol):
     @abstractmethod
-    def start_interview(self, vacancy_id: int, candidate_email: str, candidate_resume_file: UploadFile) -> StartInterviewResponse:
+    def start_interview(
+            self,
+            vacancy_id: int,
+            candidate_email: str,
+            candidate_resume_file: UploadFile
+    ) -> JSONResponse:
         pass
 
     @abstractmethod
-    def send_answer(self, vacancy_id: int, question_id: int, audio_file: UploadFile) -> SendAnswerResponse:
+    def send_answer(
+            self,
+            vacancy_id: int,
+            question_id: int,
+            audio_file: UploadFile
+    ) -> JSONResponse:
+        pass
+
+    @abstractmethod
+    def get_all_interview(self, vacancy_id: int) -> JSONResponse:
         pass
 
 
 class IInterviewService(Protocol):
     @abstractmethod
-    def start_interview(self, vacancy_id: int, candidate_email: str, candidate_resume_file: UploadFile) -> StartInterviewResponse:
+    def start_interview(
+            self,
+            vacancy_id: int,
+            candidate_email: str,
+            candidate_resume_file: UploadFile
+    ) -> tuple[bool, str]:
         pass
 
     @abstractmethod
-    def send_answer(self, vacancy_id: int, question_id: int, audio_file: UploadFile) -> SendAnswerResponse:
-        pass    
+    def send_answer(
+            self,
+            vacancy_id: int,
+            question_id: int,
+            audio_file: UploadFile
+    ) -> SendAnswerResponse:
+        pass
+
 
 class IInterviewRepo(Protocol):
     @abstractmethod
@@ -41,7 +68,7 @@ class IInterviewRepo(Protocol):
     @abstractmethod
     def fill_interview_criterion(
             self,
-            interview_id, str,
+            interview_id: str,
             red_flag_score: float,
             hard_skill_score: float,
             soft_skill_score: float,
@@ -83,25 +110,25 @@ class IInterviewRepo(Protocol):
             self,
             question_id: int,
             interview_id: int,
-            message_id:int
+            message_id: int
     ) -> int: pass
-    
+
     @abstractmethod
     def add_message_to_candidate_answer(
-        self,
-        message_id: int,
-        candidate_answer_id: int                         
+            self,
+            message_id: int,
+            candidate_answer_id: int
     ) -> None: pass
-    
+
     @abstractmethod
     def evaluation_candidate_answer(
-        self,
-        candidate_answer_id: int,
-        score: int,
-        llm_comment: str,
-        response_time: int
+            self,
+            candidate_answer_id: int,
+            score: int,
+            llm_comment: str,
+            response_time: int
     ) -> None: pass
-        
+
     @abstractmethod
     def get_interview_by_id(self, interview_id: int) -> list[model.Interview]:
         pass

@@ -25,7 +25,7 @@ class EditQuestionBody(BaseModel):
     weight: int | None  # [0;10] 
     question_type: model.QuestionsType | None
 
-class EditVacancyCriterianWeightsBody(BaseModel):
+class EditVacancyCriterionWeightsBody(BaseModel):
     vacancy_id: int
     logic_structure_score_weight: int | None 
     pause_detection_score_weight: int  | None
