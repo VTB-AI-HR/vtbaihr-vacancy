@@ -13,7 +13,7 @@ from internal.controller.http.handler.interview.model import *
 
 class IInterviewController(Protocol):
     @abstractmethod
-    def start_interview(
+    async def start_interview(
             self,
             vacancy_id: int,
             candidate_email: str,
@@ -22,7 +22,7 @@ class IInterviewController(Protocol):
         pass
 
     @abstractmethod
-    def send_answer(
+    async def send_answer(
             self,
             vacancy_id: int,
             question_id: int,
@@ -31,22 +31,22 @@ class IInterviewController(Protocol):
         pass
 
     @abstractmethod
-    def get_all_interview(self, vacancy_id: int) -> JSONResponse:
+    async def get_all_interview(self, vacancy_id: int) -> JSONResponse:
         pass
 
 
 class IInterviewService(Protocol):
     @abstractmethod
-    def start_interview(
+    async def start_interview(
             self,
             vacancy_id: int,
             candidate_email: str,
             candidate_resume_file: UploadFile
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, str, int, int]:
         pass
 
     @abstractmethod
-    def send_answer(
+    async def send_answer(
             self,
             vacancy_id: int,
             question_id: int,
@@ -57,7 +57,7 @@ class IInterviewService(Protocol):
 
 class IInterviewRepo(Protocol):
     @abstractmethod
-    def create_interview(
+    async def create_interview(
             self,
             vacancy_id: int,
             candidate_email: str,
@@ -66,7 +66,7 @@ class IInterviewRepo(Protocol):
         pass
 
     @abstractmethod
-    def fill_interview_criterion(
+    async def fill_interview_criterion(
             self,
             interview_id: str,
             red_flag_score: float,
@@ -85,7 +85,7 @@ class IInterviewRepo(Protocol):
         pass
 
     @abstractmethod
-    def add_general_result(
+    async def add_general_result(
             self,
             vacancy_id: int,
             general_score: float,
@@ -95,7 +95,7 @@ class IInterviewRepo(Protocol):
         pass
 
     @abstractmethod
-    def create_interview_message(
+    async def create_interview_message(
             self,
             interview_id: str,
             question_id: int,
@@ -106,7 +106,7 @@ class IInterviewRepo(Protocol):
         pass
 
     @abstractmethod
-    def create_candidate_answer(
+    async def create_candidate_answer(
             self,
             question_id: int,
             interview_id: int,
@@ -114,14 +114,14 @@ class IInterviewRepo(Protocol):
     ) -> int: pass
 
     @abstractmethod
-    def add_message_to_candidate_answer(
+    async def add_message_to_candidate_answer(
             self,
             message_id: int,
             candidate_answer_id: int
     ) -> None: pass
 
     @abstractmethod
-    def evaluation_candidate_answer(
+    async def evaluation_candidate_answer(
             self,
             candidate_answer_id: int,
             score: int,
@@ -130,13 +130,25 @@ class IInterviewRepo(Protocol):
     ) -> None: pass
 
     @abstractmethod
-    def get_interview_by_id(self, interview_id: int) -> list[model.Interview]:
+    async def get_interview_by_id(self, interview_id: int) -> list[model.Interview]:
         pass
 
     @abstractmethod
-    def get_candidate_answers(self, interview_id: int) -> list[model.CandidateAnswer]:
+    async def get_candidate_answers(self, interview_id: int) -> list[model.CandidateAnswer]:
         pass
 
     @abstractmethod
-    def get_interview_messages(self, interview_id: int) -> list[model.InterviewMessage]:
+    async def get_interview_messages(self, interview_id: int) -> list[model.InterviewMessage]:
+        pass
+
+
+class IInterviewPromptGenerator(Protocol):
+    @abstractmethod
+    def get_resume_evaluation_system_prompt(
+            self,
+            vacancy_description: str,
+            vacancy_red_flags: str,
+            vacancy_name: str,
+            vacancy_tags: list[str]
+    ) -> str:
         pass

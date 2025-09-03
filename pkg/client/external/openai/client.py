@@ -1,3 +1,5 @@
+import base64
+
 import httpx
 
 import openai
@@ -21,11 +23,11 @@ class GPTClient(interface.ILLMClient):
 
     async def generate(
             self,
-            history: list[model.Message],
+            history: list[model.InterviewMessage],
             system_prompt: str = "",
             temperature: float = 0.5,
             llm_model: str = "gpt-4o-mini",
-            base64img: str = None
+            pdf_file: bytes = None,
     ) -> str:
         with self.tracer.start_as_current_span(
                 "GPTClient.generate",
@@ -43,16 +45,17 @@ class GPTClient(interface.ILLMClient):
                     ]
                 ]
 
-                if base64img is not None:
+                if pdf_file is not None:
                     history[-1]["content"] = [
+                        {"type": "text", "text": history[-1]["content"]},
                         {
-                            "type": "text",
-                            "text": history[-1]["content"],
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {"url": f"data:image/png;base64,{base64img}"},
-                        },
+                            "type": "document",
+                            "source": {
+                                "type": "base64",
+                                "media_type": "application/pdf",
+                                "data": base64.b64encode(pdf_file).decode('utf-8')
+                            }
+                        }
                     ]
 
                 response = await self.client.chat.completions.create(

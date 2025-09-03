@@ -94,7 +94,7 @@ class CandidateAnswer:
 @dataclass
 class InterviewMessage:
     id: int
-    interview_id: str
+    interview_id: int
     question_id: int
     audio_fid: str
     role: str

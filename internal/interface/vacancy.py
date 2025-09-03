@@ -13,33 +13,33 @@ from fastapi.responses import JSONResponse
 
 class IVacancyController(Protocol):
     @abstractmethod
-    def create_vacancy(self, body: CreateVacancyBody) -> JSONResponse: pass
+    async def create_vacancy(self, body: CreateVacancyBody) -> JSONResponse: pass
 
     @abstractmethod
-    def delete_vacancy(self, vacancy_id: int) -> JSONResponse: pass
+    async def delete_vacancy(self, vacancy_id: int) -> JSONResponse: pass
 
     @abstractmethod
-    def generate_question(self, body: GenerateQuestionBody) -> JSONResponse: pass
+    async def generate_question(self, body: GenerateQuestionBody) -> JSONResponse: pass
 
     @abstractmethod
-    def add_question(self, body: AddQuestionBody) -> JSONResponse: pass
+    async def add_question(self, body: AddQuestionBody) -> JSONResponse: pass
 
     @abstractmethod
-    def edit_question(self, body: EditQuestionBody) -> JSONResponse: pass
+    async def edit_question(self, body: EditQuestionBody) -> JSONResponse: pass
 
     @abstractmethod
-    def delete_question(self, question_id: int) -> JSONResponse: pass
+    async def delete_question(self, question_id: int) -> JSONResponse: pass
 
     @abstractmethod
-    def edit_vacancy_criterion_weights(self, body: EditVacancyCriterionWeightsBody) -> JSONResponse: pass
+    async def edit_vacancy_criterion_weights(self, body: EditVacancyCriterionWeightsBody) -> JSONResponse: pass
 
     @abstractmethod
-    def get_all_vacancy(self) -> JSONResponse: pass
+    async def get_all_vacancy(self) -> JSONResponse: pass
 
 
 class IVacancyService(Protocol):
     @abstractmethod
-    def create_vacancy(
+    async def create_vacancy(
             self,
             name: str,
             tags: list[str],
@@ -51,10 +51,10 @@ class IVacancyService(Protocol):
     ) -> int: pass
 
     @abstractmethod
-    def delete_vacancy(self, vacancy_id: int) -> None: pass
+    async def delete_vacancy(self, vacancy_id: int) -> None: pass
 
     @abstractmethod
-    def add_question(
+    async def add_question(
             self,
             vacancy_id: int,
             question: str,
@@ -64,7 +64,7 @@ class IVacancyService(Protocol):
     ) -> tuple[int, int]: pass
 
     @abstractmethod
-    def edit_question(
+    async def edit_question(
             self,
             vacancy_id: int,
             question: str | None,
@@ -74,10 +74,10 @@ class IVacancyService(Protocol):
     ) -> None: pass
 
     @abstractmethod
-    def delete_question(self, question_id: int) -> None: pass
+    async def delete_question(self, question_id: int) -> None: pass
 
     @abstractmethod
-    def edit_vacancy_criterion_weights(
+    async def edit_vacancy_criterion_weights(
             self,
             vacancy_id: int,
             logic_structure_score_weight: int | None,
@@ -92,12 +92,12 @@ class IVacancyService(Protocol):
     ) -> None: pass
 
     @abstractmethod
-    def get_all_vacancy(self) -> list[model.Vacancy]: pass
+    async def get_all_vacancy(self) -> list[model.Vacancy]: pass
 
 
 class IVacancyRepo(Protocol):
     @abstractmethod
-    def create_vacancy(
+    async def create_vacancy(
             self,
             name: str,
             tags: list[str],
@@ -109,10 +109,10 @@ class IVacancyRepo(Protocol):
     ) -> int: pass
 
     @abstractmethod
-    def delete_vacancy(self, vacancy_id: int) -> None: pass
+    async def delete_vacancy(self, vacancy_id: int) -> None: pass
 
     @abstractmethod
-    def add_question(
+    async def add_question(
             self,
             vacancy_id: int,
             question: str,
@@ -122,7 +122,7 @@ class IVacancyRepo(Protocol):
     ) -> tuple[int, int]: pass
 
     @abstractmethod
-    def edit_question(
+    async def edit_question(
             self,
             vacancy_id: int,
             question: str | None,
@@ -132,10 +132,10 @@ class IVacancyRepo(Protocol):
     ) -> None: pass
 
     @abstractmethod
-    def delete_question(self, question_id: int) -> None: pass
+    async def delete_question(self, question_id: int) -> None: pass
 
     @abstractmethod
-    def edit_vacancy_criterion_weights(
+    async def edit_vacancy_criterion_weights(
             self,
             vacancy_id: int,
             logic_structure_score_weight: int | None,
@@ -150,4 +150,10 @@ class IVacancyRepo(Protocol):
     ) -> None: pass
 
     @abstractmethod
-    def get_all_vacancy(self) -> list[model.Vacancy]: pass
+    async def get_all_vacancy(self) -> list[model.Vacancy]: pass
+
+    @abstractmethod
+    async def get_all_question(self, vacancy_id: int) -> list[model.VacancyQuestion]: pass
+
+    @abstractmethod
+    async def get_vacancy_by_id(self, vacancy_id: int) -> list[model.Vacancy]: pass

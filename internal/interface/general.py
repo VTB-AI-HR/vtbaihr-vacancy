@@ -7,6 +7,8 @@ from opentelemetry.metrics import Meter
 from opentelemetry.trace import Tracer
 from weed.util import WeedOperationResponse
 
+from internal import model
+
 
 class IOtelLogger(Protocol):
     @abstractmethod
@@ -89,3 +91,15 @@ class IDB(Protocol):
 
     @abstractmethod
     async def multi_query(self, queries: list[str]) -> None: pass
+
+
+class ILLMClient(Protocol):
+    @abstractmethod
+    async def generate(
+            self,
+            history: list[model.InterviewMessage],
+            system_prompt: str = "",
+            temperature: float = 0.5,
+            llm_model: str = "gpt-4o-mini",
+            pdf_file: bytes = None,
+    ) -> str: pass
