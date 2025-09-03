@@ -3,7 +3,6 @@ asyncpg==0.29.0
 uvicorn==0.29.0
 fastapi==0.112.1
 openai==1.57.0
-Pyrogram==2.0.106
 PyYAML==6.0.2
 ujson==5.10.0
 pytz==2025.2

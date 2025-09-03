@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS vacancies(
     questions_type TEXT NOT NULL CHECK (questions_type IN ('soft', 'hard', 'soft-hard')),
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
+);
 """
 
 create_vacancy_questions_table = """
@@ -25,7 +25,26 @@ CREATE TABLE IF NOT EXISTS vacancy_questions(
     question_type TEXT NOT NULL CHECK (question_type IN ('soft', 'hard', 'soft-hard')),
     
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
+);
+"""
+
+create_interview_weights_table = """
+CREATE TABLE IF NOT EXISTS vacancy_criterion_weights(
+    id SERIAL PRIMARY KEY,
+    vacancy_id INTEGER NOT NULL REFERENCES vacancies(id) ON DELETE CASCADE,
+    
+    logic_structure_score_weight INTEGER NOT NULL DEFAULT 5 CHECK (logic_structure_score_weight >= 0 AND logic_structure_score_weight <= 10),
+    pause_detection_score_weight INTEGER NOT NULL DEFAULT 5 CHECK (pause_detection_score_weight >= 0 AND pause_detection_score_weight <= 10),
+    soft_skill_score_weight INTEGER NOT NULL DEFAULT 5 CHECK (soft_skill_score_weight >= 0 AND soft_skill_score_weight <= 10),
+    hard_skill_score_weight INTEGER NOT NULL DEFAULT 5 CHECK (hard_skill_score_weight >= 0 AND hard_skill_score_weight <= 10),
+    accordance_xp_vacancy_score_weight INTEGER NOT NULL DEFAULT 5 CHECK (accordance_xp_vacancy_score_weight >= 0 AND accordance_xp_vacancy_score_weight <= 10),
+    accordance_skill_vacancy_score_weight INTEGER NOT NULL DEFAULT 5 CHECK (accordance_skill_vacancy_score_weight >= 0 AND accordance_skill_vacancy_score_weight <= 10),
+    accordance_xp_resume_score_weight INTEGER NOT NULL DEFAULT 5 CHECK (accordance_xp_resume_score_weight >= 0 AND accordance_xp_resume_score_weight <= 10),
+    accordance_skill_resume_score_weight INTEGER NOT NULL DEFAULT 5 CHECK (accordance_skill_resume_score_weight >= 0 AND accordance_skill_resume_score_weight <= 10),
+    red_flag_score_weight INTEGER NOT NULL DEFAULT 5 CHECK (red_flag_score_weight >= 0 AND red_flag_score_weight <= 10),
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 """
 
 create_interviews_table = """
@@ -52,29 +71,11 @@ CREATE TABLE IF NOT EXISTS interviews(
     emotional_coloring TEXT NOT NULL DEFAULT '',
     
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-"""
-
-create_interview_weights_table = """
-CREATE TABLE IF NOT EXISTS interview_weights(
-    id SERIAL PRIMARY KEY,
-    vacancy_id INTEGER NOT NULL REFERENCES vacancies(id) ON DELETE CASCADE,
-    
-    logic_structure_score_weight INTEGER NOT NULL DEFAULT 5 CHECK (logic_structure_score_weight >= 0 AND logic_structure_score_weight <= 10),
-    pause_detection_score_weight INTEGER NOT NULL DEFAULT 5 CHECK (pause_detection_score_weight >= 0 AND pause_detection_score_weight <= 10),
-    soft_skill_score_weight INTEGER NOT NULL DEFAULT 5 CHECK (soft_skill_score_weight >= 0 AND soft_skill_score_weight <= 10),
-    hard_skill_score_weight INTEGER NOT NULL DEFAULT 5 CHECK (hard_skill_score_weight >= 0 AND hard_skill_score_weight <= 10),
-    accordance_xp_vacancy_score_weight INTEGER NOT NULL DEFAULT 5 CHECK (accordance_xp_vacancy_score_weight >= 0 AND accordance_xp_vacancy_score_weight <= 10),
-    accordance_skill_vacancy_score_weight INTEGER NOT NULL DEFAULT 5 CHECK (accordance_skill_vacancy_score_weight >= 0 AND accordance_skill_vacancy_score_weight <= 10),
-    accordance_xp_resume_score_weight INTEGER NOT NULL DEFAULT 5 CHECK (accordance_xp_resume_score_weight >= 0 AND accordance_xp_resume_score_weight <= 10),
-    accordance_skill_resume_score_weight INTEGER NOT NULL DEFAULT 5 CHECK (accordance_skill_resume_score_weight >= 0 AND accordance_skill_resume_score_weight <= 10),
-    red_flag_score_weight INTEGER NOT NULL DEFAULT 5 CHECK (red_flag_score_weight >= 0 AND red_flag_score_weight <= 10),
-    
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
+);
 """
 
 create_question_responses_table = """
-CREATE TABLE IF NOT EXISTS question_responses(
+CREATE TABLE IF NOT EXISTS candidate_responses(
     id SERIAL PRIMARY KEY,
     question_id INTEGER NOT NULL REFERENCES vacancy_questions(id) ON DELETE CASCADE,
     interview_id INTEGER NOT NULL REFERENCES interviews(id) ON DELETE CASCADE,
@@ -86,24 +87,44 @@ CREATE TABLE IF NOT EXISTS question_responses(
     score INTEGER NOT NULL DEFAULT 5 CHECK (score >= 0 AND score <= 10),
     
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
+);
+"""
+
+create_interview_chat_table = """
+CREATE TABLE IF NOT EXISTS interview_messages(
+    id SERIAL PRIMARY KEY,
+    interview_id INTEGER NOT NULL REFERENCES interviews(id) ON DELETE CASCADE,
+    question_id INTEGER NOT NULL REFERENCES vacancy_questions(id) ON DELETE CASCADE,
+    
+    role TEXT NOT NULL,
+    text TEXT NOT NULL,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 """
 
 drop_vacancy_table = """
 DROP TABLE IF EXISTS vacancies;
 """
+
 drop_vacancy_questions_table = """
 DROP TABLE IF EXISTS vacancy_questions;
 """
+
+drop_interview_weights_table = """
+DROP TABLE IF EXISTS vacancy_criterion_weights;
+"""
+
 drop_interviews_table = """
 DROP TABLE IF EXISTS interviews;
+"""
 
+drop_candidate_responses_table = """
+DROP TABLE IF EXISTS candidate_responses;
 """
-drop_interview_weights_table = """
-DROP TABLE IF EXISTS interview_weights;
-"""
+
 drop_question_responses_table = """
-DROP TABLE IF EXISTS question_responses;
+DROP TABLE IF EXISTS interview_messages;
 """
 
 create_all_tables_queries = [
