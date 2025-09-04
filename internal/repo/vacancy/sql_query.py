@@ -82,7 +82,8 @@ VALUES (
     :accordance_xp_resume_score_weight,
     :accordance_skill_resume_score_weight,
     :red_flag_score_weight
-);
+)
+RETURNING id;
 """
 
 edit_vacancy_criterion_weights = """
