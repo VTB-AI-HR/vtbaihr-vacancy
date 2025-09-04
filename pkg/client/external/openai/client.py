@@ -1,4 +1,5 @@
 import base64
+import io
 
 import httpx
 
@@ -67,6 +68,33 @@ class GPTClient(interface.ILLMClient):
 
                 span.set_status(Status(StatusCode.OK))
                 return llm_response
+
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise
+
+    async def transcribe_audio(
+            self,
+            audio_file: bytes,
+            filename: str = "audio.wav"
+    ) -> str:
+        with self.tracer.start_as_current_span(
+                "GPTClient.transcribe_audio",
+                kind=SpanKind.CLIENT,
+        ) as span:
+            try:
+                audio_buffer = io.BytesIO(audio_file)
+                audio_buffer.name = filename
+
+                transcript = await self.client.audio.transcriptions.create(
+                    model="whisper-1",
+                    file=audio_buffer,
+                    response_format="text"
+                )
+
+                span.set_status(Status(StatusCode.OK))
+                return transcript
 
             except Exception as err:
                 span.record_exception(err)
