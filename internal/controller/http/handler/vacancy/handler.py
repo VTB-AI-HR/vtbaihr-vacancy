@@ -49,10 +49,7 @@ class VacancyController(interface.IVacancyController):
             except Exception as err:
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
-                return JSONResponse(
-                    status_code=500,
-                    content={"error": "Internal server error", "message": str(err)}
-                )
+                raise err
 
     async def delete_vacancy(self, vacancy_id: int) -> JSONResponse:
         with self.tracer.start_as_current_span(
@@ -74,10 +71,7 @@ class VacancyController(interface.IVacancyController):
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
 
-                return JSONResponse(
-                    status_code=500,
-                    content={"error": "Internal server error", "message": str(err)}
-                )
+                raise err
 
     async def generate_question(self, body: GenerateQuestionBody) -> JSONResponse:
         with self.tracer.start_as_current_span(
@@ -96,8 +90,6 @@ class VacancyController(interface.IVacancyController):
                     count_questions=body.count_questions
                 )
 
-                response = GenerateQuestionResponse(questions=questions)
-
                 span.set_attributes({
                     "generated_count": len(questions)
                 })
@@ -105,16 +97,13 @@ class VacancyController(interface.IVacancyController):
 
                 return JSONResponse(
                     status_code=200,
-                    content=response.model_dump()
+                    content=questions
                 )
             except Exception as err:
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
 
-                return JSONResponse(
-                    status_code=500,
-                    content={"error": "Internal server error", "message": str(err)}
-                )
+                raise err
 
     async def add_question(self, body: AddQuestionBody) -> JSONResponse:
         with self.tracer.start_as_current_span(
@@ -153,10 +142,7 @@ class VacancyController(interface.IVacancyController):
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
 
-                return JSONResponse(
-                    status_code=500,
-                    content={"error": "Internal server error", "message": str(err)}
-                )
+                raise err
 
     async def edit_question(self, body: EditQuestionBody) -> JSONResponse:
         with self.tracer.start_as_current_span(
@@ -187,10 +173,7 @@ class VacancyController(interface.IVacancyController):
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
 
-                return JSONResponse(
-                    status_code=500,
-                    content={"error": "Internal server error", "message": str(err)}
-                )
+                raise err
 
     async def delete_question(self, question_id: int) -> JSONResponse:
         with self.tracer.start_as_current_span(
@@ -211,10 +194,7 @@ class VacancyController(interface.IVacancyController):
             except Exception as err:
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
-                return JSONResponse(
-                    status_code=500,
-                    content={"error": "Internal server error", "message": str(err)}
-                )
+                raise err
 
     async def edit_vacancy_criterion_weights(self, body: EditVacancyCriterionWeightsBody) -> JSONResponse:
         with self.tracer.start_as_current_span(
@@ -247,10 +227,7 @@ class VacancyController(interface.IVacancyController):
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
 
-                return JSONResponse(
-                    status_code=500,
-                    content={"error": "Internal server error", "message": str(err)}
-                )
+                raise err
 
     async def get_all_vacancy(self) -> JSONResponse:
         with self.tracer.start_as_current_span(
@@ -272,7 +249,4 @@ class VacancyController(interface.IVacancyController):
             except Exception as err:
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
-                return JSONResponse(
-                    status_code=500,
-                    content={"error": "Internal server error", "message": str(err)}
-                )
+                raise err

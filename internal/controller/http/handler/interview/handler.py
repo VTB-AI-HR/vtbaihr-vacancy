@@ -59,10 +59,7 @@ class InterviewController(interface.IInterviewController):
             except Exception as err:
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
-                return JSONResponse(
-                    status_code=500,
-                    content={"error": "Internal server error", "message": str(err)}
-                )
+                raise err
 
     async def send_answer(
             self,
@@ -109,10 +106,7 @@ class InterviewController(interface.IInterviewController):
             except Exception as err:
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
-                return JSONResponse(
-                    status_code=500,
-                    content={"error": "Internal server error", "message": str(err)}
-                )
+                raise err
 
     async def get_all_interview(self, vacancy_id: int) -> JSONResponse:
         with self.tracer.start_as_current_span(
@@ -137,10 +131,7 @@ class InterviewController(interface.IInterviewController):
             except Exception as err:
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
-                return JSONResponse(
-                    status_code=500,
-                    content={"error": "Internal server error", "message": str(err)}
-                )
+                raise err
 
     async def get_candidate_answers(self, interview_id: int) -> JSONResponse:
         with self.tracer.start_as_current_span(
@@ -169,7 +160,4 @@ class InterviewController(interface.IInterviewController):
             except Exception as err:
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
-                return JSONResponse(
-                    status_code=500,
-                    content={"error": "Internal server error", "message": str(err)}
-                )
+                raise err
