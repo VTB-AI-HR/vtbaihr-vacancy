@@ -31,6 +31,7 @@ class AddQuestionBody(BaseModel):
     question_type: model.QuestionsType
 
 class EditQuestionBody(BaseModel):
+    question_id: int
     vacancy_id: int
     question: str | None
     hint_for_evaluation: str | None

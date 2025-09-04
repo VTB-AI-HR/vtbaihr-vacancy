@@ -47,6 +47,18 @@ class Vacancy:
             for row in rows
         ]
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "tags": self.tags,
+            "description": self.description,
+            "red_flags": self.red_flags,
+            "skill_lvl": self.skill_lvl.value,
+            "question_response_time": self.question_response_time,
+            "questions_type": self.questions_type.value,
+        }
+
 @dataclass
 class VacancyQuestion:
     id: int
