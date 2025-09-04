@@ -5,10 +5,8 @@ from fastapi import FastAPI, UploadFile
 from fastapi.responses import JSONResponse
 from opentelemetry.metrics import Meter
 from opentelemetry.trace import Tracer
-from weed.util import WeedOperationResponse
 
 from internal import model
-from internal.controller.http.handler.interview.model import *
 
 
 class IInterviewController(Protocol):
@@ -18,8 +16,7 @@ class IInterviewController(Protocol):
             vacancy_id: int,
             candidate_email: str,
             candidate_resume_file: UploadFile
-    ) -> JSONResponse:
-        pass
+    ) -> JSONResponse: pass
 
     @abstractmethod
     async def send_answer(
@@ -27,12 +24,13 @@ class IInterviewController(Protocol):
             vacancy_id: int,
             question_id: int,
             audio_file: UploadFile
-    ) -> JSONResponse:
-        pass
+    ) -> JSONResponse: pass
 
     @abstractmethod
-    async def get_all_interview(self, vacancy_id: int) -> JSONResponse:
-        pass
+    async def get_all_interview(self, vacancy_id: int) -> JSONResponse: pass
+
+    @abstractmethod
+    async def get_candidate_answers(self, interview_id: int) -> JSONResponse: pass
 
 
 class IInterviewService(Protocol):
@@ -52,8 +50,16 @@ class IInterviewService(Protocol):
             question_id: int,
             interview_id: int,
             audio_file: UploadFile
-    ) -> SendAnswerResponse:
+    ) -> tuple[int, str, int, dict]:
         pass
+
+    @abstractmethod
+    async def get_all_interview(self, vacancy_id: int) -> list[model.Interview]: pass
+
+    async def get_interview_by_id(
+            self,
+            interview_id: int
+    ) -> tuple[list[model.CandidateAnswer], list[model.InterviewMessage]]: pass
 
 
 class IInterviewRepo(Protocol):
@@ -80,18 +86,9 @@ class IInterviewRepo(Protocol):
             accordance_skill_resume_score: float,
             strong_areas: str,
             weak_areas: str,
-            pause_detection_score: float,
-            emotional_coloring: str
-    ) -> int:
-        pass
-
-    @abstractmethod
-    async def add_general_result(
-            self,
-            vacancy_id: int,
+            general_recommendation: str,
             general_score: float,
             general_result: model.GeneralResult,
-            general_recommendation: str
     ) -> int:
         pass
 
@@ -111,7 +108,6 @@ class IInterviewRepo(Protocol):
             self,
             question_id: int,
             interview_id: int,
-            message_id: int
     ) -> int: pass
 
     @abstractmethod
@@ -142,7 +138,11 @@ class IInterviewRepo(Protocol):
         pass
 
     @abstractmethod
-    async def get_candidate_answers(self, interview_id: int) -> list[model.CandidateAnswer]:
+    async def get_all_interview(self, vacancy_id: int) -> list[model.Interview]:
+        pass
+
+    @abstractmethod
+    async def get_all_candidate_answer(self, interview_id: int) -> list[model.CandidateAnswer]:
         pass
 
     @abstractmethod
@@ -178,9 +178,7 @@ class IInterviewPromptGenerator(Protocol):
     @abstractmethod
     def get_interview_summary_system_prompt(
             self,
-            vacancy: model.Vacancy,
-            interview_messages: list[model.InterviewMessage],
-            candidate_answers: list[model.CandidateAnswer]
+            vacancy: model.Vacancy
     ) -> str: pass
 
     @abstractmethod

@@ -7,6 +7,6 @@ class StartInterviewResponse(BaseModel):
 
 class SendAnswerResponse(BaseModel):
     question_id: int
-    llm_response: str
+    message_to_candidate: str
     question_order_number: int
     interview_result: dict

@@ -88,9 +88,7 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 ФОРМАТ ОТВЕТА:
 {{
   "action": "continue" | "next_question" | "finish_interview",
-  "message": "Сообщение кандидату",
-  "current_question_number": номер текущего вопроса (1-{len(questions)}),
-  "reason": "Обоснование решения"
+  "message_to_candidate": "Сообщение кандидату",
 }}
 
 ВАЖНО: Отвечай ТОЛЬКО валидным JSON без markdown разметки."""
@@ -104,6 +102,7 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 
 КОНТЕКСТ:
 Вакансия: {vacancy.name} ({vacancy.skill_lvl.value})
+Описание вакансии: {vacancy.description}
 Вопрос: {question.question}
 Подсказка для оценки: {question.hint_for_evaluation}
 Вес вопроса: {question.weight}/10
@@ -127,8 +126,6 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
     def get_interview_summary_system_prompt(
             self,
             vacancy: model.Vacancy,
-            interview_messages: list[model.InterviewMessage],
-            candidate_answers: list[model.CandidateAnswer]
     ) -> str:
         return f"""Ты эксперт по подведению итогов интервью.
 
@@ -139,22 +136,21 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 Красные флаги: {vacancy.red_flags}
 
 ЗАДАЧА:
-На основе всего интервью оцени кандидата по следующим критериям (шкала 0-1):
+На основе всего интервью оцени кандидата по следующим критериям (шкала 0-10):
 
 ФОРМАТ ОТВЕТА:
 {{
-  "red_flag_score": число от 0 до 1,
-  "hard_skill_score": число от 0 до 1,
-  "soft_skill_score": число от 0 до 1,
-  "logic_structure_score": число от 0 до 1,
-  "accordance_xp_vacancy_score": число от 0 до 1,
-  "accordance_skill_vacancy_score": число от 0 до 1,
-  "accordance_xp_resume_score": число от 0 до 1,
-  "accordance_skill_resume_score": число от 0 до 1,
+  "red_flag_score": число от 0 до 10,
+  "hard_skill_score": число от 0 до 10,
+  "soft_skill_score": число от 0 до 10,
+  "logic_structure_score": число от 0 до 10,
+  "accordance_xp_vacancy_score": число от 0 до 10,
+  "accordance_skill_vacancy_score": число от 0 до 10,
+  "accordance_xp_resume_score": число от 0 до 10,
+  "accordance_skill_resume_score": число от 0 до 10,
   "strong_areas": "Сильные стороны кандидата",
   "weak_areas": "Слабые стороны кандидата",
-  "pause_detection_score": число от 0 до 1,
-  "emotional_coloring": "Описание эмоциональной окраски интервью"
+  "global_recommendation": "Общее впечатление о кандидате",
 }}
 
 ВАЖНО: Отвечай ТОЛЬКО валидным JSON без markdown разметки."""

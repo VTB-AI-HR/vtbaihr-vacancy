@@ -13,23 +13,20 @@ class Interview:
     vacancy_id: int
 
     candidate_email: str
-    candidate_resume_fid: str  # file_id
-    general_score: float  # [0;1]
+    candidate_resume_fid: str
+    general_score: float
     general_result: GeneralResult
     general_recommendation: str
-    red_flag_score: float  # [0;1]
-    hard_skill_score: float  # [0;1]
-    soft_skill_score: float  # [0;1]
-    logic_structure_score: float  # [0;1]
-    accordance_xp_vacancy_score: float  # [0;1]
-    accordance_skill_vacancy_score: float  # [0;1]
-    accordance_xp_resume_score: float  # [0;1]
-    accordance_skill_resume_score: float  # [0;1]
+    red_flag_score: float
+    hard_skill_score: float
+    soft_skill_score: float
+    logic_structure_score: float
+    accordance_xp_vacancy_score: float
+    accordance_skill_vacancy_score: float
+    accordance_xp_resume_score: float
+    accordance_skill_resume_score: float
     strong_areas: str
     weak_areas: str
-
-    pause_detection_score: float  # [0;1]
-    emotional_coloring: str
 
     created_at: datetime
 
@@ -54,12 +51,33 @@ class Interview:
                 accordance_skill_resume_score=row.accordance_skill_resume_score,
                 strong_areas=row.strong_areas,
                 weak_areas=row.weak_areas,
-                pause_detection_score=row.pause_detection_score,
-                emotional_coloring=row.emotional_coloring,
                 created_at=row.created_at
             )
             for row in rows
         ]
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "vacancy_id": self.vacancy_id,
+            "candidate_email": self.candidate_email,
+            "candidate_resume_fid": self.candidate_resume_fid,
+            "general_score": self.general_score,
+            "general_result": self.general_result.value,
+            "general_recommendation": self.general_recommendation,
+            "red_flag_score": self.red_flag_score,
+            "hard_skill_score": self.hard_skill_score,
+            "soft_skill_score": self.soft_skill_score,
+            "logic_structure_score": self.logic_structure_score,
+            "accordance_xp_vacancy_score": self.accordance_xp_vacancy_score,
+            "accordance_skill_vacancy_score": self.accordance_skill_vacancy_score,
+            "accordance_xp_resume_score": self.accordance_xp_resume_score,
+            "accordance_skill_resume_score": self.accordance_skill_resume_score,
+            "strong_areas": self.strong_areas,
+            "weak_areas": self.weak_areas,
+            "created_at": self.created_at
+            }
+
 
 @dataclass
 class CandidateAnswer:
@@ -69,7 +87,7 @@ class CandidateAnswer:
     response_time: int
     message_ids: list[int]
     llm_comment: str
-    score: int  # [0;10]
+    score: int
 
     created_at: datetime
 
