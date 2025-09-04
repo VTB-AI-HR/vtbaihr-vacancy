@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS candidate_responses(
     question_id INTEGER NOT NULL REFERENCES vacancy_questions(id) ON DELETE CASCADE,
     interview_id INTEGER NOT NULL REFERENCES interviews(id) ON DELETE CASCADE,
     
-    response_time INTEGER NOT DEFAULT 0,
+    response_time INTEGER DEFAULT 0,
     message_ids TEXT[] DEFAULT '{}',
     llm_comment TEXT DEFAULT '',
     score INTEGER DEFAULT 0,
