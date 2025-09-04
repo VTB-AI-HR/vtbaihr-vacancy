@@ -7,6 +7,7 @@ class GeneralResult(Enum):
     NEXT = "next"
     REJECTED = "rejected"
 
+
 @dataclass
 class Interview:
     id: int
@@ -77,7 +78,7 @@ class Interview:
             "strong_areas": self.strong_areas,
             "weak_areas": self.weak_areas,
             "created_at": self.created_at
-            }
+        }
 
 
 @dataclass
@@ -108,6 +109,17 @@ class CandidateAnswer:
             for row in rows
         ]
 
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "question_id": self.question_id,
+            "interview_id": self.interview_id,
+            "response_time": self.response_time,
+            "message_ids": self.message_ids,
+            "llm_comment": self.llm_comment,
+            "score": self.score,
+            "created_at": self.created_at
+        }
 
 
 @dataclass
@@ -134,3 +146,14 @@ class InterviewMessage:
                 created_at=row.created_at,
             ) for row in rows
         ]
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "interview_id": self.interview_id,
+            "question_id": self.question_id,
+            "audio_fid": self.audio_fid,
+            "role": self.role,
+            "text": self.text,
+            "created_at": self.created_at
+        }

@@ -1,10 +1,8 @@
 from abc import abstractmethod
 from typing import Protocol
 
-from fastapi import FastAPI, UploadFile
+from fastapi import UploadFile, Form
 from fastapi.responses import JSONResponse
-from opentelemetry.metrics import Meter
-from opentelemetry.trace import Tracer
 
 from internal import model
 
@@ -13,17 +11,18 @@ class IInterviewController(Protocol):
     @abstractmethod
     async def start_interview(
             self,
-            vacancy_id: int,
-            candidate_email: str,
-            candidate_resume_file: UploadFile
+            vacancy_id: int = Form(...),
+            candidate_email: str = Form(...),
+            candidate_resume_file: UploadFile = Form(...)
     ) -> JSONResponse: pass
 
     @abstractmethod
     async def send_answer(
             self,
-            vacancy_id: int,
-            question_id: int,
-            audio_file: UploadFile
+            vacancy_id: int = Form(...),
+            question_id: int = Form(...),
+            interview_id: int = Form(...),
+            audio_file: UploadFile = Form(...)
     ) -> JSONResponse: pass
 
     @abstractmethod
