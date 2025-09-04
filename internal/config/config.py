@@ -5,7 +5,7 @@ class Config:
     def __init__(self):
         # Service configuration
         self.service_name = os.getenv("VTBAIHR_VACANCY_CONTAINER_NAME", "vtbaihr-vacancy")
-        self.environment = os.getenv("VTBAIHR_ENVIRONMENT", "dev")
+        self.environment = os.getenv("ENVIRONMENT", "dev")
         self.service_version = os.getenv("VTBAIHR_VACANCY_SERVICE_VERSION", "1.0.0")
         self.log_level = os.getenv("VTBAIHR_LOG_LEVEL", "INFO")
         self.root_path = os.getenv("VTBAIHR_ROOT_PATH", "/")
