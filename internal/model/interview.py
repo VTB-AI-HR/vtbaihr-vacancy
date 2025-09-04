@@ -14,6 +14,7 @@ class Interview:
 
     candidate_email: str
     candidate_resume_fid: str
+
     general_score: float
     general_result: GeneralResult
     general_recommendation: str

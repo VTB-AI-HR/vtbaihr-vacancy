@@ -51,10 +51,10 @@ class Vacancy:
 class VacancyQuestion:
     id: int
     vacancy_id: int
-    order_number: int # Номер вопроса
+    order_number: int
     question: str
     hint_for_evaluation: str
-    weight: int  # [0;10]
+    weight: int
     question_type: QuestionsType
 
     created_at: datetime
@@ -81,7 +81,6 @@ class VacancyCriterionWeights:
     id: int
     vacancy_id: int
     logic_structure_score_weight: int  # [0;10]
-    pause_detection_score_weight: int  # [0;10]
     soft_skill_score_weight: int  # [0;10]
     hard_skill_score_weight: int  # [0;10]
     accordance_xp_vacancy_score_weight: int  # [0;10]
@@ -99,7 +98,6 @@ class VacancyCriterionWeights:
                 id=row.id,
                 vacancy_id=row.vacancy_id,
                 logic_structure_score_weight=row.logic_structure_score_weight,
-                pause_detection_score_weight=row.pause_detection_score_weight,
                 soft_skill_score_weight=row.soft_skill_score_weight,
                 hard_skill_score_weight=row.hard_skill_score_weight,
                 accordance_xp_vacancy_score_weight=row.accordance_xp_vacancy_score_weight,
