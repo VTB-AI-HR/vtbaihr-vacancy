@@ -38,6 +38,7 @@ class InterviewController(interface.IInterviewController):
                 )
 
                 response = StartInterviewResponse(
+                    interview_id=interview_id,
                     is_suitable=is_suitable,
                     llm_response=llm_response,
                     total_question=total_questions
@@ -46,7 +47,8 @@ class InterviewController(interface.IInterviewController):
                 span.set_attributes({
                     "is_suitable": is_suitable,
                     "total_questions": total_questions,
-                    "interview_id": interview_id
+                    "interview_id": interview_id,
+                    "llm_response": llm_response
                 })
 
                 span.set_status(Status(StatusCode.OK))

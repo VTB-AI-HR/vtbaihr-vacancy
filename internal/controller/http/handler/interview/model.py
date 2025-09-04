@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 class StartInterviewResponse(BaseModel):
+    interview_id: int
     is_suitable: bool
     llm_response: str
     total_question: int
