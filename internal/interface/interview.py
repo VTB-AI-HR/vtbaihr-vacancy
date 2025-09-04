@@ -181,7 +181,9 @@ class IInterviewPromptGenerator(Protocol):
     ) -> str: pass
 
     @abstractmethod
-    def get_question_generation_system_prompt(
+    def get_question_generation_prompt(
             self,
-            vacancy: model.Vacancy
+            vacancy: model.Vacancy,
+            count_questions: int,
+            questions_type: model.QuestionsType,
     ) -> str: pass

@@ -52,6 +52,14 @@ class IVacancyService(Protocol):
     async def delete_vacancy(self, vacancy_id: int) -> None: pass
 
     @abstractmethod
+    async def generate_questions(
+            self,
+            vacancy_id: int,
+            questions_type: model.QuestionsType,
+            count_questions: int
+    ) -> list[dict]: pass
+
+    @abstractmethod
     async def add_question(
             self,
             vacancy_id: int,
@@ -64,6 +72,7 @@ class IVacancyService(Protocol):
     @abstractmethod
     async def edit_question(
             self,
+            question_id: int,
             vacancy_id: int,
             question: str | None,
             hint_for_evaluation: str | None,

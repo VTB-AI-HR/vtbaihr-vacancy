@@ -155,9 +155,11 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 
 ВАЖНО: Отвечай ТОЛЬКО валидным JSON без markdown разметки."""
 
-    def get_question_generation_system_prompt(
+    def get_question_generation_prompt(
             self,
-            vacancy: model.Vacancy
+            vacancy: model.Vacancy,
+            count_questions: int,
+            questions_type: model.QuestionsType,
     ) -> str:
         return f"""Ты эксперт по созданию вопросов для технических интервью.
 
@@ -166,8 +168,25 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 Описание: {vacancy.description}
 Уровень: {vacancy.skill_lvl.value}
 Теги/навыки: {', '.join(vacancy.tags)}
-Тип вопросов: {vacancy.questions_type.value}
 
 ЗАДАЧА: Сгенерируй вопросы для интервью соответствующего типа и уровня сложности.
 
-ВАЖНО: Отвечай ТОЛЬКО валидным JSON без markdown разметки."""
+ТРЕБОВАНИЯ К ГЕНЕРАЦИИ:
+- Количество вопросов: {count_questions}
+- Тип вопросов: {questions_type.value}
+- Все вопросы должны соответствовать уровню {vacancy.skill_lvl.value}
+
+ФОРМАТ ОТВЕТА:
+{{
+  "questions": [
+    {{
+      "question": "Текст вопроса",
+      "question_type": "{questions_type.value}",
+      "hint_for_evaluation": "Подсказка для оценки ответа",
+      "weight": число от 1 до 10
+    }}
+  ]
+}}
+
+ВАЖНО: Отвечай ТОЛЬКО валидным JSON без markdown разметки.
+"""
