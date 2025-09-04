@@ -132,9 +132,7 @@ class InterviewController(interface.IInterviewController):
                 span.set_status(Status(StatusCode.OK))
                 return JSONResponse(
                     status_code=200,
-                    content={
-                        "interviews": [interview.to_dict() for interview in interviews]
-                    }
+                    content=[interview.to_dict() for interview in interviews]
                 )
             except Exception as err:
                 span.record_exception(err)

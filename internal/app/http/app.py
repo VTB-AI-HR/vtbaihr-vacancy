@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 
 from internal import model, interface
+from internal.controller.http.handler.interview.model import *
+from internal.controller.http.handler.vacancy.model import *
 
 
 def NewHTTP(
@@ -43,6 +45,7 @@ def include_vacancy_handlers(
         vacancy_controller.create_vacancy,
         methods=["POST"],
         tags=["Vacancy Management"],
+
     )
 
     app.add_api_route(
@@ -50,6 +53,7 @@ def include_vacancy_handlers(
         vacancy_controller.get_all_vacancy,
         methods=["GET"],
         tags=["Vacancy Management"],
+        response_model=list[model.Vacancy]
     )
 
     app.add_api_route(
@@ -64,6 +68,7 @@ def include_vacancy_handlers(
         vacancy_controller.generate_question,
         methods=["POST"],
         tags=["Vacancy Questions"],
+        response_model=GenerateQuestionResponse
     )
 
     app.add_api_route(
@@ -105,6 +110,7 @@ def include_interview_handlers(
         interview_controller.start_interview,
         methods=["POST"],
         tags=["Interview Management"],
+        response_model=StartInterviewResponse
     )
 
     app.add_api_route(
@@ -112,6 +118,7 @@ def include_interview_handlers(
         interview_controller.send_answer,
         methods=["POST"],
         tags=["Interview Management"],
+        response_model=SendAnswerResponse
     )
 
     app.add_api_route(
@@ -119,6 +126,7 @@ def include_interview_handlers(
         interview_controller.get_all_interview,
         methods=["GET"],
         tags=["Interview Management"],
+        response_model=list[model.Interview]
     )
 
     app.add_api_route(
@@ -126,6 +134,7 @@ def include_interview_handlers(
         interview_controller.get_candidate_answers,
         methods=["GET"],
         tags=["Interview Management"],
+        response_model=GetCandidateAnswersResponse
     )
 
 

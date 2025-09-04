@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from internal import model
 
 class StartInterviewResponse(BaseModel):
     interview_id: int
@@ -11,3 +12,7 @@ class SendAnswerResponse(BaseModel):
     message_to_candidate: str
     question_order_number: int
     interview_result: dict
+
+class GetCandidateAnswersResponse(BaseModel):
+    candidate_answers: list[model.CandidateAnswer]
+    interview_messages: list[model.InterviewMessage]

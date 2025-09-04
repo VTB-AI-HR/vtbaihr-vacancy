@@ -267,9 +267,7 @@ class VacancyController(interface.IVacancyController):
 
                 return JSONResponse(
                     status_code=200,
-                    content={
-                        "vacancies": [vacancy.to_dict() for vacancy in vacancies]
-                    }
+                    content=[vacancy.to_dict() for vacancy in vacancies]
                 )
             except Exception as err:
                 span.record_exception(err)
