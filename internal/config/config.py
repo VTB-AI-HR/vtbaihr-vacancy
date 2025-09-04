@@ -4,9 +4,8 @@ import os
 class Config:
     def __init__(self):
         # Service configuration
-        self.service_name = os.getenv("VTBAIHR_VACANCY_SERVICE_NAME", "vtbaihr-vacancy")
+        self.service_name = os.getenv("VTBAIHR_VACANCY_CONTAINER_NAME", "vtbaihr-vacancy")
         self.service_version = os.getenv("VTBAIHR_VACANCY_SERVICE_VERSION", "1.0.0")
-        self.environment = os.getenv("VTBAIHR_ENVIRONMENT", "dev")
         self.log_level = os.getenv("VTBAIHR_LOG_LEVEL", "INFO")
         self.root_path = os.getenv("VTBAIHR_ROOT_PATH", "/")
 
@@ -43,5 +42,3 @@ class Config:
 
         # OpenAI configuration
         self.openai_api_key = os.getenv("VTBAIHR_OPENAI_API_KEY", "")
-        self.openai_model = os.getenv("VTBAIHR_OPENAI_MODEL", "gpt-4o-mini")
-        self.openai_temperature = float(os.getenv("VTBAIHR_OPENAI_TEMPERATURE", "0.5"))
