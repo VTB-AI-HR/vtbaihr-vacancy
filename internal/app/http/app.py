@@ -39,56 +39,56 @@ def include_vacancy_handlers(
         prefix: str
 ):
     app.add_api_route(
-        prefix + "/vacancy/create",
+        prefix + "/create",
         vacancy_controller.create_vacancy,
         methods=["POST"],
         tags=["Vacancy Management"],
     )
 
     app.add_api_route(
-        prefix + "/vacancy/all",
+        prefix + "/all",
         vacancy_controller.get_all_vacancy,
         methods=["GET"],
         tags=["Vacancy Management"],
     )
 
     app.add_api_route(
-        prefix + "/vacancy/delete/{vacancy_id}",
+        prefix + "/delete/{vacancy_id}",
         vacancy_controller.delete_vacancy,
         methods=["DELETE"],
         tags=["Vacancy Management"],
     )
 
     app.add_api_route(
-        prefix + "/vacancy/question/generate",
+        prefix + "/question/generate",
         vacancy_controller.generate_question,
         methods=["POST"],
         tags=["Vacancy Questions"],
     )
 
     app.add_api_route(
-        prefix + "/vacancy/question/add",
+        prefix + "/question/add",
         vacancy_controller.add_question,
         methods=["POST"],
         tags=["Vacancy Questions"],
     )
 
     app.add_api_route(
-        prefix + "/vacancy/question/edit",
+        prefix + "/question/edit",
         vacancy_controller.edit_question,
         methods=["PUT"],
         tags=["Vacancy Questions"],
     )
 
     app.add_api_route(
-        prefix + "/vacancy/question/{question_id}",
+        prefix + "/question/{question_id}",
         vacancy_controller.delete_question,
         methods=["DELETE"],
         tags=["Vacancy Questions"],
     )
 
     app.add_api_route(
-        prefix + "/vacancy/criterion-weights/edit",
+        prefix + "/criterion-weights/edit",
         vacancy_controller.edit_vacancy_criterion_weights,
         methods=["PUT"],
         tags=["Vacancy Management"],
