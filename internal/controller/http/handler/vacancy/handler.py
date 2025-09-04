@@ -9,3 +9,6 @@ class VacancyController(interface.IVacancyController):
     ):
         self.tracer = tel.tracer()
         self.interview_service = interview_service
+
+    async def test(self):
+        pass

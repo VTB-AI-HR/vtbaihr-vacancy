@@ -8,3 +8,7 @@ class VacancyRepo(interface.IVacancyRepo):
     def __init__(self, tel: interface.ITelemetry, db: interface.IDB):
         self.db = db
         self.tracer = tel.tracer()
+
+
+    async def test(self):
+        pass

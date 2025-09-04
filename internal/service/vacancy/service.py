@@ -7,3 +7,6 @@ class VacancyService(interface.IVacancyService):
             vacancy_repo: interface.IVacancyRepo,
     ):
         self.vacancy_repo = vacancy_repo
+
+    async def test(self):
+        pass
