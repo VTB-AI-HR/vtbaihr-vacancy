@@ -122,6 +122,7 @@ class IVacancyRepo(Protocol):
     @abstractmethod
     async def edit_question(
             self,
+            question_id: int,
             vacancy_id: int,
             question: str | None,
             hint_for_evaluation: str | None,
