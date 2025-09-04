@@ -15,13 +15,10 @@ class GenerateQuestionBody(BaseModel):
     count_questions: int
 
 class GenerateQuestionResponse(BaseModel):
-    """
-    {
-        "question": str,
-        "question_type": str
-    }
-    """
-    questions: list[dict]
+    class Question(BaseModel):
+        question: str
+        question_type: str
+    questions: list[Question]
 
 class AddQuestionBody(BaseModel):
     vacancy_id: int
