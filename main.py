@@ -58,7 +58,7 @@ interview_repo = InterviewRepo(tel, db)
 
 # Инициализация сервисов
 interview_prompt_generator = InterviewPromptGenerator(tel)
-vacancy_service = VacancyService(vacancy_repo)
+vacancy_service = VacancyService(tel, vacancy_repo, interview_prompt_generator, llm_client)
 interview_service = InterviewService(
     vacancy_repo,
     interview_repo,
@@ -68,7 +68,7 @@ interview_service = InterviewService(
 )
 
 # Инициализация контроллеров
-vacancy_controller = VacancyController(tel, interview_service)
+vacancy_controller = VacancyController(tel, vacancy_service)
 interview_controller = InterviewController(tel, interview_service)
 
 # Инициализация middleware
