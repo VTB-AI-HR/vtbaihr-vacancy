@@ -10,7 +10,10 @@ def NewHTTP(
         http_middleware: interface.IHttpMiddleware,
         prefix: str
 ):
-    app = FastAPI()
+    app = FastAPI(
+        docs_url=prefix+"/docs",
+        redoc_url=prefix+"/redoc",
+    )
     include_middleware(app, http_middleware)
     include_db_handler(app, db, prefix)
 
