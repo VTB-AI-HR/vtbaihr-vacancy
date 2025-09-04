@@ -11,6 +11,7 @@ def NewHTTP(
         prefix: str
 ):
     app = FastAPI(
+        openapi_url=prefix+"/openapi.json",
         docs_url=prefix+"/docs",
         redoc_url=prefix+"/redoc",
     )
