@@ -3,9 +3,9 @@ asyncpg==0.29.0
 uvicorn==0.29.0
 fastapi==0.112.1
 openai==1.57.0
-PyYAML==6.0.2
 httpx==0.28.1
 python-weed==0.8.0
+python-multipart
 
 hiredis==3.2.1
 redis==6.2.0
