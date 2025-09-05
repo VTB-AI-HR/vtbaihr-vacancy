@@ -72,8 +72,8 @@ CREATE TABLE IF NOT EXISTS interviews(
 );
 """
 
-create_question_responses_table = """
-CREATE TABLE IF NOT EXISTS candidate_responses(
+create_candidate_answers_table = """
+CREATE TABLE IF NOT EXISTS candidate_answers(
     id SERIAL PRIMARY KEY,
     question_id INTEGER NOT NULL REFERENCES vacancy_questions(id) ON DELETE CASCADE,
     interview_id INTEGER NOT NULL REFERENCES interviews(id) ON DELETE CASCADE,
@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS candidate_responses(
 );
 """
 
-create_interview_chat_table = """
+create_interview_messages_table = """
 CREATE TABLE IF NOT EXISTS interview_messages(
     id SERIAL PRIMARY KEY,
     interview_id INTEGER NOT NULL REFERENCES interviews(id) ON DELETE CASCADE,
@@ -117,11 +117,11 @@ drop_interviews_table = """
 DROP TABLE IF EXISTS interviews CASCADE;
 """
 
-drop_candidate_responses_table = """
-DROP TABLE IF EXISTS candidate_responses CASCADE;
+drop_candidate_answers_table = """
+DROP TABLE IF EXISTS candidate_answers CASCADE;
 """
 
-drop_question_responses_table = """
+drop_interview_messages_table = """
 DROP TABLE IF EXISTS interview_messages CASCADE;
 """
 
@@ -130,15 +130,16 @@ create_all_tables_queries = [
     create_vacancy_questions_table,
     create_interviews_table,
     create_interview_weights_table,
-    create_interview_chat_table,
-    create_question_responses_table,
+    create_candidate_answers_table,
+    create_interview_messages_table,
 ]
 
 
 drop_all_tables_queries = [
-    drop_question_responses_table,
+    drop_candidate_answers_table,
     drop_interview_weights_table,
     drop_interviews_table,
     drop_vacancy_questions_table,
+    drop_interview_messages_table,
     drop_vacancy_table,
 ]

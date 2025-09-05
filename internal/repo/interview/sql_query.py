@@ -52,7 +52,7 @@ RETURNING id;
 """
 
 create_candidate_answer = """
-INSERT INTO candidate_responses (
+INSERT INTO candidate_answers (
     question_id,
     interview_id
 )
@@ -64,13 +64,13 @@ RETURNING id;
 """
 
 add_message_to_candidate_answer = """
-UPDATE candidate_responses
+UPDATE candidate_answers
 SET message_ids = array_append(message_ids, :message_id::text)
 WHERE id = :candidate_answer_id;
 """
 
 evaluation_candidate_answer = """
-UPDATE candidate_responses
+UPDATE candidate_answers
 SET 
     score = :score,
     llm_comment = :llm_comment,
@@ -79,7 +79,7 @@ WHERE id = :candidate_answer_id;
 """
 
 get_candidate_answer = """
-SELECT * FROM candidate_responses
+SELECT * FROM candidate_answers
 WHERE question_id = :question_id AND interview_id = :interview_id;
 """
 
@@ -95,7 +95,7 @@ ORDER BY created_at DESC;
 """
 
 get_all_candidate_answer = """
-SELECT * FROM candidate_responses
+SELECT * FROM candidate_answers
 WHERE interview_id = :interview_id
 ORDER BY question_id;
 """
