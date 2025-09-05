@@ -10,12 +10,15 @@ from internal import model, interface
 class InterviewService(interface.IInterviewService):
     def __init__(
             self,
+            tel: interface.ITelemetry,
             vacancy_repo: interface.IVacancyRepo,
             interview_repo: interface.IInterviewRepo,
             interview_prompt_generator: interface.IInterviewPromptGenerator,
             llm_client: interface.ILLMClient,
             storage: interface.IStorage
     ):
+        self.logger = tel.logger()
+
         self.vacancy_repo = vacancy_repo
         self.interview_repo = interview_repo
         self.interview_prompt_generator = interview_prompt_generator
@@ -181,6 +184,7 @@ class InterviewService(interface.IInterviewService):
             history=interview_messages,
             system_prompt=interview_management_system_prompt
         )
+        self.logger.info("Ответ от LLM", {"llm_response": llm_response_str})
 
         llm_response = json.loads(llm_response_str)
         action = llm_response["action"]
