@@ -74,11 +74,13 @@ class InterviewService(interface.IInterviewService):
 
             questions = await self.vacancy_repo.get_all_question(vacancy_id)
             current_question = questions[0]
+            current_question_order_number = [idx + 1 for idx, question in enumerate(questions) if question.id == question.id][0]
             total_question = len(questions)
 
             interview_management_system_prompt = self.interview_prompt_generator.get_interview_management_system_prompt(
                 vacancy=vacancy,
-                questions=questions
+                questions=questions,
+                current_question_order_number=current_question_order_number
             )
 
             interview_messages = [
@@ -149,7 +151,8 @@ class InterviewService(interface.IInterviewService):
         # 1. Получаем необходимые данные
         vacancy = (await self.vacancy_repo.get_vacancy_by_id(vacancy_id))[0]
         questions = await self.vacancy_repo.get_all_question(vacancy_id)
-        current_question = [question for question in questions if question.id == question_id][0]
+        current_question_order_number = [idx + 1 for idx, question in enumerate(questions) if question.id == question_id][0]
+        current_question = questions[current_question_order_number-1]
         candidate_answer = (await self.interview_repo.get_candidate_answer(question_id, interview_id))[0]
 
         # 2. Транскрибируем аудио
@@ -177,7 +180,8 @@ class InterviewService(interface.IInterviewService):
         # 5. Определяем действие через LLM (continue, next_question, finish_interview)
         interview_management_system_prompt = self.interview_prompt_generator.get_interview_management_system_prompt(
             vacancy=vacancy,
-            questions=questions
+            questions=questions,
+            current_question_order_number=current_question_order_number
         )
         interview_messages = await self.interview_repo.get_interview_messages(interview_id)
         llm_response_str = await self.llm_client.generate(

@@ -165,6 +165,7 @@ class IInterviewPromptGenerator(Protocol):
             self,
             vacancy: model.Vacancy,
             questions: list[model.VacancyQuestion],
+            current_question_order_number: int
     ) -> str: pass
 
     @abstractmethod

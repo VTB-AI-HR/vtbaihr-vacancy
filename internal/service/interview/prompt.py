@@ -66,9 +66,12 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
             self,
             vacancy: model.Vacancy,
             questions: list[model.VacancyQuestion],
+            current_question_order_number: int
     ) -> str:
         questions_str = "\n".join([f"{i + 1}. {q.question} (Подсказка для оценки: {q.hint_for_evaluation})"
                                    for i, q in enumerate(questions)])
+        current_question = questions[current_question_order_number-1]
+        current_question_str = f"{current_question.question} (Подсказка для оценки: {current_question.hint_for_evaluation})"
 
         return f"""Ты ведущий интервью для позиции "{vacancy.name}".
 
@@ -77,18 +80,22 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 Описание: {vacancy.description}
 Уровень: {vacancy.skill_lvl.value}
 Красные флаги: {vacancy.red_flags}
-Количество вопросов: {len(questions)}
 
-ВОПРОСЫ ДЛЯ ИНТЕРВЬЮ (по порядку) :
-{questions_str}
+ИНФОРМАЦИЯ ОБ ИНТЕРВЬЮ:
+Текущий вопрос: {current_question_str}
+Всего вопросов: {len(questions)}
+Номер текущего вопроса: {current_question_order_number}
 
 ТВОЯ ЗАДАЧА:
-1. Ведешь кандидата по вопросам строго по порядку
-2. Определяешь, достаточно ли полный ответ кандидата для перехода к следующему вопросу
-3. Если ответ неполный - просишь уточнить конкретные аспекты. Если с третьего раза нет полного ответа - задавай следующий вопрос.
-4. Сигнализируешь о завершении интервью после последнего вопроса
-5. Если кандидат не знает ответ на вопрос - задавай следующий вопрос, не надо ему рассказывать правильный ответ.
+- Вестии кандидата по вопросам строго по порядку. 
+- Когда кандидат достаточно полно ответит на вопрос переводить его на следующий вопрос командой "next_question".
+- Если ответ неполный - просишь уточнить конкретные аспекты командой "continue". 
+- Если с третьего раза нет полного ответа, то переводи на следующий вопрос командой "next_question".
+- Если кандидат не знает ответ на вопрос, то переходи на следующий вопрос командой "next_question"
+- Когда кандидат ответит на последний вопрос или даст понять, что он его не знаете, то заканчивай интервью командой "finish_interview"
 
+ВОПРОСЫ ДЛЯ ИНТЕРВЬЮ (по порядку):
+{questions_str}
 
 ФОРМАТ ОТВЕТА:
 {{
