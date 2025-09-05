@@ -30,6 +30,7 @@ class VacancyPromptGenerator(interface.IVacancyPromptGenerator):
 ТРЕБОВАНИЯ К ГЕНЕРАЦИИ:
 - Количество вопросов: {count_questions}
 - Тип вопросов: {questions_type.value}
+- Если тип вопрсов soft-hard, то нужно сгенерировать как вопросы на hard, так и на soft
 - Все вопросы должны соответствовать уровню {vacancy.skill_lvl.value}
 
 ФОРМАТ ОТВЕТА:
