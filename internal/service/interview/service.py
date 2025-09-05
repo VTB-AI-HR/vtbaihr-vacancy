@@ -71,18 +71,18 @@ class InterviewService(interface.IInterviewService):
             total_question = 0
 
         # Сохраняем файл резюме
-        candidate_resume_file_io = io.BytesIO(candidate_resume_file)
-        upload_response = self.storage.upload(
-            file=candidate_resume_file_io,
-            name=candidate_resume_filename
-        )
-        candidate_resume_fid = upload_response.fid
+        # candidate_resume_file_io = io.BytesIO(candidate_resume_file)
+        # upload_response = self.storage.upload(
+        #     file=candidate_resume_file_io,
+        #     name=candidate_resume_filename
+        # )
+        # candidate_resume_fid = upload_response.fid
 
         # Создаем интервью в БД
         interview_id = await self.interview_repo.create_interview(
             vacancy_id,
             candidate_email,
-            candidate_resume_fid,
+            "34533",
         )
 
         return is_suitable, llm_response, total_question, interview_id
