@@ -63,6 +63,7 @@ vacancy_prompt_generator = VacancyPromptGenerator(tel)
 
 vacancy_service = VacancyService(tel, vacancy_repo, vacancy_prompt_generator, llm_client)
 interview_service = InterviewService(
+    tel,
     vacancy_repo,
     interview_repo,
     interview_prompt_generator,
