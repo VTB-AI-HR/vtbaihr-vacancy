@@ -93,7 +93,7 @@ class VacancyQuestion:
             "question": self.question,
             "hint_for_evaluation": self.hint_for_evaluation,
             "weight": self.weight,
-            "question_type": self.question_type,
+            "question_type": self.question_type.value,
         }
 
 

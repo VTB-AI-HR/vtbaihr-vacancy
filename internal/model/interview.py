@@ -78,7 +78,7 @@ class Interview:
             "accordance_skill_resume_score": self.accordance_skill_resume_score,
             "strong_areas": self.strong_areas,
             "weak_areas": self.weak_areas,
-            "created_at": self.created_at
+            "created_at": self.created_at.isoformat()
         }
 
 
