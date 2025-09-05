@@ -106,7 +106,6 @@ ORDER BY created_at DESC;
 get_all_question = """
 SELECT * FROM vacancy_questions
 WHERE vacancy_id = :vacancy_id
-ORDER BY order_number;
 """
 
 get_vacancy_by_id = """

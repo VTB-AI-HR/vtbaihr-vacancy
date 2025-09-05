@@ -86,6 +86,14 @@ def include_vacancy_handlers(
     )
 
     app.add_api_route(
+        prefix + "/question/all",
+        vacancy_controller.edit_question,
+        methods=["GET"],
+        tags=["Vacancy Questions"],
+        response_model=list[model.VacancyQuestion]
+    )
+
+    app.add_api_route(
         prefix + "/question/delete/{question_id}",
         vacancy_controller.delete_question,
         methods=["DELETE"],

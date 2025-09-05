@@ -59,6 +59,7 @@ class Vacancy:
             "questions_type": self.questions_type.value,
         }
 
+
 @dataclass
 class VacancyQuestion:
     id: int
@@ -84,6 +85,16 @@ class VacancyQuestion:
             )
             for row in rows
         ]
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "vacancy_id": self.vacancy_id,
+            "question": self.question,
+            "hint_for_evaluation": self.hint_for_evaluation,
+            "weight": self.weight,
+            "question_type": self.question_type,
+        }
 
 
 @dataclass

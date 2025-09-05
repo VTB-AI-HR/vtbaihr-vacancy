@@ -248,3 +248,25 @@ class VacancyController(interface.IVacancyController):
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
+
+    async def get_all_question(self, vacancy_id: int) -> JSONResponse:
+        with self.tracer.start_as_current_span(
+                "VacancyController.get_all_question",
+                kind=SpanKind.INTERNAL,
+        ) as span:
+            try:
+                questions = await self.vacancy_service.get_all_question(vacancy_id)
+
+                span.set_attributes({
+                    "questions_count": len(questions)
+                })
+                span.set_status(Status(StatusCode.OK))
+
+                return JSONResponse(
+                    status_code=200,
+                    content=[question.to_dict() for question in questions]
+                )
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise err

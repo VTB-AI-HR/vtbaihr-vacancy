@@ -323,3 +323,20 @@ class VacancyService(interface.IVacancyService):
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
+
+    async def get_all_question(self, vacancy_id: int) -> list[model.VacancyQuestion]:
+        with self.tracer.start_as_current_span(
+                "VacancyService.get_all_question",
+                kind=SpanKind.INTERNAL,
+        ) as span:
+            try:
+                questions = await self.vacancy_repo.get_all_question(vacancy_id)
+
+                span.set_attributes({"questions_count": len(questions)})
+                span.set_status(Status(StatusCode.OK))
+                return questions
+
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise err
