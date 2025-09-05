@@ -87,9 +87,9 @@ class VacancyRepo(interface.IVacancyRepo):
             vacancy_id: int,
             question: str,
             hint_for_evaluation: str,
-            weight: int,  # [0;10]
+            weight: int,
             question_type: model.QuestionsType
-    ) -> tuple[int, int]:
+    ) -> int:
         with self.tracer.start_as_current_span(
                 "VacancyRepo.add_question",
                 kind=SpanKind.INTERNAL,
@@ -107,16 +107,14 @@ class VacancyRepo(interface.IVacancyRepo):
                     'weight': weight,
                     'question_type': question_type.value
                 }
-                result = await self.db.select(add_question, args)
-                question_id = result[0].id
-                order_number = result[0].order_number
+                question_id = await self.db.insert(add_question, args)
 
                 span.set_attributes({
-                    "question_id": question_id,
-                    "order_number": order_number
+                    "question_id": question_id
                 })
                 span.set_status(Status(StatusCode.OK))
-                return question_id, order_number
+                return question_id
+
             except Exception as err:
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
