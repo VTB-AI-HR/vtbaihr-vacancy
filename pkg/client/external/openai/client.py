@@ -2,7 +2,8 @@ import base64
 import io
 
 import httpx
-import fitz
+import pypdf
+from pdf2image import convert_from_bytes
 
 import openai
 from opentelemetry.trace import Status, StatusCode, SpanKind
@@ -117,28 +118,24 @@ class GPTClient(interface.ILLMClient):
 
     def _extract_text_from_pdf(self, pdf_bytes: bytes) -> str:
         """Извлекает текст из PDF файла"""
-        doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+        reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
         text = ""
-        for page in doc:
-            text += page.get_text()
-        doc.close()
+        for page in reader.pages:
+            text += page.extract_text()
         return text
 
     def _pdf_to_images(self, pdf_bytes: bytes) -> list[str]:
         """Конвертирует PDF страницы в base64 изображения"""
-        doc = fitz.open(stream=pdf_bytes, filetype="pdf")
-        images = []
+        # Конвертируем PDF в изображения
+        images = convert_from_bytes(pdf_bytes, dpi=200)
 
-        for page_num in range(len(doc)):
-            page = doc[page_num]
-            # Конвертируем страницу в изображение
-            mat = fitz.Matrix(2, 2)  # увеличиваем разрешение
-            pix = page.get_pixmap(matrix=mat)
-            img_data = pix.tobytes("png")
-
-            # Кодируем в base64
+        base64_images = []
+        for img in images:
+            # Конвертируем PIL Image в base64
+            buffer = io.BytesIO()
+            img.save(buffer, format='PNG')
+            img_data = buffer.getvalue()
             base64_image = base64.b64encode(img_data).decode('utf-8')
-            images.append(base64_image)
+            base64_images.append(base64_image)
 
-        doc.close()
-        return images
+        return base64_images
