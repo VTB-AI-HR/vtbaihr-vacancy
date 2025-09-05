@@ -102,27 +102,27 @@ CREATE TABLE IF NOT EXISTS interview_messages(
 """
 
 drop_vacancy_table = """
-DROP TABLE IF EXISTS vacancies;
+DROP TABLE IF EXISTS vacancies CASCADE;
 """
 
 drop_vacancy_questions_table = """
-DROP TABLE IF EXISTS vacancy_questions;
+DROP TABLE IF EXISTS vacancy_questions CASCADE;
 """
 
 drop_interview_weights_table = """
-DROP TABLE IF EXISTS vacancy_criterion_weights;
+DROP TABLE IF EXISTS vacancy_criterion_weights CASCADE;
 """
 
 drop_interviews_table = """
-DROP TABLE IF EXISTS interviews;
+DROP TABLE IF EXISTS interviews CASCADE;
 """
 
 drop_candidate_responses_table = """
-DROP TABLE IF EXISTS candidate_responses;
+DROP TABLE IF EXISTS candidate_responses CASCADE;
 """
 
 drop_question_responses_table = """
-DROP TABLE IF EXISTS interview_messages;
+DROP TABLE IF EXISTS interview_messages CASCADE;
 """
 
 create_all_tables_queries = [
