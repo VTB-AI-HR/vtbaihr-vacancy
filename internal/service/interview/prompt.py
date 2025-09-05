@@ -77,8 +77,9 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 Описание: {vacancy.description}
 Уровень: {vacancy.skill_lvl.value}
 Красные флаги: {vacancy.red_flags}
+Количество вопросов: {len(questions)}
 
-ВОПРОСЫ ДЛЯ ИНТЕРВЬЮ (по порядку):
+ВОПРОСЫ ДЛЯ ИНТЕРВЬЮ (по порядку) :
 {questions_str}
 
 ТВОЯ ЗАДАЧА:
