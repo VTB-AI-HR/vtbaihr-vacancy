@@ -130,6 +130,7 @@ create_all_tables_queries = [
     create_vacancy_questions_table,
     create_interviews_table,
     create_interview_weights_table,
+    create_interview_chat_table,
     create_question_responses_table,
 ]
 
