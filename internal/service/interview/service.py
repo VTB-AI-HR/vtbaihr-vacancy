@@ -95,6 +95,25 @@ class InterviewService(interface.IInterviewService):
             )
             start_interview_data: dict = json.loads(start_interview_str)
             message_to_candidate: str = start_interview_data["message_to_candidate"]
+
+            llm_message_id = await self.interview_repo.create_interview_message(
+                interview_id=interview_id,
+                question_id=current_question.id,
+                audio_fid="",
+                role="assistant",
+                text=message_to_candidate
+            )
+
+            candidate_answer_id = await self.interview_repo.create_candidate_answer(
+                question_id=current_question.id,
+                interview_id=interview_id,
+            )
+
+            await self.interview_repo.add_message_to_candidate_answer(
+                message_id=llm_message_id,
+                candidate_answer_id=candidate_answer_id
+            )
+
             return (
                 is_suitable,
                 resume_accordance_score,
@@ -128,6 +147,7 @@ class InterviewService(interface.IInterviewService):
         vacancy = (await self.vacancy_repo.get_vacancy_by_id(vacancy_id))[0]
         questions = await self.vacancy_repo.get_all_question(vacancy_id)
         current_question = [question for question in questions if question.id == question_id][0]
+        candidate_answer = (await self.interview_repo.get_candidate_answer(question_id, interview_id))[0]
 
         # 2. Транскрибируем аудио
         audio_content = await audio_file.read()
@@ -146,6 +166,10 @@ class InterviewService(interface.IInterviewService):
             role="user",
             text=transcribed_text
         )
+        await self.interview_repo.add_message_to_candidate_answer(
+            message_id=candidate_message_id,
+            candidate_answer_id=candidate_answer.id
+        )
 
         # 5. Определяем действие через LLM (continue, next_question, finish_interview)
         interview_management_system_prompt = self.interview_prompt_generator.get_interview_management_system_prompt(
@@ -162,12 +186,19 @@ class InterviewService(interface.IInterviewService):
         action = llm_response["action"]
         message_to_candidate: str = llm_response["message_to_candidate"]
 
+        llm_message_id = await self.interview_repo.create_interview_message(
+            interview_id=interview_id,
+            question_id=question_id,
+            audio_fid="",
+            role="assistant",
+            text=message_to_candidate
+        )
+
         # 7. Обрабатываем разные сценарии
         if action == "continue":
             await self.__continue_question(
-                question_id=question_id,
-                interview_id=interview_id,
-                candidate_message_id=candidate_message_id
+                llm_message_id=llm_message_id,
+                candidate_answer_id=candidate_answer.id,
             )
             return (
                 question_id,
@@ -177,8 +208,7 @@ class InterviewService(interface.IInterviewService):
 
         elif action == "next_question":
             next_question = await self.__next_question(
-                interview_id=interview_id,
-                candidate_message_id=candidate_message_id,
+                candidate_answer_id=candidate_answer.id,
                 response_time=60,
                 current_question=current_question,
                 questions=questions,
@@ -207,28 +237,18 @@ class InterviewService(interface.IInterviewService):
 
     async def __continue_question(
             self,
-            question_id: int,
-            interview_id: int,
-            candidate_message_id: int
+            llm_message_id: int,
+            candidate_answer_id: int
     ):
-        candidate_answer = await self.interview_repo.get_candidate_answer(question_id, interview_id)
-        if not candidate_answer:
-            candidate_answer_id = await self.interview_repo.create_candidate_answer(
-                question_id=question_id,
-                interview_id=interview_id,
-            )
-        else:
-            candidate_answer_id = candidate_answer[0].id
 
         await self.interview_repo.add_message_to_candidate_answer(
-            message_id=candidate_message_id,
+            message_id=llm_message_id,
             candidate_answer_id=candidate_answer_id
         )
 
     async def __next_question(
             self,
-            interview_id: int,
-            candidate_message_id: int,
+            candidate_answer_id: int,
             response_time: int,
             current_question: model.VacancyQuestion,
             questions: list[model.VacancyQuestion],
@@ -236,8 +256,7 @@ class InterviewService(interface.IInterviewService):
             interview_messages: list[model.InterviewMessage],
     ) -> model.VacancyQuestion | None:
         await self.__evaluate_answer(
-            interview_id=interview_id,
-            candidate_message_id=candidate_message_id,
+            candidate_answer_id=candidate_answer_id,
             response_time=response_time,
             current_question=current_question,
             vacancy=vacancy,
@@ -302,8 +321,7 @@ class InterviewService(interface.IInterviewService):
 
     async def __evaluate_answer(
             self,
-            interview_id: int,
-            candidate_message_id: int,
+            candidate_answer_id: int,
             response_time: int,
             current_question: model.VacancyQuestion,
             vacancy: model.Vacancy,
@@ -333,20 +351,6 @@ class InterviewService(interface.IInterviewService):
         evaluation_data = json.loads(question_evaluation_str)
         score = evaluation_data["score"]
         llm_comment = evaluation_data["llm_comment"]
-
-        candidate_answer = await self.interview_repo.get_candidate_answer(current_question.id, interview_id)
-        if not candidate_answer:
-            candidate_answer_id = await self.interview_repo.create_candidate_answer(
-                question_id=current_question.id,
-                interview_id=interview_id,
-            )
-        else:
-            candidate_answer_id = candidate_answer[0].id
-
-        await self.interview_repo.add_message_to_candidate_answer(
-            message_id=candidate_message_id,
-            candidate_answer_id=candidate_answer_id
-        )
 
         await self.interview_repo.evaluation_candidate_answer(
             candidate_answer_id=candidate_answer_id,
