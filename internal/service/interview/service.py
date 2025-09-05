@@ -74,7 +74,8 @@ class InterviewService(interface.IInterviewService):
 
             questions = await self.vacancy_repo.get_all_question(vacancy_id)
             current_question = questions[0]
-            current_question_order_number = [idx + 1 for idx, question in enumerate(questions) if question.id == question.id][0]
+            current_question_order_number = \
+            [idx + 1 for idx, question in enumerate(questions) if question.id == question.id][0]
             total_question = len(questions)
 
             interview_management_system_prompt = self.interview_prompt_generator.get_interview_management_system_prompt(
@@ -151,8 +152,9 @@ class InterviewService(interface.IInterviewService):
         # 1. Получаем необходимые данные
         vacancy = (await self.vacancy_repo.get_vacancy_by_id(vacancy_id))[0]
         questions = await self.vacancy_repo.get_all_question(vacancy_id)
-        current_question_order_number = [idx + 1 for idx, question in enumerate(questions) if question.id == question_id][0]
-        current_question = questions[current_question_order_number-1]
+        current_question_order_number = \
+        [idx + 1 for idx, question in enumerate(questions) if question.id == question_id][0]
+        current_question = questions[current_question_order_number - 1]
         candidate_answer = (await self.interview_repo.get_candidate_answer(question_id, interview_id))[0]
 
         # 2. Транскрибируем аудио
@@ -214,7 +216,7 @@ class InterviewService(interface.IInterviewService):
                 {}
             )
 
-        elif action == "next_question":
+        elif action == "next_question" and current_question_order_number < len(questions):
             next_question = await self.__next_question(
                 candidate_answer_id=candidate_answer.id,
                 response_time=60,
@@ -229,11 +231,15 @@ class InterviewService(interface.IInterviewService):
                 {}
             )
 
-        elif action == "finish_interview":
+        elif action == "finish_interview" or action == "next_question" and current_question_order_number == len(
+                questions):
             interview = await self.__finish_interview(
                 interview_id=interview_id,
+                candidate_answer_id=candidate_answer.id,
+                response_time=60,
                 interview_messages=interview_messages,
                 vacancy=vacancy,
+                current_question=current_question,
             )
             return (
                 question_id,
@@ -278,9 +284,20 @@ class InterviewService(interface.IInterviewService):
     async def __finish_interview(
             self,
             interview_id: int,
+            candidate_answer_id: int,
+            response_time: int,
             interview_messages: list[model.InterviewMessage],
-            vacancy: model.Vacancy
+            vacancy: model.Vacancy,
+            current_question: model.VacancyQuestion
     ) -> model.Interview:
+        await self.__evaluate_answer(
+            candidate_answer_id=candidate_answer_id,
+            response_time=response_time,
+            current_question=current_question,
+            vacancy=vacancy,
+            interview_messages=interview_messages,
+        )
+
         interview_summary_system_prompt = self.interview_prompt_generator.get_interview_summary_system_prompt(
             vacancy=vacancy,
         )
