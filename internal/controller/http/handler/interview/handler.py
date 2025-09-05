@@ -31,7 +31,7 @@ class InterviewController(interface.IInterviewController):
                 }
         ) as span:
             try:
-                is_suitable, resume_accordance_score, message_to_candidate, total_question, interview_id, question_id, question_order_number = await self.interview_service.start_interview(
+                is_suitable, resume_accordance_score, message_to_candidate, total_question, interview_id, question_id = await self.interview_service.start_interview(
                     vacancy_id=vacancy_id,
                     candidate_email=candidate_email,
                     candidate_resume_file=candidate_resume_file
@@ -43,8 +43,7 @@ class InterviewController(interface.IInterviewController):
                     message_to_candidate=message_to_candidate,
                     total_question=total_question,
                     interview_id=interview_id,
-                    question_id=question_id,
-                    question_order_number=question_order_number,
+                    question_id=question_id
                 )
 
                 span.set_attributes({
@@ -54,7 +53,6 @@ class InterviewController(interface.IInterviewController):
                     "total_question": total_question,
                     "interview_id": interview_id,
                     "question_id": question_id,
-                    "question_order_number": question_order_number,
                 })
 
                 span.set_status(Status(StatusCode.OK))
@@ -84,7 +82,7 @@ class InterviewController(interface.IInterviewController):
                 }
         ) as span:
             try:
-                next_question_id, message_to_candidate, question_order_number, interview_result = await self.interview_service.send_answer(
+                next_question_id, message_to_candidate, interview_result = await self.interview_service.send_answer(
                     vacancy_id=vacancy_id,
                     question_id=question_id,
                     interview_id=interview_id,
@@ -94,13 +92,11 @@ class InterviewController(interface.IInterviewController):
                 response = SendAnswerResponse(
                     question_id=next_question_id,
                     message_to_candidate=message_to_candidate,
-                    question_order_number=question_order_number,
                     interview_result=interview_result
                 )
 
                 span.set_attributes({
                     "next_question_id": next_question_id,
-                    "question_order_number": question_order_number,
                     "interview_finished": bool(interview_result)
                 })
 

@@ -8,12 +8,10 @@ class StartInterviewResponse(BaseModel):
     total_question: int
     interview_id: int
     question_id: int
-    question_order_number: int
 
 class SendAnswerResponse(BaseModel):
     question_id: int
     message_to_candidate: str
-    question_order_number: int
     interview_result: dict
 
 class GetCandidateAnswersResponse(BaseModel):
