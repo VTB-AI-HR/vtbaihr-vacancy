@@ -28,7 +28,7 @@ class GPTClient(interface.ILLMClient):
             history: list[model.InterviewMessage],
             system_prompt: str = "",
             temperature: float = 0.5,
-            llm_model: str = "gpt-4o-mini",
+            llm_model: str = "gpt-4o",
             pdf_file: bytes = None,
     ) -> str:
         with self.tracer.start_as_current_span(
