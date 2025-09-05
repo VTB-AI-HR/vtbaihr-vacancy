@@ -86,7 +86,7 @@ def include_vacancy_handlers(
     )
 
     app.add_api_route(
-        prefix + "/question/all",
+        prefix + "/question/all/{vacancy_id}",
         vacancy_controller.get_all_question,
         methods=["GET"],
         tags=["Vacancy Questions"],
