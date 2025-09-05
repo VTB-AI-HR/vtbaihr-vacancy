@@ -19,7 +19,6 @@ CREATE TABLE IF NOT EXISTS vacancy_questions(
     id SERIAL PRIMARY KEY,
     vacancy_id INTEGER NOT NULL REFERENCES vacancies(id) ON DELETE CASCADE,
     
-    order_number INTEGER NOT NULL,
     question TEXT NOT NULL,
     hint_for_evaluation TEXT NOT NULL,
     weight INTEGER NOT NULL,

@@ -155,9 +155,9 @@ class VacancyService(interface.IVacancyService):
             vacancy_id: int,
             question: str,
             hint_for_evaluation: str,
-            weight: int,  # [0;10]
+            weight: int,
             question_type: model.QuestionsType
-    ) -> tuple[int, int]:
+    ) -> int:
         with self.tracer.start_as_current_span(
                 "VacancyService.add_question",
                 kind=SpanKind.INTERNAL,
@@ -168,16 +168,7 @@ class VacancyService(interface.IVacancyService):
                 }
         ) as span:
             try:
-                # Валидация веса
-                if weight < 0 or weight > 10:
-                    raise ValueError("Вес вопроса должен быть от 0 до 10")
-
-                # Проверяем, существует ли вакансия
-                vacancy = await self.vacancy_repo.get_vacancy_by_id(vacancy_id)
-                if not vacancy:
-                    raise Exception(f"Вакансия с ID {vacancy_id} не найдена")
-
-                question_id, order_number = await self.vacancy_repo.add_question(
+                question_id = await self.vacancy_repo.add_question(
                     vacancy_id=vacancy_id,
                     question=question,
                     hint_for_evaluation=hint_for_evaluation,
@@ -187,10 +178,10 @@ class VacancyService(interface.IVacancyService):
 
                 span.set_attributes({
                     "question_id": question_id,
-                    "order_number": order_number
                 })
                 span.set_status(Status(StatusCode.OK))
-                return question_id, order_number
+
+                return question_id
 
             except Exception as err:
                 span.record_exception(err)

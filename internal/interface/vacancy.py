@@ -65,9 +65,9 @@ class IVacancyService(Protocol):
             vacancy_id: int,
             question: str,
             hint_for_evaluation: str,
-            weight: int,  # [0;10]
+            weight: int,
             question_type: model.QuestionsType
-    ) -> tuple[int, int]: pass
+    ) -> int: pass
 
     @abstractmethod
     async def edit_question(
@@ -76,7 +76,7 @@ class IVacancyService(Protocol):
             vacancy_id: int,
             question: str | None,
             hint_for_evaluation: str | None,
-            weight: int | None,  # [0;10]
+            weight: int | None,
             question_type: model.QuestionsType | None
     ) -> None: pass
 
@@ -126,7 +126,7 @@ class IVacancyRepo(Protocol):
             hint_for_evaluation: str,
             weight: int,  # [0;10]
             question_type: model.QuestionsType
-    ) -> tuple[int, int]: pass
+    ) -> int: pass
 
     @abstractmethod
     async def edit_question(

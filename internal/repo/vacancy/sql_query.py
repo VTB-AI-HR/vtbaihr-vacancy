@@ -28,7 +28,6 @@ WHERE id = :vacancy_id;
 add_question = """
 INSERT INTO vacancy_questions (
     vacancy_id,
-    order_number,
     question,
     hint_for_evaluation,
     weight,
@@ -36,13 +35,12 @@ INSERT INTO vacancy_questions (
 )
 VALUES (
     :vacancy_id,
-    (SELECT COALESCE(MAX(order_number), 0) + 1 FROM vacancy_questions WHERE vacancy_id = :vacancy_id),
     :question,
     :hint_for_evaluation,
     :weight,
     :question_type
 )
-RETURNING id, order_number;
+RETURNING id;
 """
 
 edit_question = """

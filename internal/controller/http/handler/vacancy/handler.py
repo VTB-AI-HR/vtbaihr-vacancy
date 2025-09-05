@@ -116,7 +116,7 @@ class VacancyController(interface.IVacancyController):
                 }
         ) as span:
             try:
-                question_id, order_number = await self.vacancy_service.add_question(
+                question_id = await self.vacancy_service.add_question(
                     vacancy_id=body.vacancy_id,
                     question=body.question,
                     hint_for_evaluation=body.hint_for_evaluation,
@@ -126,7 +126,6 @@ class VacancyController(interface.IVacancyController):
 
                 span.set_attributes({
                     "question_id": question_id,
-                    "order_number": order_number
                 })
                 span.set_status(Status(StatusCode.OK))
 
@@ -134,7 +133,6 @@ class VacancyController(interface.IVacancyController):
                     status_code=201,
                     content={
                         "question_id": question_id,
-                        "order_number": order_number,
                         "message": "Вопрос успешно добавлен"
                     }
                 )
