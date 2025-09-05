@@ -65,7 +65,7 @@ RETURNING id;
 
 add_message_to_candidate_answer = """
 UPDATE candidate_answers
-SET message_ids = array_append(message_ids, :message_id::text)
+SET message_ids = array_append(message_ids, :message_id)
 WHERE id = :candidate_answer_id;
 """
 
