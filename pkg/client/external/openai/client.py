@@ -47,15 +47,16 @@ class GPTClient(interface.ILLMClient):
                 ]
 
                 if pdf_file is not None:
+                    file_response = await self.client.files.create(
+                        file=io.BytesIO(pdf_file),
+                        purpose="assistants"
+                    )
+
                     history[-1]["content"] = [
                         {"type": "text", "text": history[-1]["content"]},
                         {
-                            "type": "document",
-                            "source": {
-                                "type": "base64",
-                                "media_type": "application/pdf",
-                                "data": base64.b64encode(pdf_file).decode('utf-8')
-                            }
+                            "type": "file",
+                            "file_id": file_response.id
                         }
                     ]
 
