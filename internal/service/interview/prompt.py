@@ -92,7 +92,7 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 
 ФОРМАТ ОТВЕТА:
 {{
-  "action": "continue" | "next_question" | "finish_interview",
+  "action": Одно из трех действий: "continue", "next_question", "finish_interview",
   "message_to_candidate": "Сообщение кандидату",
 }}
 
