@@ -162,7 +162,7 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
   "accordance_skill_resume_score": число от 0 до 10,
   "strong_areas": "Сильные стороны кандидата",
   "weak_areas": "Слабые стороны кандидата",
-  "global_recommendation": "Общее впечатление о кандидате",
+  "general_recommendation": "Общее впечатление о кандидате",
 }}
 
 ВАЖНО: Отвечай ТОЛЬКО валидным JSON без markdown разметки."""
