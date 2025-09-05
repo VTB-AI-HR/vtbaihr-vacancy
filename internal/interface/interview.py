@@ -39,7 +39,7 @@ class IInterviewService(Protocol):
             vacancy_id: int,
             candidate_email: str,
             candidate_resume_file: UploadFile
-    ) -> tuple[bool, int, str, int, int, int, int]:
+    ) -> tuple[bool, int, str, int, int, int]:
         pass
 
     @abstractmethod
@@ -49,7 +49,7 @@ class IInterviewService(Protocol):
             question_id: int,
             interview_id: int,
             audio_file: UploadFile
-    ) -> tuple[int, str, int, dict]:
+    ) -> tuple[int, str, dict]:
         pass
 
     @abstractmethod

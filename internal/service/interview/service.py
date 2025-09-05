@@ -27,7 +27,7 @@ class InterviewService(interface.IInterviewService):
             vacancy_id: int,
             candidate_email: str,
             candidate_resume_file: UploadFile
-    ) -> tuple[bool, int, str, int, int, int, int]:
+    ) -> tuple[bool, int, str, int, int, int]:
         vacancy = await self.vacancy_repo.get_vacancy_by_id(vacancy_id)
         if not vacancy:
             raise Exception("Vacancy not found")
@@ -101,14 +101,12 @@ class InterviewService(interface.IInterviewService):
                 message_to_candidate,
                 total_question,
                 interview_id,
-                current_question.id,
-                current_question.order_number
+                current_question.id
             )
         else:
             total_question = 0
             interview_id = 0
             question_id = 0
-            question_order_number = 0
             message_to_candidate = resume_evaluation["message_to_candidate"]
             return (
                 is_suitable,
@@ -116,8 +114,7 @@ class InterviewService(interface.IInterviewService):
                 message_to_candidate,
                 total_question,
                 interview_id,
-                question_id,
-                question_order_number
+                question_id
             )
 
     async def send_answer(
@@ -126,7 +123,7 @@ class InterviewService(interface.IInterviewService):
             question_id: int,
             interview_id: int,
             audio_file: UploadFile
-    ) -> tuple[int, str, int, dict]:
+    ) -> tuple[int, str, dict]:
         # 1. Получаем необходимые данные
         vacancy = (await self.vacancy_repo.get_vacancy_by_id(vacancy_id))[0]
         questions = await self.vacancy_repo.get_all_question(vacancy_id)
@@ -175,7 +172,6 @@ class InterviewService(interface.IInterviewService):
             return (
                 question_id,
                 message_to_candidate,
-                current_question.order_number,
                 {}
             )
 
@@ -192,7 +188,6 @@ class InterviewService(interface.IInterviewService):
             return (
                 next_question.id,
                 message_to_candidate,
-                next_question.order_number,
                 {}
             )
 
@@ -205,11 +200,10 @@ class InterviewService(interface.IInterviewService):
             return (
                 question_id,
                 message_to_candidate,
-                current_question.order_number,
                 interview.to_dict()
             )
 
-        return question_id, message_to_candidate, current_question.order_number, {}
+        return question_id, message_to_candidate, {}
 
     async def __continue_question(
             self,
@@ -240,7 +234,7 @@ class InterviewService(interface.IInterviewService):
             questions: list[model.VacancyQuestion],
             vacancy: model.Vacancy,
             interview_messages: list[model.InterviewMessage],
-    ) -> model.VacancyQuestion:
+    ) -> model.VacancyQuestion | None:
         await self.__evaluate_answer(
             interview_id=interview_id,
             candidate_message_id=candidate_message_id,
@@ -249,8 +243,10 @@ class InterviewService(interface.IInterviewService):
             vacancy=vacancy,
             interview_messages=interview_messages,
         )
-        next_question = [q for q in questions if q.order_number == current_question.order_number + 1][0]
-        return next_question
+        for i, question in enumerate(questions):
+            if question.id == current_question.id and i + 1 < len(questions):
+                return questions[i + 1]
+        return None
 
     async def __finish_interview(
             self,
