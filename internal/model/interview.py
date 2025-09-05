@@ -119,7 +119,7 @@ class CandidateAnswer:
             "message_ids": self.message_ids,
             "llm_comment": self.llm_comment,
             "score": self.score,
-            "created_at": self.created_at
+            "created_at": self.created_at.isoformat()
         }
 
 
@@ -156,5 +156,5 @@ class InterviewMessage:
             "audio_fid": self.audio_fid,
             "role": self.role,
             "text": self.text,
-            "created_at": self.created_at
+            "created_at": self.created_at.isoformat()
         }
