@@ -14,6 +14,7 @@ from internal.controller.http.handler.interview.handler import InterviewControll
 from internal.service.vacancy.service import VacancyService
 from internal.service.interview.service import InterviewService
 from internal.service.interview.prompt import InterviewPromptGenerator
+from internal.service.vacancy.prompt import VacancyPromptGenerator
 
 from internal.repo.vacancy.repo import VacancyRepo
 from internal.repo.interview.repo import InterviewRepo
@@ -58,7 +59,9 @@ interview_repo = InterviewRepo(tel, db)
 
 # Инициализация сервисов
 interview_prompt_generator = InterviewPromptGenerator(tel)
-vacancy_service = VacancyService(tel, vacancy_repo, interview_prompt_generator, llm_client)
+vacancy_prompt_generator = VacancyPromptGenerator(tel)
+
+vacancy_service = VacancyService(tel, vacancy_repo, vacancy_prompt_generator, llm_client)
 interview_service = InterviewService(
     vacancy_repo,
     interview_repo,

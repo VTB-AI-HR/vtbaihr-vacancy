@@ -171,3 +171,13 @@ class IVacancyRepo(Protocol):
 
     @abstractmethod
     async def get_vacancy_by_id(self, vacancy_id: int) -> list[model.Vacancy]: pass
+
+
+class IVacancyPromptGenerator(Protocol):
+    @abstractmethod
+    def get_question_generation_prompt(
+            self,
+            vacancy: model.Vacancy,
+            count_questions: int,
+            questions_type: model.QuestionsType,
+    ) -> str: pass

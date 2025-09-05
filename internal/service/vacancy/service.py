@@ -11,13 +11,13 @@ class VacancyService(interface.IVacancyService):
             self,
             tel: interface.ITelemetry,
             vacancy_repo: interface.IVacancyRepo,
-            interview_prompt_generator: interface.IInterviewPromptGenerator,
+            vacancy_prompt_generator: interface.IVacancyPromptGenerator,
             llm_client: interface.ILLMClient,
     ):
         self.tracer = tel.tracer()
         self.logger = tel.logger()
         self.vacancy_repo = vacancy_repo
-        self.interview_prompt_generator = interview_prompt_generator
+        self.vacancy_prompt_generator = vacancy_prompt_generator
         self.llm_client = llm_client
 
     async def create_vacancy(
@@ -80,7 +80,7 @@ class VacancyService(interface.IVacancyService):
                     raise Exception(f"Вакансия с ID {vacancy_id} не найдена")
                 vacancy = vacancy[0]
 
-                question_generation_prompt = self.interview_prompt_generator.get_question_generation_prompt(
+                question_generation_prompt = self.vacancy_prompt_generator.get_question_generation_prompt(
                     vacancy,
                     count_questions,
                     questions_type,
