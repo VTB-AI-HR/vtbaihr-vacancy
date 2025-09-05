@@ -30,6 +30,7 @@ class InterviewRepo(interface.IInterviewRepo):
                     'vacancy_id': vacancy_id,
                     'candidate_email': candidate_email,
                     'candidate_resume_fid': candidate_resume_fid,
+                    'general_result': model.GeneralResult.IN_PROCESS.value
                 }
                 interview_id = await self.db.insert(create_interview, args)
 

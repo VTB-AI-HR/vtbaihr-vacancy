@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS interviews(
     candidate_resume_fid TEXT NOT NULL,
     
     general_score INTEGER DEFAULT 0,
-    general_result TEXT DEFAULT '',
+    general_result TEXT NOT NULL,
     general_recommendation TEXT DEFAULT '',
     red_flag_score INTEGER DEFAULT 0,
     hard_skill_score INTEGER DEFAULT 0, 

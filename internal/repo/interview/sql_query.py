@@ -2,12 +2,14 @@ create_interview = """
 INSERT INTO interviews (
     vacancy_id,
     candidate_email,
-    candidate_resume_fid
+    candidate_resume_fid,
+    general_result
 )
 VALUES (
     :vacancy_id,
     :candidate_email,
-    :candidate_resume_fid
+    :candidate_resume_fid,
+    :general_result
 )
 RETURNING id;
 """

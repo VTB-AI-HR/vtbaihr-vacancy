@@ -6,6 +6,7 @@ from enum import Enum
 class GeneralResult(Enum):
     NEXT = "next"
     REJECTED = "rejected"
+    IN_PROCESS = "in_process"
 
 
 @dataclass
