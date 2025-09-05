@@ -27,7 +27,7 @@ class InterviewService(interface.IInterviewService):
             vacancy_id: int,
             candidate_email: str,
             candidate_resume_file: UploadFile
-    ) -> tuple[bool, str, int, int]:
+    ) -> tuple[bool, int, str, int, int, int, int]:
         vacancy = await self.vacancy_repo.get_vacancy_by_id(vacancy_id)
         if not vacancy:
             raise Exception("Vacancy not found")
@@ -51,9 +51,7 @@ class InterviewService(interface.IInterviewService):
                 created_at=datetime.now(),
             )
         ]
-        candidate_resume_filename = candidate_resume_file.filename
         candidate_resume_file = await candidate_resume_file.read()
-
         resume_evaluation_str = await self.llm_client.generate(
             history=history,
             system_prompt=resume_evaluation_system_prompt,
@@ -61,31 +59,66 @@ class InterviewService(interface.IInterviewService):
         )
 
         resume_evaluation: dict = json.loads(resume_evaluation_str)
-
         is_suitable: bool = resume_evaluation["is_suitable"]
-        llm_response: str = resume_evaluation["llm_response"]
+        resume_accordance_score: int = resume_evaluation["resume_accordance_score"]
 
         if is_suitable:
-            total_question = len(await self.vacancy_repo.get_all_question(vacancy_id))
+            interview_id = await self.interview_repo.create_interview(
+                vacancy_id,
+                candidate_email,
+                "34533",
+            )
+
+            questions = await self.vacancy_repo.get_all_question(vacancy_id)
+            current_question = questions[0]
+            total_question = len(questions)
+
+            interview_management_system_prompt = self.interview_prompt_generator.get_interview_management_system_prompt(
+                vacancy=vacancy,
+                questions=questions
+            )
+
+            interview_messages = [
+                model.InterviewMessage(
+                    id=0,
+                    interview_id=0,
+                    question_id=0,
+                    audio_fid="",
+                    role="user",
+                    text="Начни интервью",
+                    created_at=datetime.now(),
+                )
+            ]
+            start_interview_str = await self.llm_client.generate(
+                history=interview_messages,
+                system_prompt=interview_management_system_prompt
+            )
+            start_interview_data: dict = json.loads(start_interview_str)
+            message_to_candidate: str = start_interview_data["message_to_candidate"]
+            return (
+                is_suitable,
+                resume_accordance_score,
+                message_to_candidate,
+                total_question,
+                interview_id,
+                current_question.id,
+                current_question.order_number
+            )
         else:
             total_question = 0
-
-        # Сохраняем файл резюме
-        # candidate_resume_file_io = io.BytesIO(candidate_resume_file)
-        # upload_response = self.storage.upload(
-        #     file=candidate_resume_file_io,
-        #     name=candidate_resume_filename
-        # )
-        # candidate_resume_fid = upload_response.fid
-
-        # Создаем интервью в БД
-        interview_id = await self.interview_repo.create_interview(
-            vacancy_id,
-            candidate_email,
-            "34533",
-        )
-
-        return is_suitable, llm_response, total_question, interview_id
+            interview_id = 0
+            question_id = 0
+            question_order_number = 0
+            message_to_candidate = resume_evaluation["message_to_candidate"]
+            return (
+                is_suitable,
+                resume_accordance_score,
+                message_to_candidate,
+                total_question,
+                interview_id,
+                question_id,
+                question_order_number
+            )
 
     async def send_answer(
             self,

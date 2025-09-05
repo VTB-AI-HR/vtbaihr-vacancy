@@ -31,24 +31,30 @@ class InterviewController(interface.IInterviewController):
                 }
         ) as span:
             try:
-                is_suitable, llm_response, total_questions, interview_id = await self.interview_service.start_interview(
+                is_suitable, resume_accordance_score, message_to_candidate, total_question, interview_id, question_id, question_order_number = await self.interview_service.start_interview(
                     vacancy_id=vacancy_id,
                     candidate_email=candidate_email,
                     candidate_resume_file=candidate_resume_file
                 )
 
                 response = StartInterviewResponse(
-                    interview_id=interview_id,
                     is_suitable=is_suitable,
-                    llm_response=llm_response,
-                    total_question=total_questions
+                    resume_accordance_score=resume_accordance_score,
+                    message_to_candidate=message_to_candidate,
+                    total_question=total_question,
+                    interview_id=interview_id,
+                    question_id=question_id,
+                    question_order_number=question_order_number,
                 )
 
                 span.set_attributes({
                     "is_suitable": is_suitable,
-                    "total_questions": total_questions,
+                    "resume_accordance_score": resume_accordance_score,
+                    "message_to_candidate": message_to_candidate,
+                    "total_question": total_question,
                     "interview_id": interview_id,
-                    "llm_response": llm_response
+                    "question_id": question_id,
+                    "question_order_number": question_order_number,
                 })
 
                 span.set_status(Status(StatusCode.OK))

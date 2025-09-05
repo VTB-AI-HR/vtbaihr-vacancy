@@ -66,7 +66,7 @@ def include_vacancy_handlers(
     app.add_api_route(
         prefix + "/question/generate",
         vacancy_controller.generate_question,
-        methods=["POST"],
+        methods=["GET"],
         tags=["Vacancy Questions"],
         response_model=GenerateQuestionResponse
     )

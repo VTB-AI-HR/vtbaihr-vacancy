@@ -2,10 +2,13 @@ from pydantic import BaseModel
 from internal import model
 
 class StartInterviewResponse(BaseModel):
-    interview_id: int
     is_suitable: bool
-    llm_response: str
+    resume_accordance_score: int
+    message_to_candidate: str
     total_question: int
+    interview_id: int
+    question_id: int
+    question_order_number: int
 
 class SendAnswerResponse(BaseModel):
     question_id: int
