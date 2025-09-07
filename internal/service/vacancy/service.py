@@ -1,5 +1,6 @@
 import json
 import io
+import re
 from datetime import datetime
 from fastapi import UploadFile
 
@@ -604,7 +605,7 @@ class VacancyService(interface.IVacancyService):
                     self.logger.info("LLM response", {"llm_response": llm_response})
 
                     # Парсим ответ LLM
-                    evaluation_data = json.loads(llm_response)
+                    evaluation_data = self.extract_and_parse_json(llm_response)
 
                     accordance_xp_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
                     accordance_skill_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
@@ -740,7 +741,7 @@ class VacancyService(interface.IVacancyService):
 
                 # Парсим ответ LLM
 
-                evaluation_data = json.loads(llm_response)
+                evaluation_data = self.extract_and_parse_json(llm_response)
 
                 accordance_xp_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
                 accordance_skill_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
@@ -849,3 +850,10 @@ class VacancyService(interface.IVacancyService):
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
+
+    def extract_and_parse_json(self, text: str) -> dict:
+        match = re.search(r"\{.*\}", text, re.DOTALL)
+
+        json_str = match.group(0)
+        data = json.loads(json_str)
+        return data
