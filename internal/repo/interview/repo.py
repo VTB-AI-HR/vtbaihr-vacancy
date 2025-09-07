@@ -242,6 +242,26 @@ class InterviewRepo(interface.IInterviewRepo):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
+    async def get_interview_by_id(self, interview_id: int) -> list[model.Interview]:
+        with self.tracer.start_as_current_span(
+                "InterviewRepo.get_interview_by_id",
+                kind=SpanKind.INTERNAL,
+                attributes={
+                    "interview_id": interview_id,
+                }
+        ) as span:
+            try:
+                args = {'interview_id': interview_id}
+                rows = await self.db.select(get_interview_by_id, args)
+                interviews = model.Interview.serialize(rows) if rows else []
+
+                span.set_status(Status(StatusCode.OK))
+                return interviews
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise err
+
     async def get_all_interview(self, vacancy_id: int) -> list[model.Interview]:
         with self.tracer.start_as_current_span(
                 "InterviewRepo.get_all_interview",
@@ -301,4 +321,3 @@ class InterviewRepo(interface.IInterviewRepo):
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
-

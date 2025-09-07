@@ -842,7 +842,7 @@ class VacancyService(interface.IVacancyService):
                     )
 
                     # Генерируем ссылку на интервью
-                    interview_link = f"/interview/{interview_id}/start"
+                    interview_link = f"/interview/start/{interview_id}"
 
                     self.logger.info("Candidate resume approved, interview created", {
                         "vacancy_id": vacancy_id,

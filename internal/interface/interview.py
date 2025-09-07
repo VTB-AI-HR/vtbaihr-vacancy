@@ -31,7 +31,7 @@ class IInterviewController(Protocol):
 
 class IInterviewService(Protocol):
     @abstractmethod
-    async def start_interview(self, interview_id: int) -> JSONResponse:
+    async def start_interview(self, interview_id: int) -> tuple[str, int, int]:
         pass
 
     @abstractmethod
@@ -128,6 +128,9 @@ class IInterviewRepo(Protocol):
     ) -> list[model.CandidateAnswer]: pass
 
     @abstractmethod
+    async def get_interview_by_id(self, interview_id: int) -> list[model.Interview]: pass
+
+    @abstractmethod
     async def get_all_interview(self, vacancy_id: int) -> list[model.Interview]:
         pass
 
@@ -141,6 +144,15 @@ class IInterviewRepo(Protocol):
 
 
 class IInterviewPromptGenerator(Protocol):
+    @abstractmethod
+    def get_hello_interview_system_prompt(
+            self,
+            vacancy: model.Vacancy,
+            questions: list[model.VacancyQuestion],
+            candidate_name: str
+    ) -> str: pass
+
+    @abstractmethod
     def get_interview_management_system_prompt(
             self,
             vacancy: model.Vacancy,
@@ -148,12 +160,14 @@ class IInterviewPromptGenerator(Protocol):
             current_question_order_number: int
     ) -> str: pass
 
+    @abstractmethod
     def get_answer_evaluation_system_prompt(
             self,
             question: model.VacancyQuestion,
             vacancy: model.Vacancy
     ) -> str: pass
 
+    @abstractmethod
     def get_interview_summary_system_prompt(
             self,
             vacancy: model.Vacancy,

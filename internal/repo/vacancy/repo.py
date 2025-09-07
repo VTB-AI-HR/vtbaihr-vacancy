@@ -435,6 +435,26 @@ class VacancyRepo(interface.IVacancyRepo):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
+    async def get_vacancy_by_id(self, vacancy_id: int) -> list[model.Vacancy]:
+        with self.tracer.start_as_current_span(
+                "VacancyRepo.get_vacancy_by_id",
+                kind=SpanKind.INTERNAL,
+                attributes={
+                    "vacancy_id": vacancy_id,
+                }
+        ) as span:
+            try:
+                args = {'vacancy_id': vacancy_id}
+                rows = await self.db.select(get_vacancy_by_id_query, args)
+                vacancy = model.Vacancy.serialize(rows) if rows else []
+
+                span.set_status(Status(StatusCode.OK))
+                return vacancy
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise err
+
     async def get_all_vacancy(self) -> list[model.Vacancy]:
         with self.tracer.start_as_current_span(
                 "VacancyRepo.get_all_vacancy",
@@ -450,7 +470,6 @@ class VacancyRepo(interface.IVacancyRepo):
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
-
 
     async def get_all_question(self, vacancy_id: int) -> list[model.VacancyQuestion]:
         with self.tracer.start_as_current_span(

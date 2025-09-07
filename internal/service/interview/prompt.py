@@ -11,6 +11,45 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
         self.tracer = tel.tracer()
         self.logger = tel.logger()
 
+    def get_hello_interview_system_prompt(
+                self,
+                vacancy: model.Vacancy,
+                questions: list[model.VacancyQuestion],
+                candidate_name: str
+        ) -> str:
+            questions_str = "\n".join([f"{i + 1}. {q.question} (Подсказка для оценки: {q.hint_for_evaluation})"
+                                       for i, q in enumerate(questions)])
+
+            return f"""Ты ведущий интервью для позиции "{vacancy.name}".
+
+ИНФОРМАЦИЯ О ВАКАНСИИ:
+Название: {vacancy.name}
+Описание: {vacancy.description}
+Уровень: {vacancy.skill_lvl.value}
+Красные флаги: {vacancy.red_flags}
+Всего вопросов: {len(questions)}
+
+ВОПРОСЫ:
+{questions_str}
+
+ТВОЯ ЗАДАЧА:
+- Поприветствовать кандидата {candidate_name} и рассказать ему, где он, что происходит и задать первый вопрос.
+
+ВОПРОСЫ ДЛЯ ИНТЕРВЬЮ (по порядку):
+{questions_str}
+
+ФОРМАТ ОТВЕТА:
+Ответ должен быть ТОЛЬКО в формате JSON без дополнительного текста:
+{{
+  "message_to_candidate": "Приветственное сообщение кандидату",
+}}
+
+ВАЖНО: 
+- Отвечай ТОЛЬКО валидным JSON
+- НЕ добавляй никакого текста вне JSON структуры
+- НЕ используй markdown разметку или код-блоки
+"""
+
     def get_interview_management_system_prompt(
             self,
             vacancy: model.Vacancy,
@@ -37,11 +76,11 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 
 ТВОЯ ЗАДАЧА:
 - Вестии кандидата по вопросам строго по порядку. 
-- Когда кандидат достаточно полно ответит на вопрос переводить его на следующий вопрос командой "next_question".
-- Если ответ неполный - просишь уточнить конкретные аспекты командой "continue". 
-- Если с третьего раза нет полного ответа, то переводи на следующий вопрос командой "next_question".
-- Если кандидат не знает ответ на вопрос, то переходи на следующий вопрос командой "next_question"
-- Когда кандидат ответит на последний вопрос или даст понять, что он его не знаете, то заканчивай интервью командой "finish_interview"
+- Когда кандидат достаточно полно ответит на вопрос переводить его на следующий вопрос.
+- Если ответ неполный - просишь более углубленный ответ. 
+- Если с третьего раза нет полного ответа, то переводи на следующий вопрос.
+- Если кандидат не знает ответ на вопрос, то переходи на следующий вопрос.
+- Когда кандидат ответит на последний вопрос или даст понять, что он его не знаете, то заканчивай интервью.
 
 ВОПРОСЫ ДЛЯ ИНТЕРВЬЮ (по порядку):
 {questions_str}
@@ -49,7 +88,7 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 ФОРМАТ ОТВЕТА:
 Ответ должен быть ТОЛЬКО в формате JSON без дополнительного текста:
 {{
-  "action": Одно из трех действий: "continue", "next_question", "finish_interview",
+  "action": Одно из трех действий: "delve_into_question", "next_question", "finish_interview",
   "message_to_candidate": "Сообщение кандидату",
 }}
 
