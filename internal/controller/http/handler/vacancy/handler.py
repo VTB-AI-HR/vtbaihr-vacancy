@@ -423,7 +423,11 @@ class VacancyController(interface.IVacancyController):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def evaluate_resume(self, vacancy_id: int, candidate_resume_files: list[UploadFile] = File(...)) -> JSONResponse:
+    async def evaluate_resume(
+            self,
+            vacancy_id: int = Form(...),
+            candidate_resume_files: list[UploadFile] = Form(...)
+    ) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.evaluate_resume",
                 kind=SpanKind.SERVER,

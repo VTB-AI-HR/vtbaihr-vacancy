@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import Protocol
 
-from fastapi import UploadFile, Form
+from fastapi import UploadFile, Form, File
 from fastapi.responses import JSONResponse
 
 from internal import model
@@ -15,10 +15,10 @@ class IInterviewController(Protocol):
     @abstractmethod
     async def send_answer(
             self,
-            vacancy_id: int,
-            question_id: int,
-            interview_id: int,
-            audio_file: UploadFile
+            interview_id: int = Form(...),
+            vacancy_id: int = Form(...),
+            question_id: int = Form(...),
+            audio_file: UploadFile = Form(...)
     ) -> JSONResponse:
         pass
 

@@ -50,7 +50,7 @@ class IVacancyController(Protocol):
     async def evaluate_resume(
             self,
             vacancy_id: int,
-            candidate_resume_files: list[UploadFile] = File(...)
+            candidate_resume_files: list[UploadFile] = Form(...)
     ) -> JSONResponse: pass
 
     @abstractmethod
