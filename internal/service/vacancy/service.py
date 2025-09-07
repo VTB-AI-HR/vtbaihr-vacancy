@@ -771,7 +771,11 @@ class VacancyService(interface.IVacancyService):
                 })
 
                 # Получаем данные вакансии
-                vacancy = await self.vacancy_repo.get_vacancy_by_id(vacancy_id)
+                vacancies = await self.vacancy_repo.get_vacancy_by_id(vacancy_id)
+                if not vacancies:
+                    raise ValueError(f"Vacancy with id {vacancy_id} not found")
+
+                vacancy = vacancies[0]
 
                 # Генерируем промпт для оценки резюме
                 system_prompt = self.vacancy_prompt_generator.get_resume_evaluation_system_prompt(
@@ -784,4 +788,94 @@ class VacancyService(interface.IVacancyService):
                 # Читаем файл резюме
                 resume_content = await candidate_resume_file.read()
 
-                # Создаем сообщение для
+                # Создаем сообщение для LLM
+                history = [
+                    model.InterviewMessage(
+                        id=0,
+                        interview_id=0,
+                        question_id=0,
+                        audio_fid="",
+                        role="user",
+                        text="Оцени это резюме и извлеки данные кандидата",
+                        created_at=datetime.now()
+                    )
+                ]
+
+                # Оцениваем резюме с помощью LLM
+                llm_response = await self.llm_client.generate(
+                    history=history,
+                    system_prompt=system_prompt,
+                    pdf_file=resume_content
+                )
+
+                # Парсим ответ LLM
+                try:
+                    evaluation_data = json.loads(llm_response)
+                except json.JSONDecodeError as e:
+                    self.logger.error("Failed to parse LLM response for resume evaluation", {
+                        "filename": candidate_resume_file.filename,
+                        "llm_response": llm_response,
+                        "error": str(e)
+                    })
+                    raise ValueError(f"Invalid JSON response from LLM: {str(e)}")
+
+                accordance_xp_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
+                accordance_skill_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
+
+                # Проверяем пороговые значения (например, 3 из 5)
+                min_threshold = 3
+                if accordance_xp_score >= min_threshold and accordance_skill_score >= min_threshold:
+                    # Сохраняем резюме в WeedFS
+                    resume_file_io = io.BytesIO(resume_content)
+                    upload_result = self.storage.upload(resume_file_io, candidate_resume_file.filename)
+                    candidate_resume_fid = upload_result.fid
+
+                    # Создаем интервью
+                    interview_id = await self.interview_repo.create_interview(
+                        vacancy_id=vacancy_id,
+                        candidate_name=evaluation_data.get("candidate_name", "Unknown"),
+                        candidate_email=candidate_email,  # Используем email из параметров
+                        candidate_phone=evaluation_data.get("candidate_phone", "Unknown"),
+                        candidate_resume_fid=candidate_resume_fid,
+                        accordance_xp_vacancy_score=accordance_xp_score,
+                        accordance_skill_vacancy_score=accordance_skill_score
+                    )
+
+                    # Генерируем ссылку на интервью
+                    interview_link = f"/interview/{interview_id}/start"
+
+                    self.logger.info("Candidate resume approved, interview created", {
+                        "vacancy_id": vacancy_id,
+                        "candidate_email": candidate_email,
+                        "interview_id": interview_id,
+                        "accordance_xp_score": accordance_xp_score,
+                        "accordance_skill_score": accordance_skill_score,
+                        "filename": candidate_resume_file.filename
+                    })
+
+                    span.set_status(Status(StatusCode.OK))
+                    return interview_link, accordance_xp_score, accordance_skill_score
+
+                else:
+                    self.logger.info("Candidate resume rejected - scores below threshold", {
+                        "vacancy_id": vacancy_id,
+                        "candidate_email": candidate_email,
+                        "accordance_xp_score": accordance_xp_score,
+                        "accordance_skill_score": accordance_skill_score,
+                        "min_threshold": min_threshold,
+                        "filename": candidate_resume_file.filename
+                    })
+
+                    # Возвращаем пустую ссылку при отклонении
+                    span.set_status(Status(StatusCode.OK))
+                    return "", accordance_xp_score, accordance_skill_score
+
+            except Exception as err:
+                self.logger.error("Failed to process candidate response", {
+                    "vacancy_id": vacancy_id,
+                    "candidate_email": candidate_email,
+                    "error": str(err)
+                })
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise err
