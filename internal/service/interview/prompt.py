@@ -157,10 +157,10 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
     "logic_structure_score": Оценка по логике структуры (0-5),
     "accordance_xp_resume_score": Оценка по соответствию опыта в резюме и опыта для вакансии (0-5),
     "accordance_skill_resume_score": Оценка по соответствию навыков в резюме и навыкам для вакансии (0-5),
-    "strong_areas": Сильные стороны кандидата,
-    "weak_areas": Слабые стороны кандидата,
-    "message_to_candidate": Пояснение итогов интервью для кандидата,
-    "message_to_hr": Пояснение итогов интервью для HR,
+    "strong_areas": Сильные стороны кандидата (str),
+    "weak_areas": Слабые стороны кандидата (str),
+    "message_to_candidate": Пояснение итогов интервью для кандидата (str),
+    "message_to_hr": Пояснение итогов интервью для HR (str),
 }}
 
 ВАЖНО: 
