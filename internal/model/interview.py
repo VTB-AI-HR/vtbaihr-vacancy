@@ -16,20 +16,22 @@ class Interview:
 
     candidate_email: str
     candidate_resume_fid: str
+    accordance_xp_vacancy_score: float
+    accordance_skill_vacancy_score: float
 
-    general_score: float
-    general_result: GeneralResult
-    general_recommendation: str
     red_flag_score: float
     hard_skill_score: float
     soft_skill_score: float
     logic_structure_score: float
-    accordance_xp_vacancy_score: float
-    accordance_skill_vacancy_score: float
     accordance_xp_resume_score: float
     accordance_skill_resume_score: float
     strong_areas: str
     weak_areas: str
+
+    general_score: float
+    general_result: GeneralResult
+    message_to_candidate: str
+    message_to_hr: str
 
     created_at: datetime
 
@@ -41,19 +43,20 @@ class Interview:
                 vacancy_id=row.vacancy_id,
                 candidate_email=row.candidate_email,
                 candidate_resume_fid=row.candidate_resume_fid,
-                general_score=row.general_score,
-                general_result=GeneralResult(row.general_result),
-                general_recommendation=row.general_recommendation,
+                accordance_xp_vacancy_score=row.accordance_xp_vacancy_score,
+                accordance_skill_vacancy_score=row.accordance_skill_vacancy_score,
                 red_flag_score=row.red_flag_score,
                 hard_skill_score=row.hard_skill_score,
                 soft_skill_score=row.soft_skill_score,
                 logic_structure_score=row.logic_structure_score,
-                accordance_xp_vacancy_score=row.accordance_xp_vacancy_score,
-                accordance_skill_vacancy_score=row.accordance_skill_vacancy_score,
                 accordance_xp_resume_score=row.accordance_xp_resume_score,
                 accordance_skill_resume_score=row.accordance_skill_resume_score,
                 strong_areas=row.strong_areas,
                 weak_areas=row.weak_areas,
+                general_score=row.general_score,
+                general_result=GeneralResult(row.general_result),
+                message_to_candidate=row.message_to_candidate,
+                message_to_hr=row.message_to_hr,
                 created_at=row.created_at
             )
             for row in rows
@@ -67,7 +70,8 @@ class Interview:
             "candidate_resume_fid": self.candidate_resume_fid,
             "general_score": self.general_score,
             "general_result": self.general_result.value,
-            "general_recommendation": self.general_recommendation,
+            "message_to_candidate": self.message_to_candidate,
+            "message_to_hr": self.message_to_hr,
             "red_flag_score": self.red_flag_score,
             "hard_skill_score": self.hard_skill_score,
             "soft_skill_score": self.soft_skill_score,

@@ -7,8 +7,6 @@ CREATE TABLE IF NOT EXISTS vacancies(
     description TEXT NOT NULL,
     red_flags TEXT NOT NULL,
     skill_lvl TEXT NOT NULL,
-    question_response_time INTEGER NOT NULL,
-    questions_type TEXT NOT NULL,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -23,6 +21,7 @@ CREATE TABLE IF NOT EXISTS vacancy_questions(
     hint_for_evaluation TEXT NOT NULL,
     weight INTEGER NOT NULL,
     question_type TEXT NOT NULL,
+    response_time INTEGER NOT NULL,
     
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -46,6 +45,20 @@ CREATE TABLE IF NOT EXISTS vacancy_criterion_weights(
 );
 """
 
+create_resume_weights_table = """
+CREATE TABLE IF NOT EXISTS resume_criterion_weights(
+    id SERIAL PRIMARY KEY,
+    vacancy_id INTEGER NOT NULL REFERENCES vacancies(id) ON DELETE CASCADE,
+    
+    hard_skill_weight INTEGER NOT NULL,
+    work_xp_weight INTEGER NOT NULL,
+    recommendation_weight INTEGER NOT NULL,
+    portfolio_weight INTEGER NOT NULL
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+"""
+
 create_interviews_table = """
 CREATE TABLE IF NOT EXISTS interviews(
     id SERIAL PRIMARY KEY,
@@ -53,20 +66,22 @@ CREATE TABLE IF NOT EXISTS interviews(
     
     candidate_email TEXT NOT NULL,
     candidate_resume_fid TEXT NOT NULL,
+    accordance_xp_vacancy_score INTEGER NOT NULL,
+    accordance_skill_vacancy_score INTEGER NOT NULL,
     
-    general_score INTEGER DEFAULT 0,
-    general_result TEXT NOT NULL,
-    general_recommendation TEXT DEFAULT '',
     red_flag_score INTEGER DEFAULT 0,
     hard_skill_score INTEGER DEFAULT 0, 
     soft_skill_score INTEGER DEFAULT 0,
     logic_structure_score INTEGER DEFAULT 0,
-    accordance_xp_vacancy_score INTEGER DEFAULT 0,
-    accordance_skill_vacancy_score INTEGER DEFAULT 0,
     accordance_xp_resume_score INTEGER DEFAULT 0,
     accordance_skill_resume_score INTEGER DEFAULT 0,
     strong_areas TEXT DEFAULT '',
     weak_areas TEXT DEFAULT '',
+    
+    general_score INTEGER DEFAULT 0,
+    general_result TEXT NOT NULL,
+    message_to_candidate TEXT NOT NULL DEFAULT '',
+    message_to_hr TEXT NOT NULL DEFAULT '',
     
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -113,6 +128,10 @@ drop_interview_weights_table = """
 DROP TABLE IF EXISTS vacancy_criterion_weights CASCADE;
 """
 
+drop_resume_weights_table = """
+DROP TABLE IF EXISTS resume_criterion_weights CASCADE;
+"""
+
 drop_interviews_table = """
 DROP TABLE IF EXISTS interviews CASCADE;
 """
@@ -130,6 +149,7 @@ create_all_tables_queries = [
     create_vacancy_questions_table,
     create_interviews_table,
     create_interview_weights_table,
+    create_resume_weights_table,
     create_candidate_answers_table,
     create_interview_messages_table,
 ]
@@ -138,6 +158,7 @@ create_all_tables_queries = [
 drop_all_tables_queries = [
     drop_candidate_answers_table,
     drop_interview_weights_table,
+    drop_resume_weights_table,
     drop_interviews_table,
     drop_vacancy_questions_table,
     drop_interview_messages_table,

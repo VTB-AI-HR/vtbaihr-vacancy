@@ -25,8 +25,6 @@ class Vacancy:
     description: str
     red_flags: str
     skill_lvl: SkillLevel
-    question_response_time: int
-    questions_type: QuestionsType
 
     created_at: datetime
 
@@ -40,8 +38,6 @@ class Vacancy:
                 description=row.description,
                 red_flags=row.red_flags,
                 skill_lvl=SkillLevel(row.skill_lvl),
-                question_response_time=row.question_response_time,
-                questions_type=QuestionsType(row.questions_type),
                 created_at=row.created_at
             )
             for row in rows
@@ -54,9 +50,7 @@ class Vacancy:
             "tags": self.tags,
             "description": self.description,
             "red_flags": self.red_flags,
-            "skill_lvl": self.skill_lvl.value,
-            "question_response_time": self.question_response_time,
-            "questions_type": self.questions_type.value,
+            "skill_lvl": self.skill_lvl.value
         }
 
 
@@ -68,6 +62,7 @@ class VacancyQuestion:
     hint_for_evaluation: str
     weight: int
     question_type: QuestionsType
+    response_time: int
 
     created_at: datetime
 
@@ -81,6 +76,7 @@ class VacancyQuestion:
                 hint_for_evaluation=row.hint_for_evaluation,
                 weight=row.weight,
                 question_type=QuestionsType(row.question_type),
+                response_time=row.response_time,
                 created_at=row.created_at
             )
             for row in rows
@@ -94,6 +90,7 @@ class VacancyQuestion:
             "hint_for_evaluation": self.hint_for_evaluation,
             "weight": self.weight,
             "question_type": self.question_type.value,
+            "response_time": self.response_time
         }
 
 
@@ -101,14 +98,14 @@ class VacancyQuestion:
 class VacancyCriterionWeights:
     id: int
     vacancy_id: int
-    logic_structure_score_weight: int  # [0;10]
-    soft_skill_score_weight: int  # [0;10]
-    hard_skill_score_weight: int  # [0;10]
-    accordance_xp_vacancy_score_weight: int  # [0;10]
-    accordance_skill_vacancy_score_weight: int  # [0;10]
-    accordance_xp_resume_score_weight: int  # [0;10]
-    accordance_skill_resume_score_weight: int  # [0;10]
-    red_flag_score_weight: int  # [0;10]
+    logic_structure_score_weight: int
+    soft_skill_score_weight: int
+    hard_skill_score_weight: int
+    accordance_xp_vacancy_score_weight: int
+    accordance_skill_vacancy_score_weight: int
+    accordance_xp_resume_score_weight: int
+    accordance_skill_resume_score_weight: int
+    red_flag_score_weight: int
 
     created_at: datetime
 
@@ -127,6 +124,31 @@ class VacancyCriterionWeights:
                 accordance_skill_resume_score_weight=row.accordance_skill_resume_score_weight,
                 red_flag_score_weight=row.red_flag_score_weight,
                 created_at=row.created_at
+            )
+            for row in rows
+        ]
+
+@dataclass
+class ResumeCriterionWeights:
+    id: int
+    vacancy_id: int
+    hard_skill_weight: int
+    work_xp_weight: int
+    recommendation_weight: int
+    portfolio_weight: int
+
+    created_at: datetime
+
+    @classmethod
+    def serialize(cls, rows) -> List['ResumeCriterionWeights']:
+        return [
+            cls(
+                id=row.id,
+                vacancy_id=row.vacancy_id,
+                hard_skill_weight=row.hard_skill_weight,
+                work_xp_weight=row.work_xp_weight,
+                recommendation_weight=row.recommendation_weight,
+                portfolio_weight=row.portfolio_weight
             )
             for row in rows
         ]
