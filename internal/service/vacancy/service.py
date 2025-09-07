@@ -697,7 +697,6 @@ class VacancyService(interface.IVacancyService):
                 self.logger.info("Processing candidate response", {
                     "vacancy_id": vacancy_id,
                     "candidate_email": candidate_email,
-                    "filename": candidate_resume_file.filename
                 })
 
                 # Получаем данные вакансии

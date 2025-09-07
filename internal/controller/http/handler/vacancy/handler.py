@@ -493,7 +493,6 @@ class VacancyController(interface.IVacancyController):
                 self.logger.info("Processing candidate response", {
                     "vacancy_id": vacancy_id,
                     "candidate_email": candidate_email,
-                    "filename": candidate_resume_file.filename
                 })
 
                 interview_link, accordance_xp_score, accordance_skill_score = await self.vacancy_service.respond(
