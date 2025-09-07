@@ -82,6 +82,9 @@ class VacancyPromptGenerator(interface.IVacancyPromptGenerator):
 Ответ должен быть ТОЛЬКО в формате JSON без дополнительного текста:
 
 {{
+    "candidate_name": Имя кандидата,
+    "candidate_email": Email кандидата,
+    "candidate_phone": Телефон кандидата,
     "red_flags_score": Насколько резюме соответствует критериям красных флагов (число от 0 до 5),
     "accordance_xp_vacancy_score": Насколько резюме подходит к вакансии по опыту (число от 0 до 5),
     "accordance_skill_vacancy_score": Насколько резюме подходит к вакансии по навыкам (число от 0 до 5),
@@ -93,6 +96,25 @@ class VacancyPromptGenerator(interface.IVacancyPromptGenerator):
 - Отвечай ТОЛЬКО валидным JSON
 - НЕ добавляй никакого текста вне JSON структуры
 - НЕ используй markdown разметку или код-блоки
+"""
+
+        return system_prompt
+
+
+    def get_generate_tags_system_prompt(self) -> str:
+        system_prompt = """Ты эксперт по анализу вакансий. Твоя задача - извлечь из описания вакансии ключевые технологии, навыки и компетенции.
+
+ФОРМАТ ОТВЕТА:
+Ответ должен быть ТОЛЬКО в формате JSON без дополнительного текста:
+{
+  "tags": ["tag1", "tag2", "tag3", ...]
+}
+
+ВАЖНО: 
+- Отвечай ТОЛЬКО валидным JSON
+- НЕ добавляй никакого текста вне JSON структуры
+- НЕ используй markdown разметку или код-блоки
+- Извлекай только конкретные технологии, языки программирования, фреймворки и ключевые навыки
 """
 
         return system_prompt

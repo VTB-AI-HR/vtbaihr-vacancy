@@ -177,7 +177,7 @@ class IVacancyService(Protocol):
     ) -> list[model.VacancyQuestion]: pass
 
     @abstractmethod
-    async def evaluate_resume(self, candidate_resume_files: list[UploadFile]) -> list[model.Interview]: pass
+    async def evaluate_resume(self, vacancy_id: int, candidate_resume_files: list[UploadFile]) -> list[model.Interview]: pass
 
     @abstractmethod
     async def respond(
@@ -296,6 +296,9 @@ class IVacancyRepo(Protocol):
     ) -> None: pass
 
     @abstractmethod
+    async def get_vacancy_by_id(self, vacancy_id: int) -> list[model.Vacancy]: pass
+
+    @abstractmethod
     async def get_all_vacancy(self) -> list[model.Vacancy]: pass
 
     @abstractmethod
@@ -320,3 +323,6 @@ class IVacancyPromptGenerator(Protocol):
             vacancy_name: str,
             vacancy_tags: list[str]
     ) -> str: pass
+
+    @abstractmethod
+    def get_generate_tags_system_prompt(self) -> str: pass
