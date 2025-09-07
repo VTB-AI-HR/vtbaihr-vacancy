@@ -83,105 +83,109 @@ class InterviewService(interface.IInterviewService):
             interview_id: int,
             audio_file: UploadFile
     ) -> tuple[int, str, dict]:
-        # 1. Получаем необходимые данные
-        vacancy = (await self.vacancy_repo.get_vacancy_by_id(vacancy_id))[0]
-        questions = await self.vacancy_repo.get_all_question(vacancy_id)
-        current_question_order_number = \
-            [idx + 1 for idx, question in enumerate(questions) if question.id == question_id][0]
-        current_question = questions[current_question_order_number - 1]
-        candidate_answer = (await self.interview_repo.get_candidate_answer(question_id, interview_id))[0]
+        try:
+            # 1. Получаем необходимые данные
+            vacancy = (await self.vacancy_repo.get_vacancy_by_id(vacancy_id))[0]
+            questions = await self.vacancy_repo.get_all_question(vacancy_id)
+            current_question_order_number = \
+                [idx + 1 for idx, question in enumerate(questions) if question.id == question_id][0]
+            current_question = questions[current_question_order_number - 1]
+            candidate_answer = (await self.interview_repo.get_candidate_answer(question_id, interview_id))[0]
 
-        # 2. Транскрибируем аудио
-        audio_content = await audio_file.read()
-        transcribed_text = await self.llm_client.transcribe_audio(audio_content, audio_file.filename)
+            # 2. Транскрибируем аудио
+            audio_content = await audio_file.read()
+            transcribed_text = await self.llm_client.transcribe_audio(audio_content, audio_file.filename)
 
-        # 3. Сохраняем аудио в storage
-        # audio_file_io = io.BytesIO(audio_content)
-        # upload_response = self.storage.upload(audio_file_io, audio_file.filename)
-        audio_fid = "423432"
+            # 3. Сохраняем аудио в storage
+            # audio_file_io = io.BytesIO(audio_content)
+            # upload_response = self.storage.upload(audio_file_io, audio_file.filename)
+            audio_fid = "423432"
 
-        # 4. Создаем сообщение от кандидата
-        candidate_message_id = await self.interview_repo.create_interview_message(
-            interview_id=interview_id,
-            question_id=question_id,
-            audio_fid=audio_fid,
-            role="user",
-            text=transcribed_text
-        )
-        await self.interview_repo.add_message_to_candidate_answer(
-            message_id=candidate_message_id,
-            candidate_answer_id=candidate_answer.id
-        )
-
-        # 5. Определяем действие через LLM (continue, next_question, finish_interview)
-        interview_management_system_prompt = self.interview_prompt_generator.get_interview_management_system_prompt(
-            vacancy=vacancy,
-            questions=questions,
-            current_question_order_number=current_question_order_number
-        )
-        interview_messages = await self.interview_repo.get_interview_messages(interview_id)
-        llm_response_str = await self.llm_client.generate(
-            history=interview_messages,
-            system_prompt=interview_management_system_prompt
-        )
-        self.logger.info("Ответ от LLM", {"llm_response": llm_response_str})
-
-        llm_response = json.loads(llm_response_str)
-        action = llm_response["action"]
-        message_to_candidate: str = llm_response["message_to_candidate"]
-
-        llm_message_id = await self.interview_repo.create_interview_message(
-            interview_id=interview_id,
-            question_id=question_id,
-            audio_fid="",
-            role="assistant",
-            text=message_to_candidate
-        )
-
-        # 7. Обрабатываем разные сценарии
-        if action == "delve_into_question":
-            await self.__continue_question(
-                llm_message_id=llm_message_id,
-                candidate_answer_id=candidate_answer.id,
-            )
-            return (
-                question_id,
-                message_to_candidate,
-                {}
-            )
-
-        elif action == "next_question" and current_question_order_number < len(questions):
-            next_question = await self.__next_question(
-                candidate_answer_id=candidate_answer.id,
-                response_time=60,
-                current_question=current_question,
-                questions=questions,
-                vacancy=vacancy,
-                interview_messages=interview_messages,
-            )
-            return (
-                next_question.id,
-                message_to_candidate,
-                {}
-            )
-
-        elif action == "finish_interview" or action == "next_question" and current_question_order_number == len(
-                questions):
-            interview = await self.__finish_interview(
+            # 4. Создаем сообщение от кандидата
+            candidate_message_id = await self.interview_repo.create_interview_message(
                 interview_id=interview_id,
-                candidate_answer_id=candidate_answer.id,
-                response_time=60,
-                interview_messages=interview_messages,
-                vacancy=vacancy,
-                current_question=current_question,
+                question_id=question_id,
+                audio_fid=audio_fid,
+                role="user",
+                text=transcribed_text
             )
-            return (
-                question_id,
-                message_to_candidate,
-                interview.to_dict()
+            await self.interview_repo.add_message_to_candidate_answer(
+                message_id=candidate_message_id,
+                candidate_answer_id=candidate_answer.id
             )
 
-        return question_id, message_to_candidate, {}
+            # 5. Определяем действие через LLM (continue, next_question, finish_interview)
+            interview_management_system_prompt = self.interview_prompt_generator.get_interview_management_system_prompt(
+                vacancy=vacancy,
+                questions=questions,
+                current_question_order_number=current_question_order_number
+            )
+            interview_messages = await self.interview_repo.get_interview_messages(interview_id)
+            llm_response_str = await self.llm_client.generate(
+                history=interview_messages,
+                system_prompt=interview_management_system_prompt
+            )
+            self.logger.info("Ответ от LLM", {"llm_response": llm_response_str})
+
+            llm_response = json.loads(llm_response_str)
+            action = llm_response["action"]
+            message_to_candidate: str = llm_response["message_to_candidate"]
+
+            llm_message_id = await self.interview_repo.create_interview_message(
+                interview_id=interview_id,
+                question_id=question_id,
+                audio_fid="",
+                role="assistant",
+                text=message_to_candidate
+            )
+
+            # 7. Обрабатываем разные сценарии
+            if action == "delve_into_question":
+                await self.__continue_question(
+                    llm_message_id=llm_message_id,
+                    candidate_answer_id=candidate_answer.id,
+                )
+                return (
+                    question_id,
+                    message_to_candidate,
+                    {}
+                )
+
+            elif action == "next_question" and current_question_order_number < len(questions):
+                next_question = await self.__next_question(
+                    candidate_answer_id=candidate_answer.id,
+                    response_time=60,
+                    current_question=current_question,
+                    questions=questions,
+                    vacancy=vacancy,
+                    interview_messages=interview_messages,
+                )
+                return (
+                    next_question.id,
+                    message_to_candidate,
+                    {}
+                )
+
+            elif action == "finish_interview" or action == "next_question" and current_question_order_number == len(
+                    questions):
+                interview = await self.__finish_interview(
+                    interview_id=interview_id,
+                    candidate_answer_id=candidate_answer.id,
+                    response_time=60,
+                    interview_messages=interview_messages,
+                    vacancy=vacancy,
+                    current_question=current_question,
+                )
+                return (
+                    question_id,
+                    message_to_candidate,
+                    interview.to_dict()
+                )
+
+            return question_id, message_to_candidate, {}
+        except Exception as err:
+            raise err
+
 
     async def __continue_question(
             self,
