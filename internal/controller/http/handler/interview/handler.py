@@ -69,17 +69,6 @@ class InterviewController(interface.IInterviewController):
                 }
         ) as span:
             try:
-                # Валидация файла
-                if not audio_file.content_type or not audio_file.content_type.startswith('audio/'):
-                    self.logger.warning("Invalid audio file type", {
-                        "content_type": audio_file.content_type,
-                        "filename": audio_file.filename
-                    })
-                    return JSONResponse(
-                        status_code=400,
-                        content={"error": "Invalid audio file format"}
-                    )
-
                 self.logger.info("Processing answer request", {
                     "vacancy_id": vacancy_id,
                     "question_id": question_id,
