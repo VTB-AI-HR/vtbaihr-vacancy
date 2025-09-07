@@ -65,7 +65,6 @@ class InterviewController(interface.IInterviewController):
                     "vacancy_id": vacancy_id,
                     "question_id": question_id,
                     "interview_id": interview_id,
-                    "filename": audio_file.filename
                 }
         ) as span:
             try:
@@ -73,7 +72,6 @@ class InterviewController(interface.IInterviewController):
                     "vacancy_id": vacancy_id,
                     "question_id": question_id,
                     "interview_id": interview_id,
-                    "filename": audio_file.filename,
                     "content_type": audio_file.content_type
                 })
 
