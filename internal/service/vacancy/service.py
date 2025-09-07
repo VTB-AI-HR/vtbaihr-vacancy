@@ -879,3 +879,65 @@ class VacancyService(interface.IVacancyService):
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
+
+    async def get_all_vacancy(self) -> list[model.Vacancy]:
+        with self.tracer.start_as_current_span(
+                "VacancyService.get_all_vacancy",
+                kind=SpanKind.INTERNAL,
+        ) as span:
+            try:
+                self.logger.info("Retrieving all vacancies")
+
+                vacancies = await self.vacancy_repo.get_all_vacancy()
+
+                self.logger.info("Successfully retrieved all vacancies", {
+                    "vacancies_count": len(vacancies)
+                })
+
+                span.set_status(Status(StatusCode.OK))
+                return vacancies
+
+            except Exception as err:
+                self.logger.error("Failed to retrieve all vacancies", {
+                    "error": str(err)
+                })
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise err
+
+    async def get_all_question(self, vacancy_id: int) -> list[model.VacancyQuestion]:
+        with self.tracer.start_as_current_span(
+                "VacancyService.get_all_question",
+                kind=SpanKind.INTERNAL,
+                attributes={
+                    "vacancy_id": vacancy_id,
+                }
+        ) as span:
+            try:
+                self.logger.info("Retrieving all questions for vacancy", {
+                    "vacancy_id": vacancy_id
+                })
+
+                # Проверяем существование вакансии
+                vacancies = await self.vacancy_repo.get_vacancy_by_id(vacancy_id)
+                if not vacancies:
+                    raise ValueError(f"Vacancy with id {vacancy_id} not found")
+
+                questions = await self.vacancy_repo.get_all_question(vacancy_id)
+
+                self.logger.info("Successfully retrieved all questions for vacancy", {
+                    "vacancy_id": vacancy_id,
+                    "questions_count": len(questions)
+                })
+
+                span.set_status(Status(StatusCode.OK))
+                return questions
+
+            except Exception as err:
+                self.logger.error("Failed to retrieve questions for vacancy", {
+                    "vacancy_id": vacancy_id,
+                    "error": str(err)
+                })
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise err
