@@ -772,7 +772,6 @@ class VacancyService(interface.IVacancyService):
                         "interview_id": interview_id,
                         "accordance_xp_score": accordance_xp_score,
                         "accordance_skill_score": accordance_skill_score,
-                        "filename": candidate_resume_file.filename
                     })
 
                     span.set_status(Status(StatusCode.OK))
@@ -785,7 +784,6 @@ class VacancyService(interface.IVacancyService):
                         "accordance_xp_score": accordance_xp_score,
                         "accordance_skill_score": accordance_skill_score,
                         "min_threshold": 4,
-                        "filename": candidate_resume_file.filename
                     })
 
                     # Возвращаем пустую ссылку при отклонении
