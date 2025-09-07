@@ -1,31 +1,46 @@
 from pydantic import BaseModel
 from internal import model
 
+
 class CreateVacancyBody(BaseModel):
     name: str
     tags: list[str]
     description: str
     red_flags: str
     skill_lvl: model.SkillLevel
-    question_response_time: int
+
+
+class EditVacancyBody(BaseModel):
+    vacancy_id: int
+    name: str | None
+    tags: list[str] | None
+    description: str | None
+    red_flags: str | None
+    skill_lvl: model.SkillLevel | None
+
 
 class GenerateQuestionBody(BaseModel):
     vacancy_id: int
     questions_type: model.QuestionsType
     count_questions: int
 
+
 class GenerateQuestionResponse(BaseModel):
     class Question(BaseModel):
         question: str
         question_type: str
+
     questions: list[Question]
+
 
 class AddQuestionBody(BaseModel):
     vacancy_id: int
     question: str
     hint_for_evaluation: str
-    weight: int  # [0;10]
+    weight: int
     question_type: model.QuestionsType
+    response_time: int
+
 
 class EditQuestionBody(BaseModel):
     question_id: int
@@ -35,14 +50,36 @@ class EditQuestionBody(BaseModel):
     weight: int | None  # [0;10] 
     question_type: model.QuestionsType | None
 
+
+class CreateVacancyCriterionWeightBody(BaseModel):
+    vacancy_id: int
+    logic_structure_score_weight: int
+    pause_detection_score_weight: int
+    soft_skill_score_weight: int
+    hard_skill_score_weight: int
+    accordance_xp_vacancy_score_weight: int
+    accordance_skill_vacancy_score_weight: int
+    accordance_xp_resume_score_weight: int
+    accordance_skill_resume_score_weight: int
+    red_flag_score_weight: int
+
+
 class EditVacancyCriterionWeightsBody(BaseModel):
     vacancy_id: int
-    logic_structure_score_weight: int | None 
-    pause_detection_score_weight: int  | None
-    soft_skill_score_weight: int  | None
+    logic_structure_score_weight: int | None
+    pause_detection_score_weight: int | None
+    soft_skill_score_weight: int | None
     hard_skill_score_weight: int | None
     accordance_xp_vacancy_score_weight: int | None
     accordance_skill_vacancy_score_weight: int | None
-    accordance_xp_resume_score_weight: int  | None
-    accordance_skill_resume_score_weight: int  | None
+    accordance_xp_resume_score_weight: int | None
+    accordance_skill_resume_score_weight: int | None
     red_flag_score_weight: int | None
+
+
+class CreateWeightBody(BaseModel):
+    vacancy_id: int
+    hard_skill_weight: int
+    work_xp_weight: int
+    recommendation_weight: int
+    portfolio_weight: int
