@@ -44,7 +44,7 @@ class VacancyService(interface.IVacancyService):
         ) as span:
             try:
                 self.logger.info("Creating new vacancy", {
-                    "name": name,
+                    "vacancy_name": name,
                     "skill_level": skill_lvl.value,
                     "tags_count": len(tags)
                 })
@@ -59,17 +59,13 @@ class VacancyService(interface.IVacancyService):
 
                 self.logger.info("Vacancy created successfully", {
                     "vacancy_id": vacancy_id,
-                    "name": name
+                    "vacancy_name": name
                 })
 
                 span.set_status(Status(StatusCode.OK))
                 return vacancy_id
 
             except Exception as err:
-                self.logger.error("Failed to create vacancy", {
-                    "name": name,
-                    "error": str(err)
-                })
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
@@ -92,10 +88,6 @@ class VacancyService(interface.IVacancyService):
                 span.set_status(Status(StatusCode.OK))
 
             except Exception as err:
-                self.logger.error("Failed to delete vacancy", {
-                    "vacancy_id": vacancy_id,
-                    "error": str(err)
-                })
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
@@ -142,10 +134,6 @@ class VacancyService(interface.IVacancyService):
                 span.set_status(Status(StatusCode.OK))
 
             except Exception as err:
-                self.logger.error("Failed to edit vacancy", {
-                    "vacancy_id": vacancy_id,
-                    "error": str(err)
-                })
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
@@ -194,10 +182,6 @@ class VacancyService(interface.IVacancyService):
                 return question_id
 
             except Exception as err:
-                self.logger.error("Failed to add question", {
-                    "vacancy_id": vacancy_id,
-                    "error": str(err)
-                })
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
@@ -245,10 +229,6 @@ class VacancyService(interface.IVacancyService):
                 return question_id
 
             except Exception as err:
-                self.logger.error("Failed to edit question", {
-                    "question_id": question_id,
-                    "error": str(err)
-                })
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
@@ -271,10 +251,6 @@ class VacancyService(interface.IVacancyService):
                 span.set_status(Status(StatusCode.OK))
 
             except Exception as err:
-                self.logger.error("Failed to delete question", {
-                    "question_id": question_id,
-                    "error": str(err)
-                })
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
@@ -320,10 +296,6 @@ class VacancyService(interface.IVacancyService):
                 span.set_status(Status(StatusCode.OK))
 
             except Exception as err:
-                self.logger.error("Failed to create vacancy criterion weights", {
-                    "vacancy_id": vacancy_id,
-                    "error": str(err)
-                })
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
@@ -369,10 +341,6 @@ class VacancyService(interface.IVacancyService):
                 span.set_status(Status(StatusCode.OK))
 
             except Exception as err:
-                self.logger.error("Failed to edit vacancy criterion weights", {
-                    "vacancy_id": vacancy_id,
-                    "error": str(err)
-                })
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
@@ -408,10 +376,6 @@ class VacancyService(interface.IVacancyService):
                 span.set_status(Status(StatusCode.OK))
 
             except Exception as err:
-                self.logger.error("Failed to create resume weights", {
-                    "vacancy_id": vacancy_id,
-                    "error": str(err)
-                })
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
@@ -447,10 +411,6 @@ class VacancyService(interface.IVacancyService):
                 span.set_status(Status(StatusCode.OK))
 
             except Exception as err:
-                self.logger.error("Failed to edit resume weights", {
-                    "vacancy_id": vacancy_id,
-                    "error": str(err)
-                })
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
@@ -503,7 +463,6 @@ class VacancyService(interface.IVacancyService):
                 return tags
 
             except Exception as err:
-                self.logger.error("Failed to generate tags", {"error": str(err)})
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
@@ -559,15 +518,9 @@ class VacancyService(interface.IVacancyService):
                 )
 
                 # Парсим JSON ответ
-                try:
-                    response_data = json.loads(llm_response)
-                    questions_data = response_data.get("questions", [])
-                except json.JSONDecodeError as e:
-                    self.logger.error("Failed to parse LLM response for question generation", {
-                        "llm_response": llm_response,
-                        "error": str(e)
-                    })
-                    raise ValueError(f"Invalid JSON response from LLM: {str(e)}")
+
+                response_data = json.loads(llm_response)
+                questions_data = response_data.get("questions", [])
 
                 questions = []
                 for q_data in questions_data:
@@ -592,10 +545,6 @@ class VacancyService(interface.IVacancyService):
                 return questions
 
             except Exception as err:
-                self.logger.error("Failed to generate questions", {
-                    "vacancy_id": vacancy_id,
-                    "error": str(err)
-                })
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
@@ -654,14 +603,7 @@ class VacancyService(interface.IVacancyService):
                         )
 
                         # Парсим ответ LLM
-                        try:
-                            evaluation_data = json.loads(llm_response)
-                        except json.JSONDecodeError as e:
-                            self.logger.error("Failed to parse LLM response for resume evaluation", {
-                                "filename": resume_file.filename,
-                                "error": str(e)
-                            })
-                            continue
+                        evaluation_data = json.loads(llm_response)
 
                         accordance_xp_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
                         accordance_skill_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
@@ -725,10 +667,6 @@ class VacancyService(interface.IVacancyService):
                             })
 
                     except Exception as e:
-                        self.logger.error("Failed to process resume file", {
-                            "filename": resume_file.filename,
-                            "error": str(e)
-                        })
                         continue
 
                 self.logger.info("Resume evaluation completed", {
@@ -741,10 +679,6 @@ class VacancyService(interface.IVacancyService):
                 return created_interviews
 
             except Exception as err:
-                self.logger.error("Failed to evaluate resumes", {
-                    "vacancy_id": vacancy_id,
-                    "error": str(err)
-                })
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
@@ -809,15 +743,9 @@ class VacancyService(interface.IVacancyService):
                 )
 
                 # Парсим ответ LLM
-                try:
-                    evaluation_data = json.loads(llm_response)
-                except json.JSONDecodeError as e:
-                    self.logger.error("Failed to parse LLM response for resume evaluation", {
-                        "filename": candidate_resume_file.filename,
-                        "llm_response": llm_response,
-                        "error": str(e)
-                    })
-                    raise ValueError(f"Invalid JSON response from LLM: {str(e)}")
+
+                evaluation_data = json.loads(llm_response)
+
 
                 accordance_xp_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
                 accordance_skill_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
@@ -870,11 +798,6 @@ class VacancyService(interface.IVacancyService):
                     return "", accordance_xp_score, accordance_skill_score
 
             except Exception as err:
-                self.logger.error("Failed to process candidate response", {
-                    "vacancy_id": vacancy_id,
-                    "candidate_email": candidate_email,
-                    "error": str(err)
-                })
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
@@ -897,9 +820,6 @@ class VacancyService(interface.IVacancyService):
                 return vacancies
 
             except Exception as err:
-                self.logger.error("Failed to retrieve all vacancies", {
-                    "error": str(err)
-                })
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
@@ -933,10 +853,6 @@ class VacancyService(interface.IVacancyService):
                 return questions
 
             except Exception as err:
-                self.logger.error("Failed to retrieve questions for vacancy", {
-                    "vacancy_id": vacancy_id,
-                    "error": str(err)
-                })
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err

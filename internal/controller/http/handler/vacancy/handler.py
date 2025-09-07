@@ -19,11 +19,11 @@ class VacancyController(interface.IVacancyController):
     async def create_vacancy(self, body: CreateVacancyBody) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.create_vacancy",
-                kind=SpanKind.SERVER,
+                kind=SpanKind.INTERNAL,
         ) as span:
             try:
                 self.logger.info("Creating vacancy request", {
-                    "name": body.name,
+                    "vacancy_name": body.name,
                     "skill_level": body.skill_lvl.value,
                     "tags_count": len(body.tags)
                 })
@@ -38,7 +38,7 @@ class VacancyController(interface.IVacancyController):
 
                 self.logger.info("Vacancy created successfully", {
                     "vacancy_id": vacancy_id,
-                    "name": body.name
+                    "vacancy_name": body.name
                 })
 
                 span.set_status(Status(StatusCode.OK))
@@ -58,7 +58,7 @@ class VacancyController(interface.IVacancyController):
     async def delete_vacancy(self, vacancy_id: int) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.delete_vacancy",
-                kind=SpanKind.SERVER,
+                kind=SpanKind.INTERNAL,
                 attributes={"vacancy_id": vacancy_id}
         ) as span:
             try:
@@ -82,7 +82,7 @@ class VacancyController(interface.IVacancyController):
     async def edit_vacancy(self, body: EditVacancyBody) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.edit_vacancy",
-                kind=SpanKind.SERVER,
+                kind=SpanKind.INTERNAL,
                 attributes={"vacancy_id": body.vacancy_id}
         ) as span:
             try:
@@ -120,7 +120,7 @@ class VacancyController(interface.IVacancyController):
     async def add_question(self, body: AddQuestionBody) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.add_question",
-                kind=SpanKind.SERVER,
+                kind=SpanKind.INTERNAL,
                 attributes={
                     "vacancy_id": body.vacancy_id,
                     "question_type": body.question_type.value,
@@ -166,7 +166,7 @@ class VacancyController(interface.IVacancyController):
     async def edit_question(self, body: EditQuestionBody) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.edit_question",
-                kind=SpanKind.SERVER,
+                kind=SpanKind.INTERNAL,
                 attributes={"question_id": body.question_id}
         ) as span:
             try:
@@ -204,7 +204,7 @@ class VacancyController(interface.IVacancyController):
     async def delete_question(self, question_id: int) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.delete_question",
-                kind=SpanKind.SERVER,
+                kind=SpanKind.INTERNAL,
                 attributes={"question_id": question_id}
         ) as span:
             try:
@@ -228,7 +228,7 @@ class VacancyController(interface.IVacancyController):
     async def create_vacancy_criterion_weight(self, body: CreateVacancyCriterionWeightBody) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.create_vacancy_criterion_weight",
-                kind=SpanKind.SERVER,
+                kind=SpanKind.INTERNAL,
                 attributes={"vacancy_id": body.vacancy_id}
         ) as span:
             try:
@@ -263,7 +263,7 @@ class VacancyController(interface.IVacancyController):
     async def edit_vacancy_criterion_weight(self, body: EditVacancyCriterionWeightBody) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.edit_vacancy_criterion_weight",
-                kind=SpanKind.SERVER,
+                kind=SpanKind.INTERNAL,
                 attributes={"vacancy_id": body.vacancy_id}
         ) as span:
             try:
@@ -298,7 +298,7 @@ class VacancyController(interface.IVacancyController):
     async def create_resume_weight(self, body: CreateResumeWeightBody) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.create_resume_weight",
-                kind=SpanKind.SERVER,
+                kind=SpanKind.INTERNAL,
                 attributes={"vacancy_id": body.vacancy_id}
         ) as span:
             try:
@@ -328,7 +328,7 @@ class VacancyController(interface.IVacancyController):
     async def edit_resume_weight(self, body: EditResumeWeightBody) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.edit_resume_weight",
-                kind=SpanKind.SERVER,
+                kind=SpanKind.INTERNAL,
                 attributes={"vacancy_id": body.vacancy_id}
         ) as span:
             try:
@@ -358,7 +358,7 @@ class VacancyController(interface.IVacancyController):
     async def generate_tags(self, body: GenerateTagsBody) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.generate_tags",
-                kind=SpanKind.SERVER,
+                kind=SpanKind.INTERNAL,
         ) as span:
             try:
                 self.logger.info("Generating tags request")
@@ -384,7 +384,7 @@ class VacancyController(interface.IVacancyController):
     async def generate_question(self, body: GenerateQuestionBody) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.generate_question",
-                kind=SpanKind.SERVER,
+                kind=SpanKind.INTERNAL,
                 attributes={
                     "vacancy_id": body.vacancy_id,
                     "questions_type": body.questions_type.value,
@@ -430,7 +430,7 @@ class VacancyController(interface.IVacancyController):
     ) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.evaluate_resume",
-                kind=SpanKind.SERVER,
+                kind=SpanKind.INTERNAL,
                 attributes={
                     "vacancy_id": vacancy_id,
                     "resumes_count": len(candidate_resume_files)
@@ -483,7 +483,7 @@ class VacancyController(interface.IVacancyController):
     ) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.respond",
-                kind=SpanKind.SERVER,
+                kind=SpanKind.INTERNAL,
                 attributes={
                     "vacancy_id": vacancy_id,
                     "candidate_email": candidate_email
@@ -538,7 +538,7 @@ class VacancyController(interface.IVacancyController):
     async def get_all_vacancy(self) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.get_all_vacancy",
-                kind=SpanKind.SERVER,
+                kind=SpanKind.INTERNAL,
         ) as span:
             try:
                 self.logger.info("Getting all vacancies request")
@@ -566,7 +566,7 @@ class VacancyController(interface.IVacancyController):
     async def get_all_question(self, vacancy_id: int) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.get_all_question",
-                kind=SpanKind.SERVER,
+                kind=SpanKind.INTERNAL,
                 attributes={"vacancy_id": vacancy_id}
         ) as span:
             try:

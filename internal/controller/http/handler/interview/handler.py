@@ -19,7 +19,7 @@ class InterviewController(interface.IInterviewController):
         """Начинает интервью для указанного ID интервью"""
         with self.tracer.start_as_current_span(
                 "InterviewController.start_interview",
-                kind=SpanKind.SERVER,
+                kind=SpanKind.INTERNAL,
                 attributes={"interview_id": interview_id}
         ) as span:
             try:
@@ -60,7 +60,7 @@ class InterviewController(interface.IInterviewController):
         """Обрабатывает ответ кандидата на вопрос интервью"""
         with self.tracer.start_as_current_span(
                 "InterviewController.send_answer",
-                kind=SpanKind.SERVER,
+                kind=SpanKind.INTERNAL,
                 attributes={
                     "vacancy_id": vacancy_id,
                     "question_id": question_id,
@@ -121,7 +121,7 @@ class InterviewController(interface.IInterviewController):
         """Получает все интервью для указанной вакансии"""
         with self.tracer.start_as_current_span(
                 "InterviewController.get_all_interview",
-                kind=SpanKind.SERVER,
+                kind=SpanKind.INTERNAL,
                 attributes={"vacancy_id": vacancy_id}
         ) as span:
             try:
@@ -152,7 +152,7 @@ class InterviewController(interface.IInterviewController):
         """Получает детали интервью включая ответы кандидата и сообщения"""
         with self.tracer.start_as_current_span(
                 "InterviewController.get_interview_details",
-                kind=SpanKind.SERVER,
+                kind=SpanKind.INTERNAL,
                 attributes={"interview_id": interview_id}
         ) as span:
             try:
