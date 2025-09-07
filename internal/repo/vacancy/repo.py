@@ -235,7 +235,6 @@ class VacancyRepo(interface.IVacancyRepo):
             self,
             vacancy_id: int,
             logic_structure_score_weight: int,
-            pause_detection_score_weight: int,
             soft_skill_score_weight: int,
             hard_skill_score_weight: int,
             accordance_xp_vacancy_score_weight: int,
@@ -255,7 +254,6 @@ class VacancyRepo(interface.IVacancyRepo):
                 args = {
                     'vacancy_id': vacancy_id,
                     'logic_structure_score_weight': logic_structure_score_weight,
-                    'pause_detection_score_weight': pause_detection_score_weight,
                     'soft_skill_score_weight': soft_skill_score_weight,
                     'hard_skill_score_weight': hard_skill_score_weight,
                     'accordance_xp_vacancy_score_weight': accordance_xp_vacancy_score_weight,
@@ -276,7 +274,6 @@ class VacancyRepo(interface.IVacancyRepo):
             self,
             vacancy_id: int,
             logic_structure_score_weight: int | None,
-            pause_detection_score_weight: int | None,
             soft_skill_score_weight: int | None,
             hard_skill_score_weight: int | None,
             accordance_xp_vacancy_score_weight: int | None,
@@ -299,10 +296,6 @@ class VacancyRepo(interface.IVacancyRepo):
                 if logic_structure_score_weight is not None:
                     update_fields.append("logic_structure_score_weight = :logic_structure_score_weight")
                     args['logic_structure_score_weight'] = logic_structure_score_weight
-
-                if pause_detection_score_weight is not None:
-                    update_fields.append("pause_detection_score_weight = :pause_detection_score_weight")
-                    args['pause_detection_score_weight'] = pause_detection_score_weight
 
                 if soft_skill_score_weight is not None:
                     update_fields.append("soft_skill_score_weight = :soft_skill_score_weight")

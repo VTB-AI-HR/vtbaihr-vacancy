@@ -40,7 +40,6 @@ class EditQuestionBody(BaseModel):
 class CreateVacancyCriterionWeightBody(BaseModel):
     vacancy_id: int
     logic_structure_score_weight: int
-    pause_detection_score_weight: int
     soft_skill_score_weight: int
     hard_skill_score_weight: int
     accordance_xp_vacancy_score_weight: int
@@ -53,7 +52,6 @@ class CreateVacancyCriterionWeightBody(BaseModel):
 class EditVacancyCriterionWeightBody(BaseModel):
     vacancy_id: int
     logic_structure_score_weight: int | None
-    pause_detection_score_weight: int | None
     soft_skill_score_weight: int | None
     hard_skill_score_weight: int | None
     accordance_xp_vacancy_score_weight: int | None

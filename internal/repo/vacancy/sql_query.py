@@ -52,7 +52,6 @@ create_vacancy_criterion_weight_query = """
 INSERT INTO vacancy_criterion_weights (
     vacancy_id,
     logic_structure_score_weight,
-    pause_detection_score_weight,
     soft_skill_score_weight,
     hard_skill_score_weight,
     accordance_xp_vacancy_score_weight,
@@ -64,7 +63,6 @@ INSERT INTO vacancy_criterion_weights (
 VALUES (
     :vacancy_id,
     :logic_structure_score_weight,
-    :pause_detection_score_weight,
     :soft_skill_score_weight,
     :hard_skill_score_weight,
     :accordance_xp_vacancy_score_weight,
