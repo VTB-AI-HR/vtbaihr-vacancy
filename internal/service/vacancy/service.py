@@ -729,13 +729,14 @@ class VacancyService(interface.IVacancyService):
                         created_at=datetime.now()
                     )
                 ]
-
                 # Оцениваем резюме с помощью LLM
                 llm_response = await self.llm_client.generate(
                     history=history,
                     system_prompt=system_prompt,
                     pdf_file=resume_content
                 )
+
+                self.logger.info("LLM response ", {"llm_response": llm_response})
 
                 # Парсим ответ LLM
 
