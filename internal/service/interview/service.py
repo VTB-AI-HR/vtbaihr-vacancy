@@ -200,6 +200,8 @@ class InterviewService(interface.IInterviewService):
 
     async def __next_question(
             self,
+            interview_id: int,
+            llm_message_id: int,
             candidate_answer_id: int,
             response_time: int,
             current_question: model.VacancyQuestion,
@@ -214,9 +216,22 @@ class InterviewService(interface.IInterviewService):
             vacancy=vacancy,
             interview_messages=interview_messages,
         )
+
         for i, question in enumerate(questions):
             if question.id == current_question.id and i + 1 < len(questions):
-                return questions[i + 1]
+                next_question = questions[i + 1]
+
+                next_candidate_message_id = await self.interview_repo.create_candidate_answer(
+                    next_question.id,
+                    interview_id
+                )
+
+                await self.interview_repo.add_message_to_candidate_answer(
+                    message_id=llm_message_id,
+                    candidate_answer_id=next_candidate_message_id
+                )
+
+                return next_question
         return None
 
     async def __finish_interview(
