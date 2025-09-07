@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS resume_criterion_weights(
     hard_skill_weight INTEGER NOT NULL,
     work_xp_weight INTEGER NOT NULL,
     recommendation_weight INTEGER NOT NULL,
-    portfolio_weight INTEGER NOT NULL
+    portfolio_weight INTEGER NOT NULL,
     
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
