@@ -591,7 +591,7 @@ class VacancyService(interface.IVacancyService):
                             question_id=0,
                             audio_fid="",
                             role="user",
-                            text="Оцени это резюме и извлеки данные",
+                            text="Оцени это резюме",
                             created_at=datetime.now()
                         )
                     ]
@@ -726,7 +726,7 @@ class VacancyService(interface.IVacancyService):
                         question_id=0,
                         audio_fid="",
                         role="user",
-                        text="Оцени это резюме и извлеки данные кандидата",
+                        text="Оцени это резюме",
                         created_at=datetime.now()
                     )
                 ]
