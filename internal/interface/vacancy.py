@@ -38,7 +38,7 @@ class IVacancyController(Protocol):
     async def create_resume_weight(self, body: CreateResumeWeightBody) -> JSONResponse: pass
 
     @abstractmethod
-    async def edit_resume_weight(self, body: CreateResumeWeightBody) -> JSONResponse: pass
+    async def edit_resume_weight(self, body: EditResumeWeightBody) -> JSONResponse: pass
 
     @abstractmethod
     async def generate_tags(self, body: GenerateTagsBody) -> JSONResponse: pass
@@ -47,7 +47,11 @@ class IVacancyController(Protocol):
     async def generate_question(self, body: GenerateQuestionBody) -> JSONResponse: pass
 
     @abstractmethod
-    async def evaluate_resume(self, candidate_resume_files: list[UploadFile] = File(...)) -> JSONResponse: pass
+    async def evaluate_resume(
+            self,
+            vacancy_id: int,
+            candidate_resume_files: list[UploadFile] = File(...)
+    ) -> JSONResponse: pass
 
     @abstractmethod
     async def respond(
@@ -177,7 +181,8 @@ class IVacancyService(Protocol):
     ) -> list[model.VacancyQuestion]: pass
 
     @abstractmethod
-    async def evaluate_resume(self, vacancy_id: int, candidate_resume_files: list[UploadFile]) -> list[model.Interview]: pass
+    async def evaluate_resume(self, vacancy_id: int, candidate_resume_files: list[UploadFile]) -> list[
+        model.Interview]: pass
 
     @abstractmethod
     async def respond(
@@ -303,7 +308,6 @@ class IVacancyRepo(Protocol):
 
     @abstractmethod
     async def get_all_question(self, vacancy_id: int) -> list[model.VacancyQuestion]: pass
-
 
 
 class IVacancyPromptGenerator(Protocol):

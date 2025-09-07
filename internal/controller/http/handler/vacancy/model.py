@@ -35,6 +35,7 @@ class EditQuestionBody(BaseModel):
     hint_for_evaluation: str | None
     weight: int | None  # [0;10]
     question_type: model.QuestionsType | None
+    response_time: int | None
 
 class CreateVacancyCriterionWeightBody(BaseModel):
     vacancy_id: int
