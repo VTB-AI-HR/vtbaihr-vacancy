@@ -654,14 +654,12 @@ class VacancyService(interface.IVacancyService):
                         created_interviews.append(interview)
 
                         self.logger.info("Resume passed evaluation, interview created", {
-                            "filename": resume_file.filename,
                             "interview_id": interview_id,
                             "accordance_xp_score": accordance_xp_score,
                             "accordance_skill_score": accordance_skill_score
                         })
                     else:
                         self.logger.info("Resume failed evaluation", {
-                            "filename": resume_file.filename,
                             "accordance_xp_score": accordance_xp_score,
                             "accordance_skill_score": accordance_skill_score
                         })
