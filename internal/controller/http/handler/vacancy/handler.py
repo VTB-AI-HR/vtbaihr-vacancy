@@ -237,7 +237,6 @@ class VacancyController(interface.IVacancyController):
                 await self.vacancy_service.create_vacancy_criterion_weight(
                     vacancy_id=body.vacancy_id,
                     logic_structure_score_weight=body.logic_structure_score_weight,
-                    pause_detection_score_weight=body.pause_detection_score_weight,
                     soft_skill_score_weight=body.soft_skill_score_weight,
                     hard_skill_score_weight=body.hard_skill_score_weight,
                     accordance_xp_vacancy_score_weight=body.accordance_xp_vacancy_score_weight,
@@ -272,7 +271,6 @@ class VacancyController(interface.IVacancyController):
                 await self.vacancy_service.edit_vacancy_criterion_weight(
                     vacancy_id=body.vacancy_id,
                     logic_structure_score_weight=body.logic_structure_score_weight,
-                    pause_detection_score_weight=body.pause_detection_score_weight,
                     soft_skill_score_weight=body.soft_skill_score_weight,
                     hard_skill_score_weight=body.hard_skill_score_weight,
                     accordance_xp_vacancy_score_weight=body.accordance_xp_vacancy_score_weight,
