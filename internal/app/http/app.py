@@ -45,6 +45,7 @@ def include_vacancy_handlers(
     app.add_api_route(
         prefix + "/create",
         vacancy_controller.create_vacancy,
+        tags=["Vacancy"],
         methods=["POST"],
     )
 
@@ -52,6 +53,7 @@ def include_vacancy_handlers(
     app.add_api_route(
         prefix + "/delete/{vacancy_id}",
         vacancy_controller.delete_vacancy,
+        tags=["Vacancy"],
         methods=["DELETE"],
     )
 
@@ -59,6 +61,7 @@ def include_vacancy_handlers(
     app.add_api_route(
         prefix + "/edit",
         vacancy_controller.edit_vacancy,
+        tags=["Vacancy"],
         methods=["PUT"],
     )
 
@@ -66,6 +69,7 @@ def include_vacancy_handlers(
     app.add_api_route(
         prefix + "/question/add",
         vacancy_controller.add_question,
+        tags=["Question"],
         methods=["POST"],
     )
 
@@ -73,6 +77,7 @@ def include_vacancy_handlers(
     app.add_api_route(
         prefix + "/question/edit",
         vacancy_controller.edit_question,
+        tags=["Question"],
         methods=["PUT"],
     )
 
@@ -80,6 +85,7 @@ def include_vacancy_handlers(
     app.add_api_route(
         prefix + "/question/delete/{question_id}",
         vacancy_controller.delete_question,
+        tags=["Question"],
         methods=["DELETE"],
     )
 
@@ -87,6 +93,7 @@ def include_vacancy_handlers(
     app.add_api_route(
         prefix + "/criterion-weight/create",
         vacancy_controller.create_vacancy_criterion_weight,
+        tags=["Vacancy"],
         methods=["POST"]
     )
 
@@ -94,6 +101,7 @@ def include_vacancy_handlers(
     app.add_api_route(
         prefix + "/criterion-weight/edit",
         vacancy_controller.edit_vacancy_criterion_weight,
+        tags=["Vacancy"],
         methods=["PUT"],
     )
 
@@ -101,6 +109,7 @@ def include_vacancy_handlers(
     app.add_api_route(
         prefix + "/resume-weight/create",
         vacancy_controller.create_resume_weight,
+        tags=["Vacancy"],
         methods=["POST"],
     )
 
@@ -108,6 +117,7 @@ def include_vacancy_handlers(
     app.add_api_route(
         prefix + "/resume-weight/edit",
         vacancy_controller.edit_resume_weight,
+        tags=["Vacancy"],
         methods=["PUT"],
     )
 
@@ -116,6 +126,7 @@ def include_vacancy_handlers(
         prefix + "/generate-tags",
         vacancy_controller.generate_tags,
         methods=["POST"],
+        tags=["Vacancy"],
         response_model=GenerateTagsResponse,
     )
 
@@ -124,6 +135,7 @@ def include_vacancy_handlers(
         prefix + "/question/generate",
         vacancy_controller.generate_question,
         methods=["POST"],
+        tags=["Question"],
         response_model=GenerateQuestionResponse,
     )
 
@@ -132,6 +144,7 @@ def include_vacancy_handlers(
         prefix + "/evaluate-resumes",
         vacancy_controller.evaluate_resume,
         methods=["POST"],
+        tags=["Resume"],
         response_model=EvaluateResumeResponse,
     )
 
@@ -140,6 +153,7 @@ def include_vacancy_handlers(
         prefix + "/respond",
         vacancy_controller.respond,
         methods=["POST"],
+        tags=["Resume"],
         response_model=RespondResponse,
     )
 
@@ -148,6 +162,7 @@ def include_vacancy_handlers(
         prefix + "/all",
         vacancy_controller.get_all_vacancy,
         methods=["GET"],
+        tags=["Vacancy"],
         response_model=list[model.Vacancy],
     )
 
@@ -156,6 +171,7 @@ def include_vacancy_handlers(
         prefix + "/question/all/{vacancy_id}",
         vacancy_controller.get_all_question,
         methods=["GET"],
+        tags=["Question"],
         response_model=list[model.VacancyQuestion],
     )
 
@@ -170,6 +186,7 @@ def include_interview_handlers(
         prefix + "/interview/start/{interview_id}",
         interview_controller.start_interview,
         methods=["POST"],
+        tags=["Interview"],
         response_model=StartInterviewResponse,
     )
 
@@ -178,6 +195,7 @@ def include_interview_handlers(
         prefix + "/interview/answer",
         interview_controller.send_answer,
         methods=["POST"],
+        tags=["Interview"],
         response_model=SendAnswerResponse,
     )
 
@@ -186,6 +204,7 @@ def include_interview_handlers(
         prefix + "/interview/vacancy/{vacancy_id}",
         interview_controller.get_all_interview,
         methods=["GET"],
+        tags=["Interview"],
         response_model=list[model.Interview],
     )
 
@@ -194,6 +213,7 @@ def include_interview_handlers(
         prefix + "/interview/{interview_id}/details",
         interview_controller.get_interview_details,
         methods=["GET"],
+        tags=["Interview"],
         response_model=GetCandidateAnswersResponse,
     )
 
