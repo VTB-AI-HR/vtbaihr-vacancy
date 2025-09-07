@@ -441,15 +441,10 @@ class VacancyService(interface.IVacancyService):
                 )
 
                 # Парсим JSON ответ
-                try:
-                    response_data = json.loads(llm_response)
-                    tags = response_data.get("tags", [])
-                except json.JSONDecodeError as e:
-                    self.logger.error("Failed to parse LLM response for tags generation", {
-                        "llm_response": llm_response,
-                        "error": str(e)
-                    })
-                    raise ValueError(f"Invalid JSON response from LLM: {str(e)}")
+
+                response_data = self.extract_and_parse_json(llm_response)
+                tags = response_data.get("tags", [])
+
 
                 self.logger.info("Tags generated successfully", {
                     "tags_count": len(tags),
@@ -516,7 +511,7 @@ class VacancyService(interface.IVacancyService):
 
                 # Парсим JSON ответ
 
-                response_data = json.loads(llm_response)
+                response_data = self.extract_and_parse_json(llm_response)
                 questions_data = response_data.get("questions", [])
 
                 questions = []

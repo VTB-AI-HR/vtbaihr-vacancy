@@ -1,4 +1,5 @@
 import json
+import re
 from datetime import datetime
 
 from fastapi import UploadFile
@@ -53,7 +54,7 @@ class InterviewService(interface.IInterviewService):
             system_prompt=hello_interview_system_prompt
         )
 
-        hello_interview = json.loads(hello_interview_str)
+        hello_interview = self.extract_and_parse_json(hello_interview_str)
         message_to_candidate = hello_interview["message_to_candidate"]
 
         llm_message_id = await self.interview_repo.create_interview_message(
@@ -127,7 +128,7 @@ class InterviewService(interface.IInterviewService):
             )
             self.logger.info("Ответ от LLM", {"llm_response": llm_response_str})
 
-            llm_response = json.loads(llm_response_str)
+            llm_response = self.extract_and_parse_json(llm_response_str)
             action = llm_response["action"]
             message_to_candidate: str = llm_response["message_to_candidate"]
 
@@ -274,7 +275,7 @@ class InterviewService(interface.IInterviewService):
             system_prompt=interview_summary_system_prompt
         )
 
-        interview_evaluation = json.loads(interview_evaluation_str)
+        interview_evaluation = self.extract_and_parse_json(interview_evaluation_str)
 
         general_score = 0.5
         general_result = model.GeneralResult.NEXT if general_score > 0.6 else model.GeneralResult.REJECTED
@@ -327,7 +328,7 @@ class InterviewService(interface.IInterviewService):
             system_prompt=answer_evaluation_system_prompt
         )
 
-        evaluation_data = json.loads(question_evaluation_str)
+        evaluation_data = self.extract_and_parse_json(question_evaluation_str)
         score = evaluation_data["score"]
         llm_comment = evaluation_data["llm_comment"]
 
@@ -349,4 +350,11 @@ class InterviewService(interface.IInterviewService):
         interview_messages = await self.interview_repo.get_interview_messages(interview_id)
 
         return candidate_answers, interview_messages
+
+    def extract_and_parse_json(self, text: str) -> dict:
+        match = re.search(r"\{.*\}", text, re.DOTALL)
+
+        json_str = match.group(0)
+        data = json.loads(json_str)
+        return data
 
