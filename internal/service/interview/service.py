@@ -153,6 +153,8 @@ class InterviewService(interface.IInterviewService):
 
             elif action == "next_question" and current_question_order_number < len(questions):
                 next_question = await self.__next_question(
+                    interview_id=interview_id,
+                    llm_message_id=llm_message_id,
                     candidate_answer_id=candidate_answer.id,
                     response_time=60,
                     current_question=current_question,
