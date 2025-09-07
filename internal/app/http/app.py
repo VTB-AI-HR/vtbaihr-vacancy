@@ -40,72 +40,7 @@ def include_vacancy_handlers(
         vacancy_controller: interface.IVacancyController,
         prefix: str
 ):
-    app.add_api_route(
-        prefix + "/create",
-        vacancy_controller.create_vacancy,
-        methods=["POST"],
-        tags=["Vacancy Management"],
-
-    )
-
-    app.add_api_route(
-        prefix + "/all",
-        vacancy_controller.get_all_vacancy,
-        methods=["GET"],
-        tags=["Vacancy Management"],
-        response_model=list[model.Vacancy]
-    )
-
-    app.add_api_route(
-        prefix + "/delete/{vacancy_id}",
-        vacancy_controller.delete_vacancy,
-        methods=["DELETE"],
-        tags=["Vacancy Management"],
-    )
-
-    app.add_api_route(
-        prefix + "/question/generate",
-        vacancy_controller.generate_question,
-        methods=["POST"],
-        tags=["Vacancy Questions"],
-        response_model=GenerateQuestionResponse
-    )
-
-    app.add_api_route(
-        prefix + "/question/add",
-        vacancy_controller.add_question,
-        methods=["POST"],
-        tags=["Vacancy Questions"],
-    )
-
-    app.add_api_route(
-        prefix + "/question/edit",
-        vacancy_controller.edit_question,
-        methods=["PUT"],
-        tags=["Vacancy Questions"],
-    )
-
-    app.add_api_route(
-        prefix + "/question/all/{vacancy_id}",
-        vacancy_controller.get_all_question,
-        methods=["GET"],
-        tags=["Vacancy Questions"],
-        response_model=list[model.VacancyQuestion]
-    )
-
-    app.add_api_route(
-        prefix + "/question/delete/{question_id}",
-        vacancy_controller.delete_question,
-        methods=["DELETE"],
-        tags=["Vacancy Questions"],
-    )
-
-    app.add_api_route(
-        prefix + "/criterion-weights/edit",
-        vacancy_controller.edit_vacancy_criterion_weights,
-        methods=["PUT"],
-        tags=["Vacancy Management"],
-    )
+    pass
 
 
 def include_interview_handlers(
@@ -113,37 +48,7 @@ def include_interview_handlers(
         interview_controller: interface.IInterviewController,
         prefix: str
 ):
-    app.add_api_route(
-        prefix + "/interview/start",
-        interview_controller.start_interview,
-        methods=["POST"],
-        tags=["Interview Management"],
-        response_model=StartInterviewResponse
-    )
-
-    app.add_api_route(
-        prefix + "/interview/answer",
-        interview_controller.send_answer,
-        methods=["POST"],
-        tags=["Interview Management"],
-        response_model=SendAnswerResponse
-    )
-
-    app.add_api_route(
-        prefix + "/interview/all/{vacancy_id}",
-        interview_controller.get_all_interview,
-        methods=["GET"],
-        tags=["Interview Management"],
-        response_model=list[model.Interview]
-    )
-
-    app.add_api_route(
-        prefix + "/interview/details/{interview_id}",
-        interview_controller.get_candidate_answers,
-        methods=["GET"],
-        tags=["Interview Management"],
-        response_model=GetCandidateAnswersResponse
-    )
+    pass
 
 
 def include_db_handler(app: FastAPI, db: interface.IDB, prefix: str):
