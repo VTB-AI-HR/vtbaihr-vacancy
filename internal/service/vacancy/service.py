@@ -823,8 +823,7 @@ class VacancyService(interface.IVacancyService):
                 accordance_skill_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
 
                 # Проверяем пороговые значения (например, 3 из 5)
-                min_threshold = 3
-                if accordance_xp_score >= min_threshold and accordance_skill_score >= min_threshold:
+                if accordance_xp_score >= 4 and accordance_skill_score >= 4:
                     # Сохраняем резюме в WeedFS
                     resume_file_io = io.BytesIO(resume_content)
                     upload_result = self.storage.upload(resume_file_io, candidate_resume_file.filename)
@@ -862,7 +861,7 @@ class VacancyService(interface.IVacancyService):
                         "candidate_email": candidate_email,
                         "accordance_xp_score": accordance_xp_score,
                         "accordance_skill_score": accordance_skill_score,
-                        "min_threshold": min_threshold,
+                        "min_threshold": 4,
                         "filename": candidate_resume_file.filename
                     })
 
