@@ -1,14 +1,22 @@
 create_interview = """
 INSERT INTO interviews (
     vacancy_id,
+    candidate_name,
     candidate_email,
+    candidate_phone,
     candidate_resume_fid,
+    accordance_xp_vacancy_score,
+    accordance_skill_vacancy_score,
     general_result
 )
 VALUES (
     :vacancy_id,
+    :candidate_name,
     :candidate_email,
+    :candidate_phone,
     :candidate_resume_fid,
+    :accordance_xp_vacancy_score,
+    :accordance_skill_vacancy_score,
     :general_result
 )
 RETURNING id;
@@ -21,15 +29,14 @@ SET
     hard_skill_score = :hard_skill_score,
     soft_skill_score = :soft_skill_score,
     logic_structure_score = :logic_structure_score,
-    accordance_xp_vacancy_score = :accordance_xp_vacancy_score,
-    accordance_skill_vacancy_score = :accordance_skill_vacancy_score,
     accordance_xp_resume_score = :accordance_xp_resume_score,
     accordance_skill_resume_score = :accordance_skill_resume_score,
     strong_areas = :strong_areas,
     weak_areas = :weak_areas,
-    general_recommendation = :general_recommendation,
     general_score = :general_score,
-    general_result = :general_result
+    general_result = :general_result,
+    message_to_candidate = :message_to_candidate,
+    message_to_hr = :message_to_hr
 WHERE id = :interview_id;
 """
 

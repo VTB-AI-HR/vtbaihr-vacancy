@@ -93,7 +93,7 @@ class IInterviewRepo(Protocol):
     ) -> None: pass
 
     @abstractmethod
-    async def evaluate_candidate_answer(
+    async def evaluation_candidate_answer(
             self,
             candidate_answer_id: int,
             score: int,
@@ -104,6 +104,7 @@ class IInterviewRepo(Protocol):
     @abstractmethod
     async def fill_interview_criterion(
             self,
+            interview_id: int,
             red_flag_score: int,
             hard_skill_score: int,
             soft_skill_score: int,
@@ -116,7 +117,7 @@ class IInterviewRepo(Protocol):
             general_result: model.GeneralResult,
             message_to_candidate: str,
             message_to_hr: str,
-    ) -> int:
+    ) -> None:
         pass
 
     @abstractmethod
