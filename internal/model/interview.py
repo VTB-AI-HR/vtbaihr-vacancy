@@ -15,16 +15,18 @@ class Interview:
     vacancy_id: int
 
     candidate_email: str
+    candidate_name: str
+    candidate_phone: str
     candidate_resume_fid: str
-    accordance_xp_vacancy_score: float
-    accordance_skill_vacancy_score: float
+    accordance_xp_vacancy_score: int
+    accordance_skill_vacancy_score: int
 
-    red_flag_score: float
-    hard_skill_score: float
-    soft_skill_score: float
-    logic_structure_score: float
-    accordance_xp_resume_score: float
-    accordance_skill_resume_score: float
+    red_flag_score: int
+    hard_skill_score: int
+    soft_skill_score: int
+    logic_structure_score: int
+    accordance_xp_resume_score: int
+    accordance_skill_resume_score: int
     strong_areas: str
     weak_areas: str
 
@@ -41,6 +43,8 @@ class Interview:
             cls(
                 id=row.id,
                 vacancy_id=row.vacancy_id,
+                candidate_name=row.candidate_name,
+                candidate_phone=row.candidate_phone,
                 candidate_email=row.candidate_email,
                 candidate_resume_fid=row.candidate_resume_fid,
                 accordance_xp_vacancy_score=row.accordance_xp_vacancy_score,

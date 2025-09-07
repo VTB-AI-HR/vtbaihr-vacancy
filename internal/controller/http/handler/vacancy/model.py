@@ -19,20 +19,6 @@ class EditVacancyBody(BaseModel):
     skill_lvl: model.SkillLevel | None
 
 
-class GenerateQuestionBody(BaseModel):
-    vacancy_id: int
-    questions_type: model.QuestionsType
-    count_questions: int
-
-
-class GenerateQuestionResponse(BaseModel):
-    class Question(BaseModel):
-        question: str
-        question_type: str
-
-    questions: list[Question]
-
-
 class AddQuestionBody(BaseModel):
     vacancy_id: int
     question: str
@@ -47,9 +33,8 @@ class EditQuestionBody(BaseModel):
     vacancy_id: int
     question: str | None
     hint_for_evaluation: str | None
-    weight: int | None  # [0;10] 
+    weight: int | None  # [0;10]
     question_type: model.QuestionsType | None
-
 
 class CreateVacancyCriterionWeightBody(BaseModel):
     vacancy_id: int
@@ -64,7 +49,7 @@ class CreateVacancyCriterionWeightBody(BaseModel):
     red_flag_score_weight: int
 
 
-class EditVacancyCriterionWeightsBody(BaseModel):
+class EditVacancyCriterionWeightBody(BaseModel):
     vacancy_id: int
     logic_structure_score_weight: int | None
     pause_detection_score_weight: int | None
@@ -77,9 +62,50 @@ class EditVacancyCriterionWeightsBody(BaseModel):
     red_flag_score_weight: int | None
 
 
-class CreateWeightBody(BaseModel):
+class CreateResumeWeightBody(BaseModel):
     vacancy_id: int
     hard_skill_weight: int
     work_xp_weight: int
     recommendation_weight: int
     portfolio_weight: int
+
+class EditResumeWeightBody(BaseModel):
+    vacancy_id: int
+    hard_skill_weight: int | None
+    work_xp_weight: int | None
+    recommendation_weight: int | None
+    portfolio_weight: int | None
+
+class GenerateQuestionBody(BaseModel):
+    vacancy_id: int
+    questions_type: model.QuestionsType
+    count_questions: int
+
+
+class GenerateQuestionResponse(BaseModel):
+    questions: list[model.VacancyQuestion]
+
+class GenerateTagsBody(BaseModel):
+    vacancy_description: str
+
+class GenerateTagsResponse(BaseModel):
+    tags: list[str]
+
+class EvaluateResumeResponse(BaseModel):
+    class EvaluationResume(BaseModel):
+        candidate_email: str
+        candidate_name: str
+        candidate_phone: str
+        accordance_xp_vacancy_score: int
+        accordance_skill_vacancy_score: int
+
+    evaluation_resumes: list[EvaluationResume]
+
+class RespondResponse(BaseModel):
+    interview_link: str
+    accordance_xp_vacancy_score: int
+    accordance_skill_vacancy_score: int
+
+
+
+

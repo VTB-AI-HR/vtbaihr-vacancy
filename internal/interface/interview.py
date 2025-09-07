@@ -23,20 +23,137 @@ class IInterviewController(Protocol):
         pass
 
     @abstractmethod
+    async def get_all_interview(self, vacancy_id: int) -> JSONResponse: pass
+
+    @abstractmethod
+    async def get_interview_details(self, interview_id: int) -> JSONResponse: pass
+
+
+class IInterviewService(Protocol):
+    @abstractmethod
+    async def start_interview(self, interview_id: int) -> JSONResponse:
+        pass
+
+    @abstractmethod
+    async def send_answer(
+            self,
+            vacancy_id: int,
+            question_id: int,
+            interview_id: int,
+            audio_file: UploadFile
+    ) -> tuple[int, str, dict]:
+        pass
+
     async def get_all_interview(self, vacancy_id: int) -> list[model.Interview]: pass
 
-    async def get_interview_by_id(
+    @abstractmethod
+    async def get_interview_details(
             self,
             interview_id: int
     ) -> tuple[list[model.CandidateAnswer], list[model.InterviewMessage]]: pass
 
 
-class IInterviewService(Protocol):
-    pass
-
-
 class IInterviewRepo(Protocol):
-    pass
+    @abstractmethod
+    async def create_interview(
+            self,
+            vacancy_id: int,
+            candidate_name: str,
+            candidate_email: str,
+            candidate_phone: str,
+            candidate_resume_fid: str,
+            accordance_xp_vacancy_score: int,
+            accordance_skill_vacancy_score: int,
+    ) -> int:
+        pass
+
+    @abstractmethod
+    async def create_candidate_answer(
+            self,
+            question_id: int,
+            interview_id: int,
+    ) -> int: pass
+
+    @abstractmethod
+    async def create_interview_message(
+            self,
+            interview_id: int,
+            question_id: int,
+            audio_fid: str,
+            role: str,
+            text: str,
+    ) -> int:
+        pass
+
+    @abstractmethod
+    async def add_message_to_candidate_answer(
+            self,
+            message_id: int,
+            candidate_answer_id: int
+    ) -> None: pass
+
+    @abstractmethod
+    async def evaluate_candidate_answer(
+            self,
+            candidate_answer_id: int,
+            score: int,
+            llm_comment: str,
+            response_time: int
+    ) -> None: pass
+
+    @abstractmethod
+    async def fill_interview_criterion(
+            self,
+            red_flag_score: int,
+            hard_skill_score: int,
+            soft_skill_score: int,
+            logic_structure_score: int,
+            accordance_xp_resume_score: int,
+            accordance_skill_resume_score: int,
+            strong_areas: str,
+            weak_areas: str,
+            general_score: float,
+            general_result: model.GeneralResult,
+            message_to_candidate: str,
+            message_to_hr: str,
+    ) -> int:
+        pass
+
+    @abstractmethod
+    async def get_candidate_answer(
+            self,
+            question_id: int,
+            interview_id: int,
+    ) -> list[model.CandidateAnswer]: pass
+
+    @abstractmethod
+    async def get_all_interview(self, vacancy_id: int) -> list[model.Interview]:
+        pass
+
+    @abstractmethod
+    async def get_all_candidate_answer(self, interview_id: int) -> list[model.CandidateAnswer]:
+        pass
+
+    @abstractmethod
+    async def get_interview_messages(self, interview_id: int) -> list[model.InterviewMessage]:
+        pass
+
 
 class IInterviewPromptGenerator(Protocol):
-    pass
+    def get_interview_management_system_prompt(
+            self,
+            vacancy: model.Vacancy,
+            questions: list[model.VacancyQuestion],
+            current_question_order_number: int
+    ) -> str: pass
+
+    def get_answer_evaluation_system_prompt(
+            self,
+            question: model.VacancyQuestion,
+            vacancy: model.Vacancy
+    ) -> str: pass
+
+    def get_interview_summary_system_prompt(
+            self,
+            vacancy: model.Vacancy,
+    ) -> str: pass

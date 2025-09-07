@@ -11,57 +11,6 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
         self.tracer = tel.tracer()
         self.logger = tel.logger()
 
-    def get_resume_evaluation_system_prompt(
-            self,
-            vacancy_description: str,
-            vacancy_red_flags: str,
-            vacancy_name: str,
-            vacancy_tags: list[str]
-    ) -> str:
-        vacancy_tags_str = ", ".join(vacancy_tags) if vacancy_tags else "Не указаны"
-
-        system_prompt = f"""Ты эксперт по подбору персонала. Твоя задача - оценить насколько резюме кандидата подходит для конкретной вакансии.
-
-ИНФОРМАЦИЯ О ВАКАНСИИ:
-Название: {vacancy_name}
-Описание: {vacancy_description}
-Ключевые навыки/теги: {vacancy_tags_str}
-Красные флаги (что недопустимо): {vacancy_red_flags}
-
-КРИТЕРИИ ОЦЕНКИ:
-1. Соответствие опыта работы требованиям вакансии
-2. Наличие необходимых технических навыков и компетенций
-3. Соответствие уровня позиции (junior/middle/senior)
-4. Отсутствие красных флагов
-5. Релевантность образования (если важно для позиции)
-6. Общее впечатление от кандидата
-
-ИНСТРУКЦИИ:
-- Внимательно проанализируй резюме в контексте данной вакансии
-- Определи, подходит ли кандидат (is_suitable: true/false)
-- Кандидат считается подходящим, если он соответствует основным требованиям и не имеет критических красных флагов
-- Не будь слишком строгим - небольшие несоответствия допустимы, если общий профиль подходит
-- Предоставь детальное обоснование своего решения
-
-ФОРМАТ ОТВЕТА:
-Ответ должен быть ТОЛЬКО в формате JSON без дополнительного текста:
-
-{{
-  "is_suitable": true/false,
-  "resume_accordance_score": Насколько резюме подходит к вакансии (число от 0 до 10),
-  "message_to_candidate": "Подробное объяснение решения: анализ соответствия опыта, навыков, выявленные преимущества и недостатки кандидата, итоговый вывод о пригодности для данной позиции для кандидата"
-  "message_to_hr": "Подробное объяснение решения: анализ соответствия опыта, навыков, выявленные преимущества и недостатки кандидата, итоговый вывод о пригодности для данной позиции для hr"
-}}
-
-ВАЖНО: 
-- Отвечай ТОЛЬКО валидным JSON
-- НЕ добавляй никакого текста вне JSON структуры
-- НЕ используй markdown разметку или код-блоки
-- В поле llm_response предоставь развернутый анализ на русском языке
-"""
-
-        return system_prompt
-
     def get_interview_management_system_prompt(
             self,
             vacancy: model.Vacancy,
@@ -98,12 +47,17 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 {questions_str}
 
 ФОРМАТ ОТВЕТА:
+Ответ должен быть ТОЛЬКО в формате JSON без дополнительного текста:
 {{
   "action": Одно из трех действий: "continue", "next_question", "finish_interview",
   "message_to_candidate": "Сообщение кандидату",
 }}
 
-ВАЖНО: Отвечай ТОЛЬКО валидным JSON без markdown разметки."""
+ВАЖНО: 
+- Отвечай ТОЛЬКО валидным JSON
+- НЕ добавляй никакого текста вне JSON структуры
+- НЕ используй markdown разметку или код-блоки
+"""
 
     def get_answer_evaluation_system_prompt(
             self,
@@ -128,12 +82,17 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 - 9-10: Отличный ответ
 
 ФОРМАТ ОТВЕТА:
+Ответ должен быть ТОЛЬКО в формате JSON без дополнительного текста:
 {{
   "score": число от 0 до 10,
   "llm_comment": "Подробное обоснование оценки на русском языке"
 }}
 
-ВАЖНО: Отвечай ТОЛЬКО валидным JSON без markdown разметки."""
+ВАЖНО: 
+- Отвечай ТОЛЬКО валидным JSON
+- НЕ добавляй никакого текста вне JSON структуры
+- НЕ используй markdown разметку или код-блоки
+"""
 
     def get_interview_summary_system_prompt(
             self,
@@ -148,22 +107,26 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 Красные флаги: {vacancy.red_flags}
 
 ЗАДАЧА:
-На основе всего интервью оцени кандидата по следующим критериям (шкала 0-10):
+На основе всего интервью оцени кандидата по следующим критериям (шкала 0-5):
 
 ФОРМАТ ОТВЕТА:
+Ответ должен быть ТОЛЬКО в формате JSON без дополнительного текста:
 {{
-  "red_flag_score": число от 0 до 10,
-  "hard_skill_score": число от 0 до 10,
-  "soft_skill_score": число от 0 до 10,
-  "logic_structure_score": число от 0 до 10,
-  "accordance_xp_vacancy_score": число от 0 до 10,
-  "accordance_skill_vacancy_score": число от 0 до 10,
-  "accordance_xp_resume_score": число от 0 до 10,
-  "accordance_skill_resume_score": число от 0 до 10,
-  "strong_areas": "Сильные стороны кандидата",
-  "weak_areas": "Слабые стороны кандидата",
-  "general_recommendation": "Общее впечатление о кандидате",
+    "red_flag_score": Оценка по красным флагам (0-5),
+    "hard_skill_score": Оценка по техническим навыкам (0-5),
+    "soft_skill_score": Оценка по soft-скиллам (0-5),
+    "logic_structure_score": Оценка по логике структуры (0-5),
+    "accordance_xp_resume_score": Оценка по соответствию опыта в резюме и опыта для вакансии (0-5),
+    "accordance_skill_resume_score": Оценка по соответствию навыков в резюме и навыкам для вакансии (0-5),
+    "strong_areas": Сильные стороны кандидата,
+    "weak_areas": Слабые стороны кандидата,
+    "message_to_candidate": Пояснение итогов интервью для кандидата,
+    "message_to_hr": Пояснение итогов интервью для HR,
 }}
 
-ВАЖНО: Отвечай ТОЛЬКО валидным JSON без markdown разметки."""
+ВАЖНО: 
+- Отвечай ТОЛЬКО валидным JSON
+- НЕ добавляй никакого текста вне JSON структуры
+- НЕ используй markdown разметку или код-блоки
+"""
 
