@@ -477,9 +477,9 @@ class VacancyController(interface.IVacancyController):
 
     async def respond(
             self,
-            vacancy_id: int,
-            candidate_email: str,
-            candidate_resume_file: UploadFile
+            vacancy_id: int = Form(...),
+            candidate_email: str = Form(...),
+            candidate_resume_file: UploadFile = Form(...)
     ) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.respond",

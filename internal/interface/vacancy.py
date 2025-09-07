@@ -1,10 +1,8 @@
 from abc import abstractmethod
 from typing import Protocol
 
-from fastapi import FastAPI, UploadFile, Form, File
+from fastapi import UploadFile, Form
 from fastapi.responses import JSONResponse
-from opentelemetry.metrics import Meter
-from opentelemetry.trace import Tracer
 
 from internal.controller.http.handler.vacancy.model import *
 
@@ -49,16 +47,16 @@ class IVacancyController(Protocol):
     @abstractmethod
     async def evaluate_resume(
             self,
-            vacancy_id: int,
+            vacancy_id: int = Form(...),
             candidate_resume_files: list[UploadFile] = Form(...)
     ) -> JSONResponse: pass
 
     @abstractmethod
     async def respond(
             self,
-            vacancy_id: int,
-            candidate_email: str,
-            candidate_resume_file: UploadFile
+            vacancy_id: int = Form(...),
+            candidate_email: str = Form(...),
+            candidate_resume_file: UploadFile = Form(...)
     ) -> JSONResponse:
         pass
 
