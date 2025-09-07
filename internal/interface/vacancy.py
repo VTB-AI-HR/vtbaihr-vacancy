@@ -26,6 +26,9 @@ class IVacancyController(Protocol):
     async def edit_question(self, body: EditQuestionBody) -> JSONResponse: pass
 
     @abstractmethod
+    async def delete_question(self, question_id: int) -> JSONResponse: pass
+
+    @abstractmethod
     async def create_vacancy_criterion_weight(self, body: CreateVacancyCriterionWeightBody) -> JSONResponse: pass
 
     @abstractmethod
@@ -101,13 +104,16 @@ class IVacancyService(Protocol):
     @abstractmethod
     async def edit_question(
             self,
-            vacancy_id: int,
+            question_id: int,
             question: str | None,
             hint_for_evaluation: str | None,
             weight: int | None,
             question_type: model.QuestionsType | None,
             response_time: int | None,
     ) -> int: pass
+
+    @abstractmethod
+    async def delete_question(self, question_id: int) -> None: pass
 
     @abstractmethod
     async def create_vacancy_criterion_weight(
@@ -224,6 +230,17 @@ class IVacancyRepo(Protocol):
             question_type: model.QuestionsType,
             response_time: int,
     ) -> int: pass
+
+    @abstractmethod
+    async def edit_question(
+            self,
+            question_id: int,
+            question: str | None,
+            hint_for_evaluation: str | None,
+            weight: int | None,
+            question_type: model.QuestionsType | None,
+            response_time: int | None,
+    ) -> None: pass
 
     @abstractmethod
     async def create_vacancy_criterion_weight(

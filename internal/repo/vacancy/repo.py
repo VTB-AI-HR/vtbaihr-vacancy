@@ -158,7 +158,6 @@ class VacancyRepo(interface.IVacancyRepo):
     async def edit_question(
             self,
             question_id: int,
-            vacancy_id: int,
             question: str | None,
             hint_for_evaluation: str | None,
             weight: int | None,
@@ -170,12 +169,11 @@ class VacancyRepo(interface.IVacancyRepo):
                 kind=SpanKind.INTERNAL,
                 attributes={
                     "question_id": question_id,
-                    "vacancy_id": vacancy_id,
                 }
         ) as span:
             try:
                 update_fields = []
-                args: dict = {'question_id': question_id, 'vacancy_id': vacancy_id}
+                args: dict = {'question_id': question_id}
 
                 if question is not None:
                     update_fields.append("question = :question")
@@ -204,7 +202,7 @@ class VacancyRepo(interface.IVacancyRepo):
                 query = f"""
                 UPDATE vacancy_questions
                 SET {', '.join(update_fields)}
-                WHERE id = :question_id AND vacancy_id = :vacancy_id;
+                WHERE id = :question_id;
                 """
 
                 await self.db.update(query, args)
