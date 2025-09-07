@@ -609,7 +609,7 @@ class VacancyService(interface.IVacancyService):
                     accordance_skill_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
 
                     # Проверяем пороговые значения (4)
-                    if accordance_xp_score >= 4 and accordance_skill_score >= 4:
+                    if accordance_xp_score >= 3 and accordance_skill_score >= 3:
                         # Сохраняем резюме в WeedFS
                         # resume_file_io = io.BytesIO(resume_content)
                         # upload_result = self.storage.upload(resume_file_io, resume_file.filename)
@@ -745,7 +745,7 @@ class VacancyService(interface.IVacancyService):
                 accordance_skill_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
 
                 # Проверяем пороговые значения (например, 3 из 5)
-                if accordance_xp_score >= 4 and accordance_skill_score >= 4:
+                if accordance_xp_score >= 3 and accordance_skill_score >= 3:
                     # Сохраняем резюме в WeedFS
                     resume_file_io = io.BytesIO(resume_content)
                     upload_result = self.storage.upload(resume_file_io, candidate_resume_file.filename)
