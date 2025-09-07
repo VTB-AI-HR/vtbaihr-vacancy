@@ -749,9 +749,9 @@ class VacancyService(interface.IVacancyService):
                 # Проверяем пороговые значения (например, 3 из 5)
                 if accordance_xp_score >= 3 and accordance_skill_score >= 3:
                     # Сохраняем резюме в WeedFS
-                    resume_file_io = io.BytesIO(resume_content)
-                    upload_result = self.storage.upload(resume_file_io, candidate_resume_file.filename)
-                    candidate_resume_fid = upload_result.fid
+                    # resume_file_io = io.BytesIO(resume_content)
+                    # upload_result = self.storage.upload(resume_file_io, candidate_resume_file.filename)
+                    candidate_resume_fid = "42422"
 
                     # Создаем интервью
                     interview_id = await self.interview_repo.create_interview(
