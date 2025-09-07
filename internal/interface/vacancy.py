@@ -44,6 +44,12 @@ class IVacancyController(Protocol):
     ) -> JSONResponse:
         pass
 
+    @abstractmethod
+    async def get_all_vacancy(self) -> JSONResponse: pass
+
+    @abstractmethod
+    async def get_all_question(self, vacancy_id: int) -> JSONResponse: pass
+
 
 class IVacancyService(Protocol):
     pass
