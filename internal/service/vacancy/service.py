@@ -601,6 +601,7 @@ class VacancyService(interface.IVacancyService):
                         system_prompt=system_prompt,
                         pdf_file=resume_content
                     )
+                    self.logger.info("LLM response", {"llm_response": llm_response})
 
                     # Парсим ответ LLM
                     evaluation_data = json.loads(llm_response)
