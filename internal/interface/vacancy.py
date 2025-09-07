@@ -243,6 +243,9 @@ class IVacancyRepo(Protocol):
     ) -> None: pass
 
     @abstractmethod
+    async def delete_question(self, question_id: int) -> None: pass
+
+    @abstractmethod
     async def create_vacancy_criterion_weight(
             self,
             vacancy_id: int,
