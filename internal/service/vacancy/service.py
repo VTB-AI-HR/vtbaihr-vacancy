@@ -578,96 +578,93 @@ class VacancyService(interface.IVacancyService):
                 created_interviews = []
 
                 for resume_file in candidate_resume_files:
-                    try:
-                        # Читаем файл резюме
-                        resume_content = await resume_file.read()
 
-                        # Создаем сообщение для LLM
-                        history = [
-                            model.InterviewMessage(
-                                id=0,
-                                interview_id=0,
-                                question_id=0,
-                                audio_fid="",
-                                role="user",
-                                text="Оцени это резюме и извлеки данные",
-                                created_at=datetime.now()
-                            )
-                        ]
+                    # Читаем файл резюме
+                    resume_content = await resume_file.read()
 
-                        # Оцениваем резюме с помощью LLM
-                        llm_response = await self.llm_client.generate(
-                            history=history,
-                            system_prompt=system_prompt,
-                            pdf_file=resume_content
+                    # Создаем сообщение для LLM
+                    history = [
+                        model.InterviewMessage(
+                            id=0,
+                            interview_id=0,
+                            question_id=0,
+                            audio_fid="",
+                            role="user",
+                            text="Оцени это резюме и извлеки данные",
+                            created_at=datetime.now()
+                        )
+                    ]
+
+                    # Оцениваем резюме с помощью LLM
+                    llm_response = await self.llm_client.generate(
+                        history=history,
+                        system_prompt=system_prompt,
+                        pdf_file=resume_content
+                    )
+
+                    # Парсим ответ LLM
+                    evaluation_data = json.loads(llm_response)
+
+                    accordance_xp_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
+                    accordance_skill_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
+
+                    # Проверяем пороговые значения (4)
+                    if accordance_xp_score >= 4 and accordance_skill_score >= 4:
+                        # Сохраняем резюме в WeedFS
+                        # resume_file_io = io.BytesIO(resume_content)
+                        # upload_result = self.storage.upload(resume_file_io, resume_file.filename)
+                        candidate_resume_fid = "45346545"
+
+                        # Создаем интервью
+                        interview_id = await self.interview_repo.create_interview(
+                            vacancy_id=vacancy_id,
+                            candidate_name=evaluation_data.get("candidate_name", "Unknown"),
+                            candidate_email=evaluation_data.get("candidate_email", "unknown@example.com"),
+                            candidate_phone=evaluation_data.get("candidate_phone", "Unknown"),
+                            candidate_resume_fid=candidate_resume_fid,
+                            accordance_xp_vacancy_score=accordance_xp_score,
+                            accordance_skill_vacancy_score=accordance_skill_score
                         )
 
-                        # Парсим ответ LLM
-                        evaluation_data = json.loads(llm_response)
+                        # Создаем объект Interview для возврата
+                        interview = model.Interview(
+                            id=interview_id,
+                            vacancy_id=vacancy_id,
+                            candidate_name=evaluation_data.get("candidate_name", "Unknown"),
+                            candidate_email=evaluation_data.get("candidate_email", "unknown@example.com"),
+                            candidate_phone=evaluation_data.get("candidate_phone", "Unknown"),
+                            candidate_resume_fid=candidate_resume_fid,
+                            accordance_xp_vacancy_score=accordance_xp_score,
+                            accordance_skill_vacancy_score=accordance_skill_score,
+                            red_flag_score=0,
+                            hard_skill_score=0,
+                            soft_skill_score=0,
+                            logic_structure_score=0,
+                            accordance_xp_resume_score=0,
+                            accordance_skill_resume_score=0,
+                            strong_areas="",
+                            weak_areas="",
+                            general_score=0.0,
+                            general_result=model.GeneralResult.IN_PROCESS,
+                            message_to_candidate=evaluation_data.get("message_to_candidate", ""),
+                            message_to_hr=evaluation_data.get("message_to_hr", ""),
+                            created_at=datetime.now()
+                        )
 
-                        accordance_xp_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
-                        accordance_skill_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
+                        created_interviews.append(interview)
 
-                        # Проверяем пороговые значения (4)
-                        if accordance_xp_score >= 4 and accordance_skill_score >= 4:
-                            # Сохраняем резюме в WeedFS
-                            # resume_file_io = io.BytesIO(resume_content)
-                            # upload_result = self.storage.upload(resume_file_io, resume_file.filename)
-                            candidate_resume_fid = "45346545"
-
-                            # Создаем интервью
-                            interview_id = await self.interview_repo.create_interview(
-                                vacancy_id=vacancy_id,
-                                candidate_name=evaluation_data.get("candidate_name", "Unknown"),
-                                candidate_email=evaluation_data.get("candidate_email", "unknown@example.com"),
-                                candidate_phone=evaluation_data.get("candidate_phone", "Unknown"),
-                                candidate_resume_fid=candidate_resume_fid,
-                                accordance_xp_vacancy_score=accordance_xp_score,
-                                accordance_skill_vacancy_score=accordance_skill_score
-                            )
-
-                            # Создаем объект Interview для возврата
-                            interview = model.Interview(
-                                id=interview_id,
-                                vacancy_id=vacancy_id,
-                                candidate_name=evaluation_data.get("candidate_name", "Unknown"),
-                                candidate_email=evaluation_data.get("candidate_email", "unknown@example.com"),
-                                candidate_phone=evaluation_data.get("candidate_phone", "Unknown"),
-                                candidate_resume_fid=candidate_resume_fid,
-                                accordance_xp_vacancy_score=accordance_xp_score,
-                                accordance_skill_vacancy_score=accordance_skill_score,
-                                red_flag_score=0,
-                                hard_skill_score=0,
-                                soft_skill_score=0,
-                                logic_structure_score=0,
-                                accordance_xp_resume_score=0,
-                                accordance_skill_resume_score=0,
-                                strong_areas="",
-                                weak_areas="",
-                                general_score=0.0,
-                                general_result=model.GeneralResult.IN_PROCESS,
-                                message_to_candidate=evaluation_data.get("message_to_candidate", ""),
-                                message_to_hr=evaluation_data.get("message_to_hr", ""),
-                                created_at=datetime.now()
-                            )
-
-                            created_interviews.append(interview)
-
-                            self.logger.info("Resume passed evaluation, interview created", {
-                                "filename": resume_file.filename,
-                                "interview_id": interview_id,
-                                "accordance_xp_score": accordance_xp_score,
-                                "accordance_skill_score": accordance_skill_score
-                            })
-                        else:
-                            self.logger.info("Resume failed evaluation", {
-                                "filename": resume_file.filename,
-                                "accordance_xp_score": accordance_xp_score,
-                                "accordance_skill_score": accordance_skill_score
-                            })
-
-                    except Exception as e:
-                        continue
+                        self.logger.info("Resume passed evaluation, interview created", {
+                            "filename": resume_file.filename,
+                            "interview_id": interview_id,
+                            "accordance_xp_score": accordance_xp_score,
+                            "accordance_skill_score": accordance_skill_score
+                        })
+                    else:
+                        self.logger.info("Resume failed evaluation", {
+                            "filename": resume_file.filename,
+                            "accordance_xp_score": accordance_xp_score,
+                            "accordance_skill_score": accordance_skill_score
+                        })
 
                 self.logger.info("Resume evaluation completed", {
                     "vacancy_id": vacancy_id,
@@ -745,7 +742,6 @@ class VacancyService(interface.IVacancyService):
                 # Парсим ответ LLM
 
                 evaluation_data = json.loads(llm_response)
-
 
                 accordance_xp_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
                 accordance_skill_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
