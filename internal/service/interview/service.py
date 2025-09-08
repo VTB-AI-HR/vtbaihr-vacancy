@@ -1,6 +1,7 @@
 import io
 import json
 import re
+import uuid
 from datetime import datetime
 
 from fastapi import UploadFile
@@ -59,11 +60,19 @@ class InterviewService(interface.IInterviewService):
         hello_interview = self.extract_and_parse_json(hello_interview_str)
         message_to_candidate = hello_interview["message_to_candidate"]
 
+        llm_audio = await self.llm_client.text_to_speech(message_to_candidate)
+
+        # Сохраняем аудио в storage
+        llm_audio_filename = f"hello_interview_{interview_id}_{current_question.id}.mp3"
+        llm_audio_file_io = io.BytesIO(llm_audio)
+        upload_response = self.storage.upload(llm_audio_file_io, llm_audio_filename)
+        llm_audio_fid = upload_response.fid
+
         llm_message_id = await self.interview_repo.create_interview_message(
             interview_id=interview_id,
             question_id=current_question.id,
-            audio_name="0",
-            audio_fid="0",
+            audio_name=llm_audio_filename,
+            audio_fid=llm_audio_fid,
             role="assistant",
             text=message_to_candidate,
         )
@@ -136,11 +145,17 @@ class InterviewService(interface.IInterviewService):
             action = llm_response["action"]
             message_to_candidate: str = llm_response["message_to_candidate"]
 
+            llm_audio = await self.llm_client.text_to_speech(message_to_candidate)
+            llm_audio_filename = f"message_to_candidate_{interview_id}_{current_question.id}_{uuid.uuid4()}.mp3"
+            llm_audio_file_io = io.BytesIO(llm_audio)
+            upload_response = self.storage.upload(llm_audio_file_io, llm_audio_filename)
+            llm_audio_fid = upload_response.fid
+
             llm_message_id = await self.interview_repo.create_interview_message(
                 interview_id=interview_id,
                 question_id=question_id,
-                audio_name="0",
-                audio_fid="0",
+                audio_name=llm_audio_filename,
+                audio_fid=llm_audio_fid,
                 role="assistant",
                 text=message_to_candidate
             )

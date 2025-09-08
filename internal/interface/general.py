@@ -110,3 +110,11 @@ class ILLMClient(Protocol):
             audio_file: bytes,
             filename: str = "audio.wav"
     ) -> str: pass
+
+    @abstractmethod
+    async def text_to_speech(
+            self,
+            text: str,
+            voice: str = "alloy",
+            tts_model: str = "tts-1"
+    ) -> bytes: pass

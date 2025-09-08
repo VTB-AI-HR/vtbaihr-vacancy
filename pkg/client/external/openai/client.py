@@ -116,6 +116,34 @@ class GPTClient(interface.ILLMClient):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise
 
+    async def text_to_speech(
+            self,
+            text: str,
+            voice: str = "alloy",
+            tts_model: str = "tts-1"
+    ) -> bytes:
+        with self.tracer.start_as_current_span(
+                "GPTClient.text_to_speech",
+                kind=SpanKind.CLIENT,
+        ) as span:
+            try:
+                response = await self.client.audio.speech.create(
+                    model=tts_model,
+                    voice=voice,
+                    input=text,
+                    response_format="mp3"
+                )
+
+                audio_content = response.content
+
+                span.set_status(Status(StatusCode.OK))
+                return audio_content
+
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise
+
     def _extract_text_from_pdf(self, pdf_bytes: bytes) -> str:
         """Извлекает текст из PDF файла"""
         reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
