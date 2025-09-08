@@ -1,6 +1,7 @@
 from opentelemetry.trace import Status, StatusCode, SpanKind
 from fastapi import UploadFile, Form, Path, File
 from fastapi.responses import JSONResponse
+from starlette.responses import StreamingResponse
 
 from internal import interface
 
@@ -172,6 +173,73 @@ class InterviewController(interface.IInterviewController):
                     status_code=404,
                     content={"error": "Interview not found"}
                 )
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise err
+
+    async def download_audio(
+            self,
+            audio_fid: str = Path(...),
+            audio_filename: str = Path(...)
+    ) -> StreamingResponse:
+        with self.tracer.start_as_current_span(
+                "InterviewController.download_audio",
+                kind=SpanKind.INTERNAL,
+                attributes={
+                    "audio_fid": audio_fid,
+                    "audio_filename": audio_filename
+                }
+        ) as span:
+            try:
+                self.logger.info("Downloading audio file", {
+                    "audio_fid": audio_fid,
+                    "audio_filename": audio_filename
+                })
+
+                # Загружаем файл из storage
+                audio_stream, content_type = self.interview_service.download_audio(audio_fid, audio_filename)
+
+                # Определяем MIME тип для аудио файлов
+                if not content_type or content_type == "application/octet-stream":
+                    if audio_filename.lower().endswith(('.mp3', '.mpeg')):
+                        content_type = "audio/mpeg"
+                    elif audio_filename.lower().endswith('.wav'):
+                        content_type = "audio/wav"
+                    elif audio_filename.lower().endswith('.ogg'):
+                        content_type = "audio/ogg"
+                    elif audio_filename.lower().endswith('.m4a'):
+                        content_type = "audio/mp4"
+                    else:
+                        content_type = "audio/mpeg"  # default
+
+                def iterfile():
+                    """Генератор для стриминга файла"""
+                    try:
+                        while True:
+                            chunk = audio_stream.read(8192)  # Читаем по 8KB
+                            if not chunk:
+                                break
+                            yield chunk
+                    finally:
+                        audio_stream.close()
+
+                self.logger.info("Audio file downloaded successfully", {
+                    "audio_fid": audio_fid,
+                    "audio_filename": audio_filename,
+                    "content_type": content_type
+                })
+
+                span.set_status(Status(StatusCode.OK))
+                return StreamingResponse(
+                    iterfile(),
+                    media_type=content_type,
+                    headers={
+                        "Content-Disposition": f"attachment; filename={audio_filename}",
+                        "Cache-Control": "no-cache"
+                    }
+                )
+
             except Exception as err:
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))

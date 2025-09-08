@@ -1,8 +1,9 @@
 from abc import abstractmethod
 from typing import Protocol
 
-from fastapi import UploadFile, Form, File
+from fastapi import UploadFile, Form, File, Path
 from fastapi.responses import JSONResponse
+from starlette.responses import StreamingResponse
 
 from internal import model
 
@@ -26,6 +27,13 @@ class IInterviewController(Protocol):
 
     @abstractmethod
     async def get_interview_details(self, interview_id: int) -> JSONResponse: pass
+
+    @abstractmethod
+    async def download_audio(
+            self,
+            audio_fid: str = Path(...),
+            audio_filename: str = Path(...)
+    ) -> StreamingResponse: pass
 
 
 class IInterviewService(Protocol):
