@@ -95,7 +95,7 @@ class VacancyQuestion:
 
 
 @dataclass
-class VacancyCriterionWeights:
+class VacancyWeights:
     id: int
     vacancy_id: int
     logic_structure_score_weight: int
@@ -108,7 +108,7 @@ class VacancyCriterionWeights:
     created_at: datetime
 
     @classmethod
-    def serialize(cls, rows) -> List['VacancyCriterionWeights']:
+    def serialize(cls, rows) -> List['VacancyWeights']:
         return [
             cls(
                 id=row.id,
@@ -138,7 +138,7 @@ class VacancyCriterionWeights:
 
 
 @dataclass
-class ResumeCriterionWeights:
+class ResumeWeights:
     id: int
     vacancy_id: int
     accordance_xp_vacancy_score_threshold: int
@@ -149,7 +149,7 @@ class ResumeCriterionWeights:
     created_at: datetime
 
     @classmethod
-    def serialize(cls, rows) -> List['ResumeCriterionWeights']:
+    def serialize(cls, rows) -> List['ResumeWeights']:
         return [
             cls(
                 id=row.id,

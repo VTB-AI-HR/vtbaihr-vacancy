@@ -27,16 +27,16 @@ class IVacancyController(Protocol):
     async def delete_question(self, question_id: int) -> JSONResponse: pass
 
     @abstractmethod
-    async def create_interview_criterion_weight(self, body: CreateInterviewCriterionWeightBody) -> JSONResponse: pass
+    async def create_interview_weights(self, body: CreateInterviewWeightsBody) -> JSONResponse: pass
 
     @abstractmethod
-    async def edit_interview_criterion_weight(self, body: EditInterviewCriterionWeightBody) -> JSONResponse: pass
+    async def edit_interview_weights(self, body: EditInterviewWeightsBody) -> JSONResponse: pass
 
     @abstractmethod
-    async def create_resume_weight(self, body: CreateResumeWeightBody) -> JSONResponse: pass
+    async def create_resume_weights(self, body: CreateResumeWeightsBody) -> JSONResponse: pass
 
     @abstractmethod
-    async def edit_resume_weight(self, body: EditResumeWeightBody) -> JSONResponse: pass
+    async def edit_resume_weights(self, body: EditResumeWeightsBody) -> JSONResponse: pass
 
     @abstractmethod
     async def generate_tags(self, body: GenerateTagsBody) -> JSONResponse: pass
@@ -67,11 +67,11 @@ class IVacancyController(Protocol):
     async def get_all_question(self, vacancy_id: int) -> JSONResponse: pass
 
     @abstractmethod
-    async def get_interview_criterion_weights(self, vacancy_id: int) -> JSONResponse:
+    async def get_interview_weights(self, vacancy_id: int) -> JSONResponse:
         pass
 
     @abstractmethod
-    async def get_resume_criterion_weights(self, vacancy_id: int) -> JSONResponse:
+    async def get_resume_weights(self, vacancy_id: int) -> JSONResponse:
         pass
 
 
@@ -126,7 +126,7 @@ class IVacancyService(Protocol):
     async def delete_question(self, question_id: int) -> None: pass
 
     @abstractmethod
-    async def create_interview_criterion_weight(
+    async def create_interview_weights(
             self,
             vacancy_id: int,
             logic_structure_score_weight: int,
@@ -138,7 +138,7 @@ class IVacancyService(Protocol):
     ) -> None: pass
 
     @abstractmethod
-    async def edit_interview_criterion_weight(
+    async def edit_interview_weights(
             self,
             vacancy_id: int,
             logic_structure_score_weight: int | None,
@@ -150,7 +150,7 @@ class IVacancyService(Protocol):
     ) -> None: pass
 
     @abstractmethod
-    async def create_resume_weight(
+    async def create_resume_weights(
             self,
             vacancy_id: int,
             accordance_xp_vacancy_score_threshold: int,
@@ -160,7 +160,7 @@ class IVacancyService(Protocol):
     ) -> None: pass
 
     @abstractmethod
-    async def edit_resume_weight(
+    async def edit_resume_weights(
             self,
             vacancy_id: int,
             accordance_xp_vacancy_score_threshold: int | None,
@@ -200,11 +200,11 @@ class IVacancyService(Protocol):
     async def get_all_question(self, vacancy_id: int) -> list[model.VacancyQuestion]: pass
 
     @abstractmethod
-    async def get_interview_criterion_weights(self, vacancy_id: int) -> list[model.VacancyCriterionWeights]:
+    async def get_interview_weights(self, vacancy_id: int) -> list[model.VacancyWeights]:
         pass
 
     @abstractmethod
-    async def get_resume_criterion_weights(self, vacancy_id: int) -> list[model.ResumeCriterionWeights]:
+    async def get_resume_weights(self, vacancy_id: int) -> list[model.ResumeWeights]:
         pass
 
 
@@ -259,7 +259,7 @@ class IVacancyRepo(Protocol):
     async def delete_question(self, question_id: int) -> None: pass
 
     @abstractmethod
-    async def create_interview_criterion_weight(
+    async def create_interview_weights(
             self,
             vacancy_id: int,
             logic_structure_score_weight: int,
@@ -271,7 +271,7 @@ class IVacancyRepo(Protocol):
     ) -> None: pass
 
     @abstractmethod
-    async def edit_interview_criterion_weight(
+    async def edit_interview_weights(
             self,
             vacancy_id: int,
             logic_structure_score_weight: int | None,
@@ -283,7 +283,7 @@ class IVacancyRepo(Protocol):
     ) -> None: pass
 
     @abstractmethod
-    async def create_resume_weight(
+    async def create_resume_weights(
             self,
             vacancy_id: int,
             accordance_xp_vacancy_score_threshold: int,
@@ -293,7 +293,7 @@ class IVacancyRepo(Protocol):
     ) -> None: pass
 
     @abstractmethod
-    async def edit_resume_weight(
+    async def edit_resume_weights(
             self,
             vacancy_id: int,
             accordance_xp_vacancy_score_threshold: int | None,
@@ -312,10 +312,10 @@ class IVacancyRepo(Protocol):
     async def get_all_question(self, vacancy_id: int) -> list[model.VacancyQuestion]: pass
 
     @abstractmethod
-    async def get_interview_criterion_weights(self, vacancy_id: int) -> list[model.VacancyCriterionWeights]: pass
+    async def get_interview_weights(self, vacancy_id: int) -> list[model.VacancyWeights]: pass
 
     @abstractmethod
-    async def get_resume_criterion_weights(self, vacancy_id: int) -> list[model.ResumeCriterionWeights]: pass
+    async def get_resume_weights(self, vacancy_id: int) -> list[model.ResumeWeights]: pass
 
 
 class IVacancyPromptGenerator(Protocol):

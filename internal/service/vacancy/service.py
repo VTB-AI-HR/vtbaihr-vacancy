@@ -256,7 +256,7 @@ class VacancyService(interface.IVacancyService):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def create_interview_criterion_weight(
+    async def create_interview_weights(
             self,
             vacancy_id: int,
             logic_structure_score_weight: int,
@@ -276,7 +276,7 @@ class VacancyService(interface.IVacancyService):
             try:
                 self.logger.info("Creating vacancy criterion weights", {"vacancy_id": vacancy_id})
 
-                await self.vacancy_repo.create_interview_criterion_weight(
+                await self.vacancy_repo.create_interview_weights(
                     vacancy_id=vacancy_id,
                     logic_structure_score_weight=logic_structure_score_weight,
                     soft_skill_score_weight=soft_skill_score_weight,
@@ -295,7 +295,7 @@ class VacancyService(interface.IVacancyService):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def edit_interview_criterion_weight(
+    async def edit_interview_weights(
             self,
             vacancy_id: int,
             logic_structure_score_weight: int | None,
@@ -315,7 +315,7 @@ class VacancyService(interface.IVacancyService):
             try:
                 self.logger.info("Editing vacancy criterion weights", {"vacancy_id": vacancy_id})
 
-                await self.vacancy_repo.edit_interview_criterion_weight(
+                await self.vacancy_repo.edit_interview_weights(
                     vacancy_id=vacancy_id,
                     logic_structure_score_weight=logic_structure_score_weight,
                     soft_skill_score_weight=soft_skill_score_weight,
@@ -334,7 +334,7 @@ class VacancyService(interface.IVacancyService):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def create_resume_weight(
+    async def create_resume_weights(
             self,
             vacancy_id: int,
             accordance_xp_vacancy_score_threshold: int,
@@ -352,7 +352,7 @@ class VacancyService(interface.IVacancyService):
             try:
                 self.logger.info("Creating resume weights", {"vacancy_id": vacancy_id})
 
-                await self.vacancy_repo.create_resume_weight(
+                await self.vacancy_repo.create_resume_weights(
                     vacancy_id=vacancy_id,
                     accordance_xp_vacancy_score_threshold=accordance_xp_vacancy_score_threshold,
                     accordance_skill_vacancy_score_threshold=accordance_skill_vacancy_score_threshold,
@@ -369,7 +369,7 @@ class VacancyService(interface.IVacancyService):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def edit_resume_weight(
+    async def edit_resume_weights(
             self,
             vacancy_id: int,
             accordance_xp_vacancy_score_threshold: int | None,
@@ -387,7 +387,7 @@ class VacancyService(interface.IVacancyService):
             try:
                 self.logger.info("Editing resume weights", {"vacancy_id": vacancy_id})
 
-                await self.vacancy_repo.edit_resume_weight(
+                await self.vacancy_repo.edit_resume_weights(
                     vacancy_id=vacancy_id,
                     accordance_xp_vacancy_score_threshold=accordance_xp_vacancy_score_threshold,
                     accordance_skill_vacancy_score_threshold=accordance_skill_vacancy_score_threshold,
@@ -592,11 +592,11 @@ class VacancyService(interface.IVacancyService):
                     accordance_xp_vacancy_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
                     accordance_skill_vacancy_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
 
-                    resume_criterion_weights = (await self.vacancy_repo.get_resume_criterion_weights(vacancy_id))[0]
+                    resume_weights = (await self.vacancy_repo.get_resume_weights(vacancy_id))[0]
 
                     # Проверяем пороговые значения (4)
-                    if (accordance_xp_vacancy_score >= resume_criterion_weights.accordance_xp_vacancy_score_threshold
-                            and accordance_skill_vacancy_score >= resume_criterion_weights.accordance_skill_vacancy_score_threshold):
+                    if (accordance_xp_vacancy_score >= resume_weights.accordance_xp_vacancy_score_threshold
+                            and accordance_skill_vacancy_score >= resume_weights.accordance_skill_vacancy_score_threshold):
                         # Сохраняем резюме в WeedFS
                         # resume_file_io = io.BytesIO(resume_content)
                         # upload_result = self.storage.upload(resume_file_io, resume_file.filename)
@@ -732,10 +732,10 @@ class VacancyService(interface.IVacancyService):
                 accordance_skill_vacancy_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
                 message_to_candidate = evaluation_data.get("message_to_candidate", "")
 
-                resume_criterion_weights = (await self.vacancy_repo.get_resume_criterion_weights(vacancy_id))[0]
+                resume_weights = (await self.vacancy_repo.get_resume_weights(vacancy_id))[0]
 
-                if (accordance_xp_vacancy_score >= resume_criterion_weights.accordance_xp_vacancy_score_threshold
-                    and accordance_skill_vacancy_score >= resume_criterion_weights.accordance_skill_vacancy_score_threshold):
+                if (accordance_xp_vacancy_score >= resume_weights.accordance_xp_vacancy_score_threshold
+                    and accordance_skill_vacancy_score >= resume_weights.accordance_skill_vacancy_score_threshold):
                     # Сохраняем резюме в WeedFS
                     # resume_file_io = io.BytesIO(resume_content)
                     # upload_result = self.storage.upload(resume_file_io, candidate_resume_file.filename)
@@ -839,7 +839,7 @@ class VacancyService(interface.IVacancyService):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def get_interview_criterion_weights(self, vacancy_id: int) -> list[model.VacancyCriterionWeights]:
+    async def get_interview_weights(self, vacancy_id: int) -> list[model.VacancyWeights]:
         with self.tracer.start_as_current_span(
                 "VacancyService.get_interview_criterion_weights",
                 kind=SpanKind.INTERNAL,
@@ -852,7 +852,7 @@ class VacancyService(interface.IVacancyService):
                     "vacancy_id": vacancy_id
                 })
 
-                weights = await self.vacancy_repo.get_interview_criterion_weights(vacancy_id)
+                weights = await self.vacancy_repo.get_interview_weights(vacancy_id)
 
                 self.logger.info("Successfully retrieved interview criterion weights", {
                     "vacancy_id": vacancy_id,
@@ -867,7 +867,7 @@ class VacancyService(interface.IVacancyService):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def get_resume_criterion_weights(self, vacancy_id: int) -> list[model.ResumeCriterionWeights]:
+    async def get_resume_weights(self, vacancy_id: int) -> list[model.ResumeWeights]:
         with self.tracer.start_as_current_span(
                 "VacancyService.get_resume_criterion_weights",
                 kind=SpanKind.INTERNAL,
@@ -880,7 +880,7 @@ class VacancyService(interface.IVacancyService):
                     "vacancy_id": vacancy_id
                 })
 
-                weights = await self.vacancy_repo.get_resume_criterion_weights(vacancy_id)
+                weights = await self.vacancy_repo.get_resume_weights(vacancy_id)
 
                 self.logger.info("Successfully retrieved resume criterion weights", {
                     "vacancy_id": vacancy_id,

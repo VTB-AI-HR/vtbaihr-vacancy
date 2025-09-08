@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS vacancy_questions(
 """
 
 create_interview_weights_table = """
-CREATE TABLE IF NOT EXISTS interview_criterion_weights(
+CREATE TABLE IF NOT EXISTS interview_weights(
     id SERIAL PRIMARY KEY,
     vacancy_id INTEGER NOT NULL REFERENCES vacancies(id) ON DELETE CASCADE,
     
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS interview_criterion_weights(
 """
 
 create_resume_weights_table = """
-CREATE TABLE IF NOT EXISTS resume_criterion_weights(
+CREATE TABLE IF NOT EXISTS resume_weights(
     id SERIAL PRIMARY KEY,
     vacancy_id INTEGER NOT NULL REFERENCES vacancies(id) ON DELETE CASCADE,
     
@@ -126,11 +126,11 @@ DROP TABLE IF EXISTS vacancy_questions CASCADE;
 """
 
 drop_interview_weights_table = """
-DROP TABLE IF EXISTS interview_criterion_weights CASCADE;
+DROP TABLE IF EXISTS interview_weights CASCADE;
 """
 
 drop_resume_weights_table = """
-DROP TABLE IF EXISTS resume_criterion_weights CASCADE;
+DROP TABLE IF EXISTS resume_weights CASCADE;
 """
 
 drop_interviews_table = """

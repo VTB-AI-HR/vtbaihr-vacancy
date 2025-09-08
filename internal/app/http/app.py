@@ -91,32 +91,32 @@ def include_vacancy_handlers(
 
     # Создание весов критериев вакансии
     app.add_api_route(
-        prefix + "/criterion-weight/create",
-        vacancy_controller.create_vacancy_criterion_weight,
+        prefix + "/interview-weights/create",
+        vacancy_controller.create_interview_weights,
         tags=["Vacancy"],
         methods=["POST"]
     )
 
     # Редактирование весов критериев вакансии
     app.add_api_route(
-        prefix + "/criterion-weight/edit",
-        vacancy_controller.edit_vacancy_criterion_weight,
+        prefix + "/interview-weights/edit",
+        vacancy_controller.edit_interview_weights,
         tags=["Vacancy"],
         methods=["PUT"],
     )
 
     # Создание весов резюме
     app.add_api_route(
-        prefix + "/resume-weight/create",
-        vacancy_controller.create_resume_weight,
+        prefix + "/resume-weights/create",
+        vacancy_controller.create_resume_weights,
         tags=["Vacancy"],
         methods=["POST"],
     )
 
     # Редактирование весов резюме
     app.add_api_route(
-        prefix + "/resume-weight/edit",
-        vacancy_controller.edit_resume_weight,
+        prefix + "/resume-weights/edit",
+        vacancy_controller.edit_resume_weights,
         tags=["Vacancy"],
         methods=["PUT"],
     )
@@ -176,20 +176,20 @@ def include_vacancy_handlers(
     )
 
     app.add_api_route(
-        prefix + "/criterion-weight/{vacancy_id}",
-        vacancy_controller.get_interview_criterion_weights,
+        prefix + "/interview-weights/{vacancy_id}",
+        vacancy_controller.get_interview_weights,
         methods=["GET"],
         tags=["Vacancy"],
-        response_model=list[model.VacancyCriterionWeights],
+        response_model=list[model.VacancyWeights],
     )
 
     # Получение весов критериев резюме
     app.add_api_route(
-        prefix + "/resume-weight/{vacancy_id}",
-        vacancy_controller.get_resume_criterion_weights,
+        prefix + "/resume-weights/{vacancy_id}",
+        vacancy_controller.get_resume_weights,
         methods=["GET"],
         tags=["Vacancy"],
-        response_model=list[model.ResumeCriterionWeights],
+        response_model=list[model.ResumeWeights],
     )
 
 

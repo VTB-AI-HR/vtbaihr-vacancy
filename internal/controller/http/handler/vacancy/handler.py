@@ -225,7 +225,7 @@ class VacancyController(interface.IVacancyController):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def create_interview_criterion_weight(self, body: CreateInterviewCriterionWeightBody) -> JSONResponse:
+    async def create_interview_weights(self, body: CreateInterviewWeightsBody) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.create_interview_criterion_weight",
                 kind=SpanKind.INTERNAL,
@@ -234,7 +234,7 @@ class VacancyController(interface.IVacancyController):
             try:
                 self.logger.info("Creating vacancy criterion weights", {"vacancy_id": body.vacancy_id})
 
-                await self.vacancy_service.create_interview_criterion_weight(
+                await self.vacancy_service.create_interview_weights(
                     vacancy_id=body.vacancy_id,
                     logic_structure_score_weight=body.logic_structure_score_weight,
                     soft_skill_score_weight=body.soft_skill_score_weight,
@@ -257,7 +257,7 @@ class VacancyController(interface.IVacancyController):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def edit_interview_criterion_weight(self, body: EditInterviewCriterionWeightBody) -> JSONResponse:
+    async def edit_interview_weights(self, body: EditInterviewWeightsBody) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.edit_interview_criterion_weight",
                 kind=SpanKind.INTERNAL,
@@ -266,7 +266,7 @@ class VacancyController(interface.IVacancyController):
             try:
                 self.logger.info("Editing vacancy criterion weights", {"vacancy_id": body.vacancy_id})
 
-                await self.vacancy_service.edit_interview_criterion_weight(
+                await self.vacancy_service.edit_interview_weights(
                     vacancy_id=body.vacancy_id,
                     logic_structure_score_weight=body.logic_structure_score_weight,
                     soft_skill_score_weight=body.soft_skill_score_weight,
@@ -289,7 +289,7 @@ class VacancyController(interface.IVacancyController):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def create_resume_weight(self, body: CreateResumeWeightBody) -> JSONResponse:
+    async def create_resume_weights(self, body: CreateResumeWeightsBody) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.create_resume_weight",
                 kind=SpanKind.INTERNAL,
@@ -298,7 +298,7 @@ class VacancyController(interface.IVacancyController):
             try:
                 self.logger.info("Creating resume weights", {"vacancy_id": body.vacancy_id})
 
-                await self.vacancy_service.create_resume_weight(
+                await self.vacancy_service.create_resume_weights(
                     vacancy_id=body.vacancy_id,
                     accordance_xp_vacancy_score_threshold=body.accordance_xp_vacancy_score_threshold,
                     accordance_skill_vacancy_score_threshold=body.accordance_skill_vacancy_score_threshold,
@@ -319,7 +319,7 @@ class VacancyController(interface.IVacancyController):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def edit_resume_weight(self, body: EditResumeWeightBody) -> JSONResponse:
+    async def edit_resume_weights(self, body: EditResumeWeightsBody) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.edit_resume_weight",
                 kind=SpanKind.INTERNAL,
@@ -328,7 +328,7 @@ class VacancyController(interface.IVacancyController):
             try:
                 self.logger.info("Editing resume weights", {"vacancy_id": body.vacancy_id})
 
-                await self.vacancy_service.edit_resume_weight(
+                await self.vacancy_service.edit_resume_weights(
                     vacancy_id=body.vacancy_id,
                     accordance_xp_vacancy_score_threshold=body.accordance_xp_vacancy_score_threshold,
                     accordance_skill_vacancy_score_threshold=body.accordance_skill_vacancy_score_threshold,
@@ -587,7 +587,7 @@ class VacancyController(interface.IVacancyController):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def get_interview_criterion_weights(self, vacancy_id: int) -> JSONResponse:
+    async def get_interview_weights(self, vacancy_id: int) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.get_interview_criterion_weights",
                 kind=SpanKind.INTERNAL,
@@ -596,7 +596,7 @@ class VacancyController(interface.IVacancyController):
             try:
                 self.logger.info("Getting interview criterion weights request", {"vacancy_id": vacancy_id})
 
-                weights = await self.vacancy_service.get_interview_criterion_weights(vacancy_id)
+                weights = await self.vacancy_service.get_interview_weights(vacancy_id)
 
                 # Конвертируем в словари для JSON ответа
                 weights_dict = [weight.to_dict() for weight in weights]
@@ -617,7 +617,7 @@ class VacancyController(interface.IVacancyController):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def get_resume_criterion_weights(self, vacancy_id: int) -> JSONResponse:
+    async def get_resume_weights(self, vacancy_id: int) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.get_resume_criterion_weights",
                 kind=SpanKind.INTERNAL,
@@ -626,7 +626,7 @@ class VacancyController(interface.IVacancyController):
             try:
                 self.logger.info("Getting resume criterion weights request", {"vacancy_id": vacancy_id})
 
-                weights = await self.vacancy_service.get_resume_criterion_weights(vacancy_id)
+                weights = await self.vacancy_service.get_resume_weights(vacancy_id)
 
                 # Конвертируем в словари для JSON ответа
                 weights_dict = [weight.to_dict() for weight in weights]

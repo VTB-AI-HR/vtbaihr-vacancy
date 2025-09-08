@@ -231,7 +231,7 @@ class VacancyRepo(interface.IVacancyRepo):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def create_interview_criterion_weight(
+    async def create_interview_weights(
             self,
             vacancy_id: int,
             logic_structure_score_weight: int,
@@ -258,7 +258,7 @@ class VacancyRepo(interface.IVacancyRepo):
                     'accordance_skill_resume_score_weight': accordance_skill_resume_score_weight,
                     'red_flag_score_weight': red_flag_score_weight,
                 }
-                await self.db.insert(create_interview_criterion_weight_query, args)
+                await self.db.insert(create_interview_weights_query, args)
 
                 span.set_status(Status(StatusCode.OK))
             except Exception as err:
@@ -266,7 +266,7 @@ class VacancyRepo(interface.IVacancyRepo):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def edit_interview_criterion_weight(
+    async def edit_interview_weights(
             self,
             vacancy_id: int,
             logic_structure_score_weight: int | None,
@@ -316,7 +316,7 @@ class VacancyRepo(interface.IVacancyRepo):
                     return
 
                 query = f"""
-                UPDATE interview_criterion_weights
+                UPDATE interview_weights
                 SET {', '.join(update_fields)}
                 WHERE vacancy_id = :vacancy_id;
                 """
@@ -329,7 +329,7 @@ class VacancyRepo(interface.IVacancyRepo):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def create_resume_weight(
+    async def create_resume_weights(
             self,
             vacancy_id: int,
             accordance_xp_vacancy_score_threshold: int,
@@ -352,7 +352,7 @@ class VacancyRepo(interface.IVacancyRepo):
                     'recommendation_weight': recommendation_weight,
                     'portfolio_weight': portfolio_weight,
                 }
-                await self.db.insert(create_resume_weight_query, args)
+                await self.db.insert(create_resume_weights_query, args)
 
                 span.set_status(Status(StatusCode.OK))
             except Exception as err:
@@ -360,7 +360,7 @@ class VacancyRepo(interface.IVacancyRepo):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def edit_resume_weight(
+    async def edit_resume_weights(
             self,
             vacancy_id: int,
             accordance_xp_vacancy_score_threshold: int | None,
@@ -400,7 +400,7 @@ class VacancyRepo(interface.IVacancyRepo):
                     return
 
                 query = f"""
-                UPDATE resume_criterion_weights
+                UPDATE resume_weights
                 SET {', '.join(update_fields)}
                 WHERE vacancy_id = :vacancy_id;
                 """
@@ -469,9 +469,9 @@ class VacancyRepo(interface.IVacancyRepo):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def get_interview_criterion_weights(self, vacancy_id: int) -> list[model.VacancyCriterionWeights]:
+    async def get_interview_weights(self, vacancy_id: int) -> list[model.VacancyWeights]:
         with self.tracer.start_as_current_span(
-                "VacancyRepo.get_interview_criterion_weights",
+                "VacancyRepo.get_interview_weights",
                 kind=SpanKind.INTERNAL,
                 attributes={
                     "vacancy_id": vacancy_id,
@@ -479,8 +479,8 @@ class VacancyRepo(interface.IVacancyRepo):
         ) as span:
             try:
                 args = {'vacancy_id': vacancy_id}
-                rows = await self.db.select(get_interview_criterion_weights_query, args)
-                weights = model.VacancyCriterionWeights.serialize(rows) if rows else []
+                rows = await self.db.select(get_interview_weights_query, args)
+                weights = model.VacancyWeights.serialize(rows) if rows else []
 
                 span.set_status(Status(StatusCode.OK))
                 return weights
@@ -489,9 +489,9 @@ class VacancyRepo(interface.IVacancyRepo):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def get_resume_criterion_weights(self, vacancy_id: int) -> list[model.ResumeCriterionWeights]:
+    async def get_resume_weights(self, vacancy_id: int) -> list[model.ResumeWeights]:
         with self.tracer.start_as_current_span(
-                "VacancyRepo.get_resume_criterion_weights",
+                "VacancyRepo.get_resume_weights",
                 kind=SpanKind.INTERNAL,
                 attributes={
                     "vacancy_id": vacancy_id,
@@ -499,8 +499,8 @@ class VacancyRepo(interface.IVacancyRepo):
         ) as span:
             try:
                 args = {'vacancy_id': vacancy_id}
-                rows = await self.db.select(get_resume_criterion_weights_query, args)
-                weights = model.ResumeCriterionWeights.serialize(rows) if rows else []
+                rows = await self.db.select(get_resume_weights_query, args)
+                weights = model.ResumeWeights.serialize(rows) if rows else []
 
                 span.set_status(Status(StatusCode.OK))
                 return weights
