@@ -116,5 +116,5 @@ class ILLMClient(Protocol):
             self,
             text: str,
             voice: str = "alloy",
-            tts_model: str = "tts-1"
+            tts_model: str = "tts-1-hd"
     ) -> bytes: pass
