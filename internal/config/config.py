@@ -28,7 +28,7 @@ class Config:
         self.monitoring_redis_db = int(os.getenv("VTBAIHR_MONITORING_DEDUPLICATE_ERROR_ALERT_REDIS_DB", "1"))
 
         # WeedFS configuration
-        self.weed_master_host = os.getenv("VTBAIHR_WEED_MASTER_HOST", "localhost")
+        self.weed_master_host = os.getenv("VTBAIHR_WEED_MASTER_CONTAINER_NAME", "localhost")
         self.weed_master_port = int(os.getenv("VTBAIHR_WEED_MASTER_PORT", "9333"))
 
         # OpenTelemetry configuration

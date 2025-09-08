@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS interviews(
     candidate_name TEXT NOT NULL,
     candidate_phone TEXT NOT NULL,
     candidate_resume_fid TEXT NOT NULL,
+    candidate_resume_filename TEXT NOT NULL,
     accordance_xp_vacancy_score INTEGER NOT NULL,
     accordance_skill_vacancy_score INTEGER NOT NULL,
     
@@ -110,6 +111,7 @@ CREATE TABLE IF NOT EXISTS interview_messages(
     question_id INTEGER NOT NULL REFERENCES vacancy_questions(id) ON DELETE CASCADE,
     
     audio_fid TEXT NOT NULL,
+    audio_name TEXT NOT NULL,
     role TEXT NOT NULL,
     text TEXT NOT NULL,
     

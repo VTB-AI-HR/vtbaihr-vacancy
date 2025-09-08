@@ -60,6 +60,7 @@ class IInterviewRepo(Protocol):
             candidate_email: str,
             candidate_phone: str,
             candidate_resume_fid: str,
+            candidate_resume_filename: str,
             accordance_xp_vacancy_score: int,
             accordance_skill_vacancy_score: int,
     ) -> int:
@@ -77,6 +78,7 @@ class IInterviewRepo(Protocol):
             self,
             interview_id: int,
             question_id: int,
+            audio_name: str,
             audio_fid: str,
             role: str,
             text: str,

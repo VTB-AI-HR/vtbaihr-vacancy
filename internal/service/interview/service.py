@@ -1,3 +1,4 @@
+import io
 import json
 import re
 from datetime import datetime
@@ -42,6 +43,7 @@ class InterviewService(interface.IInterviewService):
                 id=0,
                 interview_id=0,
                 question_id=0,
+                audio_name="0",
                 audio_fid="0",
                 role="user",
                 text="Здравствуйте!",
@@ -60,6 +62,7 @@ class InterviewService(interface.IInterviewService):
         llm_message_id = await self.interview_repo.create_interview_message(
             interview_id=interview_id,
             question_id=current_question.id,
+            audio_name="0",
             audio_fid="0",
             role="assistant",
             text=message_to_candidate,
@@ -98,14 +101,15 @@ class InterviewService(interface.IInterviewService):
             transcribed_text = await self.llm_client.transcribe_audio(audio_content, audio_file.filename)
 
             # 3. Сохраняем аудио в storage
-            # audio_file_io = io.BytesIO(audio_content)
-            # upload_response = self.storage.upload(audio_file_io, audio_file.filename)
-            audio_fid = "423432"
+            audio_file_io = io.BytesIO(audio_content)
+            upload_response = self.storage.upload(audio_file_io, audio_file.filename)
+            audio_fid = upload_response.fid
 
             # 4. Создаем сообщение от кандидата
             candidate_message_id = await self.interview_repo.create_interview_message(
                 interview_id=interview_id,
                 question_id=question_id,
+                audio_name=audio_file.filename,
                 audio_fid=audio_fid,
                 role="user",
                 text=transcribed_text
@@ -135,7 +139,8 @@ class InterviewService(interface.IInterviewService):
             llm_message_id = await self.interview_repo.create_interview_message(
                 interview_id=interview_id,
                 question_id=question_id,
-                audio_fid="",
+                audio_name="0",
+                audio_fid="0",
                 role="assistant",
                 text=message_to_candidate
             )
@@ -263,7 +268,8 @@ class InterviewService(interface.IInterviewService):
                 id=0,
                 interview_id=0,
                 question_id=0,
-                audio_fid="",
+                audio_name="0",
+                audio_fid="0",
                 role="user",
                 text=f"Подведи итоги интервью",
                 created_at=datetime.now(),
@@ -330,6 +336,7 @@ class InterviewService(interface.IInterviewService):
                 id=0,
                 interview_id=0,
                 question_id=0,
+                audio_name="0",
                 audio_fid="",
                 role="user",
                 text=f"Оцени мой ответ",

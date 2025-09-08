@@ -419,7 +419,8 @@ class VacancyService(interface.IVacancyService):
                         id=0,
                         interview_id=0,
                         question_id=0,
-                        audio_fid="",
+                        audio_name="0",
+                        audio_fid="0",
                         role="user",
                         text=f"Проанализируй описание вакансии и извлеки ключевые теги:\n\n{vacancy_description}",
                         created_at=datetime.now()
@@ -487,6 +488,7 @@ class VacancyService(interface.IVacancyService):
                         id=0,
                         interview_id=0,
                         question_id=0,
+                        audio_name="0",
                         audio_fid="",
                         role="user",
                         text="Сгенерируй вопросы для интервью согласно требованиям.",
@@ -571,6 +573,7 @@ class VacancyService(interface.IVacancyService):
                             id=0,
                             interview_id=0,
                             question_id=0,
+                            audio_name="0",
                             audio_fid="",
                             role="user",
                             text="Оцени это резюме любой ценой",
@@ -598,9 +601,9 @@ class VacancyService(interface.IVacancyService):
                     if (accordance_xp_vacancy_score >= resume_weights.accordance_xp_vacancy_score_threshold
                             and accordance_skill_vacancy_score >= resume_weights.accordance_skill_vacancy_score_threshold):
                         # Сохраняем резюме в WeedFS
-                        # resume_file_io = io.BytesIO(resume_content)
-                        # upload_result = self.storage.upload(resume_file_io, resume_file.filename)
-                        candidate_resume_fid = "45346545"
+                        resume_file_io = io.BytesIO(resume_content)
+                        upload_result = self.storage.upload(resume_file_io, resume_file.filename)
+                        candidate_resume_fid = upload_result.fid
 
                         # Создаем интервью
                         interview_id = await self.interview_repo.create_interview(
@@ -609,6 +612,7 @@ class VacancyService(interface.IVacancyService):
                             candidate_email=evaluation_data.get("candidate_email", "unknown@example.com"),
                             candidate_phone=evaluation_data.get("candidate_phone", "Unknown"),
                             candidate_resume_fid=candidate_resume_fid,
+                            candidate_resume_filename=resume_file.filename,
                             accordance_xp_vacancy_score=accordance_xp_vacancy_score,
                             accordance_skill_vacancy_score=accordance_skill_vacancy_score
                         )
@@ -621,6 +625,7 @@ class VacancyService(interface.IVacancyService):
                             candidate_email=evaluation_data.get("candidate_email", "unknown@example.com"),
                             candidate_phone=evaluation_data.get("candidate_phone", "Unknown"),
                             candidate_resume_fid=candidate_resume_fid,
+                            candidate_resume_filename=resume_file.filename,
                             accordance_xp_vacancy_score=accordance_xp_vacancy_score,
                             accordance_skill_vacancy_score=accordance_skill_vacancy_score,
                             red_flag_score=0,
@@ -709,6 +714,7 @@ class VacancyService(interface.IVacancyService):
                         id=0,
                         interview_id=0,
                         question_id=0,
+                        audio_name="",
                         audio_fid="",
                         role="user",
                         text="Оцени это резюме любой ценой",
@@ -735,11 +741,11 @@ class VacancyService(interface.IVacancyService):
                 resume_weights = (await self.vacancy_repo.get_resume_weights(vacancy_id))[0]
 
                 if (accordance_xp_vacancy_score >= resume_weights.accordance_xp_vacancy_score_threshold
-                    and accordance_skill_vacancy_score >= resume_weights.accordance_skill_vacancy_score_threshold):
+                        and accordance_skill_vacancy_score >= resume_weights.accordance_skill_vacancy_score_threshold):
                     # Сохраняем резюме в WeedFS
-                    # resume_file_io = io.BytesIO(resume_content)
-                    # upload_result = self.storage.upload(resume_file_io, candidate_resume_file.filename)
-                    candidate_resume_fid = "42422"
+                    resume_file_io = io.BytesIO(resume_content)
+                    upload_result = self.storage.upload(resume_file_io, candidate_resume_file.filename)
+                    candidate_resume_fid = upload_result.fid
 
                     # Создаем интервью
                     interview_id = await self.interview_repo.create_interview(
@@ -748,6 +754,7 @@ class VacancyService(interface.IVacancyService):
                         candidate_email=candidate_email,  # Используем email из параметров
                         candidate_phone=evaluation_data.get("candidate_phone", "Unknown"),
                         candidate_resume_fid=candidate_resume_fid,
+                        candidate_resume_filename=candidate_resume_file.filename,
                         accordance_xp_vacancy_score=accordance_xp_vacancy_score,
                         accordance_skill_vacancy_score=accordance_skill_vacancy_score
                     )

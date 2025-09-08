@@ -5,6 +5,7 @@ INSERT INTO interviews (
     candidate_email,
     candidate_phone,
     candidate_resume_fid,
+    candidate_resume_filename,
     accordance_xp_vacancy_score,
     accordance_skill_vacancy_score,
     general_result
@@ -15,6 +16,7 @@ VALUES (
     :candidate_email,
     :candidate_phone,
     :candidate_resume_fid,
+    :candidate_resume_filename,
     :accordance_xp_vacancy_score,
     :accordance_skill_vacancy_score,
     :general_result
@@ -44,6 +46,7 @@ create_interview_message = """
 INSERT INTO interview_messages (
     interview_id,
     question_id,
+    audio_name,
     audio_fid,
     role,
     text
@@ -51,6 +54,7 @@ INSERT INTO interview_messages (
 VALUES (
     :interview_id,
     :question_id,
+    :audio_name,
     :audio_fid,
     :role,
     :text

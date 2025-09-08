@@ -17,6 +17,7 @@ class InterviewRepo(interface.IInterviewRepo):
             candidate_email: str,
             candidate_phone: str,
             candidate_resume_fid: str,
+            candidate_resume_filename: str,
             accordance_xp_vacancy_score: int,
             accordance_skill_vacancy_score: int,
     ) -> int:
@@ -35,6 +36,7 @@ class InterviewRepo(interface.IInterviewRepo):
                     'candidate_email': candidate_email,
                     'candidate_phone': candidate_phone,
                     'candidate_resume_fid': candidate_resume_fid,
+                    'candidate_resume_filename': candidate_resume_filename,
                     'accordance_xp_vacancy_score': accordance_xp_vacancy_score,
                     'accordance_skill_vacancy_score': accordance_skill_vacancy_score,
                     'general_result': model.GeneralResult.IN_PROCESS.value
@@ -79,6 +81,7 @@ class InterviewRepo(interface.IInterviewRepo):
             self,
             interview_id: int,
             question_id: int,
+            audio_name: str,
             audio_fid: str,
             role: str,
             text: str,
@@ -96,6 +99,7 @@ class InterviewRepo(interface.IInterviewRepo):
                 args = {
                     'interview_id': interview_id,
                     'question_id': question_id,
+                    "audio_name": audio_name,
                     'audio_fid': audio_fid,
                     'role': role,
                     'text': text,

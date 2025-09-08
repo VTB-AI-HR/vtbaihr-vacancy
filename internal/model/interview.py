@@ -18,6 +18,7 @@ class Interview:
     candidate_name: str
     candidate_phone: str
     candidate_resume_fid: str
+    candidate_resume_filename: str
     accordance_xp_vacancy_score: int
     accordance_skill_vacancy_score: int
 
@@ -47,6 +48,7 @@ class Interview:
                 candidate_phone=row.candidate_phone,
                 candidate_email=row.candidate_email,
                 candidate_resume_fid=row.candidate_resume_fid,
+                candidate_resume_filename=row.candidate_resume_filename,
                 accordance_xp_vacancy_score=row.accordance_xp_vacancy_score,
                 accordance_skill_vacancy_score=row.accordance_skill_vacancy_score,
                 red_flag_score=row.red_flag_score,
@@ -72,6 +74,7 @@ class Interview:
             "vacancy_id": self.vacancy_id,
             "candidate_email": self.candidate_email,
             "candidate_resume_fid": self.candidate_resume_fid,
+            "candidate_resume_filename": self.candidate_resume_filename,
             "accordance_xp_vacancy_score": self.accordance_xp_vacancy_score,
             "accordance_skill_vacancy_score": self.accordance_skill_vacancy_score,
             "red_flag_score": self.red_flag_score,
@@ -139,6 +142,8 @@ class InterviewMessage:
     id: int
     interview_id: int
     question_id: int
+
+    audio_name: str
     audio_fid: str
     role: str
     text: str
@@ -152,6 +157,7 @@ class InterviewMessage:
                 id=row.id,
                 interview_id=row.interview_id,
                 question_id=row.question_id,
+                audio_name=row.audio_name,
                 audio_fid=row.audio_fid,
                 role=row.role,
                 text=row.text,
@@ -164,6 +170,7 @@ class InterviewMessage:
             "id": self.id,
             "interview_id": self.interview_id,
             "question_id": self.question_id,
+            "audio_name": self.audio_name,
             "audio_fid": self.audio_fid,
             "role": self.role,
             "text": self.text,
