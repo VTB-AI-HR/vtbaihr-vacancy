@@ -17,7 +17,7 @@ class IInterviewController(Protocol):
             self,
             interview_id: int = Form(...),
             question_id: int = Form(...),
-            audio_file: UploadFile = Form(...)
+            audio_file: UploadFile = File(...)
     ) -> JSONResponse:
         pass
 

@@ -1,5 +1,5 @@
 from opentelemetry.trace import Status, StatusCode, SpanKind
-from fastapi import UploadFile, Form, Path
+from fastapi import UploadFile, Form, Path, File
 from fastapi.responses import JSONResponse
 
 from internal import interface
@@ -53,7 +53,7 @@ class InterviewController(interface.IInterviewController):
             self,
             interview_id: int = Form(...),
             question_id: int = Form(...),
-            audio_file: UploadFile = Form(...)
+            audio_file: UploadFile = File(...)
     ) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "InterviewController.send_answer",
