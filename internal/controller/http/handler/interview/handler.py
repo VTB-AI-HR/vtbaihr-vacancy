@@ -198,7 +198,7 @@ class InterviewController(interface.IInterviewController):
                 })
 
                 # Загружаем файл из storage
-                audio_stream, content_type = self.interview_service.download_audio(audio_fid, audio_filename)
+                audio_stream, content_type = await self.interview_service.download_audio(audio_fid, audio_filename)
 
                 # Определяем MIME тип для аудио файлов
                 if not content_type or content_type == "application/octet-stream":
