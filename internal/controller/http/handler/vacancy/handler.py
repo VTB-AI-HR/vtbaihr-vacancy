@@ -493,7 +493,7 @@ class VacancyController(interface.IVacancyController):
                     "candidate_email": candidate_email,
                 })
 
-                interview_link, accordance_xp_score, accordance_skill_score = await self.vacancy_service.respond(
+                interview_link, accordance_xp_score, accordance_skill_score, message_to_candidate = await self.vacancy_service.respond(
                     vacancy_id=vacancy_id,
                     candidate_email=candidate_email,
                     candidate_resume_file=candidate_resume_file
@@ -502,7 +502,8 @@ class VacancyController(interface.IVacancyController):
                 response_data = {
                     "interview_link": interview_link,
                     "accordance_xp_vacancy_score": accordance_xp_score,
-                    "accordance_skill_vacancy_score": accordance_skill_score
+                    "accordance_skill_vacancy_score": accordance_skill_score,
+                    "message_to_candidate": message_to_candidate
                 }
 
                 if interview_link:

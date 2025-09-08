@@ -676,7 +676,7 @@ class VacancyService(interface.IVacancyService):
             vacancy_id: int,
             candidate_email: str,
             candidate_resume_file: UploadFile
-    ) -> tuple[str, int, int]:
+    ) -> tuple[str, int, int, str]:
         with self.tracer.start_as_current_span(
                 "VacancyService.respond",
                 kind=SpanKind.INTERNAL,
@@ -736,6 +736,7 @@ class VacancyService(interface.IVacancyService):
 
                 accordance_xp_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
                 accordance_skill_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
+                message_to_candidate = evaluation_data.get("message_to_candidate", "")
 
                 # Проверяем пороговые значения (например, 3 из 5)
                 if accordance_xp_score >= 3 and accordance_skill_score >= 3:
@@ -767,7 +768,7 @@ class VacancyService(interface.IVacancyService):
                     })
 
                     span.set_status(Status(StatusCode.OK))
-                    return interview_link, accordance_xp_score, accordance_skill_score
+                    return interview_link, accordance_xp_score, accordance_skill_score, message_to_candidate
 
                 else:
                     self.logger.info("Candidate resume rejected - scores below threshold", {
@@ -780,7 +781,7 @@ class VacancyService(interface.IVacancyService):
 
                     # Возвращаем пустую ссылку при отклонении
                     span.set_status(Status(StatusCode.OK))
-                    return "", accordance_xp_score, accordance_skill_score
+                    return "", accordance_xp_score, accordance_skill_score, message_to_candidate
 
             except Exception as err:
                 span.record_exception(err)

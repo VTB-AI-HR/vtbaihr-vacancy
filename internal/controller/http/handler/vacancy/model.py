@@ -104,6 +104,7 @@ class RespondResponse(BaseModel):
     interview_link: str
     accordance_xp_vacancy_score: int
     accordance_skill_vacancy_score: int
+    message_to_candidate: str
 
 
 

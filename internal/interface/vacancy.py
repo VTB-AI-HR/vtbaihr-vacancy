@@ -186,7 +186,7 @@ class IVacancyService(Protocol):
             vacancy_id: int,
             candidate_email: str,
             candidate_resume_file: UploadFile
-    ) -> tuple[str, int, int]:
+    ) -> tuple[str, int, int, str]:
         pass
 
     @abstractmethod
