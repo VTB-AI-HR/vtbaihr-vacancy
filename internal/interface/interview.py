@@ -16,7 +16,6 @@ class IInterviewController(Protocol):
     async def send_answer(
             self,
             interview_id: int = Form(...),
-            vacancy_id: int = Form(...),
             question_id: int = Form(...),
             audio_file: UploadFile = Form(...)
     ) -> JSONResponse:
@@ -37,9 +36,8 @@ class IInterviewService(Protocol):
     @abstractmethod
     async def send_answer(
             self,
-            vacancy_id: int,
-            question_id: int,
             interview_id: int,
+            question_id: int,
             audio_file: UploadFile
     ) -> tuple[int, str, dict]:
         pass

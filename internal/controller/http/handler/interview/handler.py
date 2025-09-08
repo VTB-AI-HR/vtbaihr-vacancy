@@ -16,7 +16,6 @@ class InterviewController(interface.IInterviewController):
         self.interview_service = interview_service
 
     async def start_interview(self, interview_id: int) -> JSONResponse:
-        """Начинает интервью для указанного ID интервью"""
         with self.tracer.start_as_current_span(
                 "InterviewController.start_interview",
                 kind=SpanKind.INTERNAL,
@@ -53,37 +52,31 @@ class InterviewController(interface.IInterviewController):
     async def send_answer(
             self,
             interview_id: int = Form(...),
-            vacancy_id: int = Form(...),
             question_id: int = Form(...),
             audio_file: UploadFile = Form(...)
     ) -> JSONResponse:
-        """Обрабатывает ответ кандидата на вопрос интервью"""
         with self.tracer.start_as_current_span(
                 "InterviewController.send_answer",
                 kind=SpanKind.INTERNAL,
                 attributes={
-                    "vacancy_id": vacancy_id,
                     "question_id": question_id,
                     "interview_id": interview_id,
                 }
         ) as span:
             try:
                 self.logger.info("Processing answer request", {
-                    "vacancy_id": vacancy_id,
                     "question_id": question_id,
                     "interview_id": interview_id,
                     "content_type": audio_file.content_type
                 })
 
                 next_question_id, message_to_candidate, interview_result = await self.interview_service.send_answer(
-                    vacancy_id=vacancy_id,
-                    question_id=question_id,
                     interview_id=interview_id,
+                    question_id=question_id,
                     audio_file=audio_file
                 )
 
                 self.logger.info("Answer processed successfully", {
-                    "vacancy_id": vacancy_id,
                     "question_id": question_id,
                     "interview_id": interview_id,
                     "next_question_id": next_question_id,

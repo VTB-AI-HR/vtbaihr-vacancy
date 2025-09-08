@@ -79,15 +79,15 @@ class InterviewService(interface.IInterviewService):
 
     async def send_answer(
             self,
-            vacancy_id: int,
-            question_id: int,
             interview_id: int,
+            question_id: int,
             audio_file: UploadFile
     ) -> tuple[int, str, dict]:
         try:
             # 1. Получаем необходимые данные
-            vacancy = (await self.vacancy_repo.get_vacancy_by_id(vacancy_id))[0]
-            questions = await self.vacancy_repo.get_all_question(vacancy_id)
+            interview = (await self.interview_repo.get_interview_by_id(interview_id))[0]
+            vacancy = (await self.vacancy_repo.get_vacancy_by_id(interview.vacancy_id))[0]
+            questions = await self.vacancy_repo.get_all_question(vacancy.id)
             current_question_order_number = \
                 [idx + 1 for idx, question in enumerate(questions) if question.id == question_id][0]
             current_question = questions[current_question_order_number - 1]
