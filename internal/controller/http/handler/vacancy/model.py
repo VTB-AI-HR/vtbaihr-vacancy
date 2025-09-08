@@ -37,25 +37,21 @@ class EditQuestionBody(BaseModel):
     question_type: model.QuestionsType | None
     response_time: int | None
 
-class CreateVacancyCriterionWeightBody(BaseModel):
+class CreateInterviewCriterionWeightBody(BaseModel):
     vacancy_id: int
     logic_structure_score_weight: int
     soft_skill_score_weight: int
     hard_skill_score_weight: int
-    accordance_xp_vacancy_score_weight: int
-    accordance_skill_vacancy_score_weight: int
     accordance_xp_resume_score_weight: int
     accordance_skill_resume_score_weight: int
     red_flag_score_weight: int
 
 
-class EditVacancyCriterionWeightBody(BaseModel):
+class EditInterviewCriterionWeightBody(BaseModel):
     vacancy_id: int
     logic_structure_score_weight: int | None
     soft_skill_score_weight: int | None
     hard_skill_score_weight: int | None
-    accordance_xp_vacancy_score_weight: int | None
-    accordance_skill_vacancy_score_weight: int | None
     accordance_xp_resume_score_weight: int | None
     accordance_skill_resume_score_weight: int | None
     red_flag_score_weight: int | None
@@ -63,15 +59,15 @@ class EditVacancyCriterionWeightBody(BaseModel):
 
 class CreateResumeWeightBody(BaseModel):
     vacancy_id: int
-    hard_skill_weight: int
-    work_xp_weight: int
+    accordance_xp_vacancy_score_threshold: int
+    accordance_skill_vacancy_score_threshold: int
     recommendation_weight: int
     portfolio_weight: int
 
 class EditResumeWeightBody(BaseModel):
     vacancy_id: int
-    hard_skill_weight: int | None
-    work_xp_weight: int | None
+    accordance_xp_vacancy_score_threshold: int | None
+    accordance_skill_vacancy_score_threshold: int | None
     recommendation_weight: int | None
     portfolio_weight: int | None
 

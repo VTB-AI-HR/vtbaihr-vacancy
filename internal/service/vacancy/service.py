@@ -256,20 +256,18 @@ class VacancyService(interface.IVacancyService):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def create_vacancy_criterion_weight(
+    async def create_interview_criterion_weight(
             self,
             vacancy_id: int,
             logic_structure_score_weight: int,
             soft_skill_score_weight: int,
             hard_skill_score_weight: int,
-            accordance_xp_vacancy_score_weight: int,
-            accordance_skill_vacancy_score_weight: int,
             accordance_xp_resume_score_weight: int,
             accordance_skill_resume_score_weight: int,
             red_flag_score_weight: int,
     ) -> None:
         with self.tracer.start_as_current_span(
-                "VacancyService.create_vacancy_criterion_weight",
+                "VacancyService.create_interview_criterion_weight",
                 kind=SpanKind.INTERNAL,
                 attributes={
                     "vacancy_id": vacancy_id,
@@ -278,13 +276,11 @@ class VacancyService(interface.IVacancyService):
             try:
                 self.logger.info("Creating vacancy criterion weights", {"vacancy_id": vacancy_id})
 
-                await self.vacancy_repo.create_vacancy_criterion_weight(
+                await self.vacancy_repo.create_interview_criterion_weight(
                     vacancy_id=vacancy_id,
                     logic_structure_score_weight=logic_structure_score_weight,
                     soft_skill_score_weight=soft_skill_score_weight,
                     hard_skill_score_weight=hard_skill_score_weight,
-                    accordance_xp_vacancy_score_weight=accordance_xp_vacancy_score_weight,
-                    accordance_skill_vacancy_score_weight=accordance_skill_vacancy_score_weight,
                     accordance_xp_resume_score_weight=accordance_xp_resume_score_weight,
                     accordance_skill_resume_score_weight=accordance_skill_resume_score_weight,
                     red_flag_score_weight=red_flag_score_weight
@@ -299,20 +295,18 @@ class VacancyService(interface.IVacancyService):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def edit_vacancy_criterion_weight(
+    async def edit_interview_criterion_weight(
             self,
             vacancy_id: int,
             logic_structure_score_weight: int | None,
             soft_skill_score_weight: int | None,
             hard_skill_score_weight: int | None,
-            accordance_xp_vacancy_score_weight: int | None,
-            accordance_skill_vacancy_score_weight: int | None,
             accordance_xp_resume_score_weight: int | None,
             accordance_skill_resume_score_weight: int | None,
             red_flag_score_weight: int | None,
     ) -> None:
         with self.tracer.start_as_current_span(
-                "VacancyService.edit_vacancy_criterion_weight",
+                "VacancyService.edit_interview_criterion_weight",
                 kind=SpanKind.INTERNAL,
                 attributes={
                     "vacancy_id": vacancy_id,
@@ -321,13 +315,11 @@ class VacancyService(interface.IVacancyService):
             try:
                 self.logger.info("Editing vacancy criterion weights", {"vacancy_id": vacancy_id})
 
-                await self.vacancy_repo.edit_vacancy_criterion_weight(
+                await self.vacancy_repo.edit_interview_criterion_weight(
                     vacancy_id=vacancy_id,
                     logic_structure_score_weight=logic_structure_score_weight,
                     soft_skill_score_weight=soft_skill_score_weight,
                     hard_skill_score_weight=hard_skill_score_weight,
-                    accordance_xp_vacancy_score_weight=accordance_xp_vacancy_score_weight,
-                    accordance_skill_vacancy_score_weight=accordance_skill_vacancy_score_weight,
                     accordance_xp_resume_score_weight=accordance_xp_resume_score_weight,
                     accordance_skill_resume_score_weight=accordance_skill_resume_score_weight,
                     red_flag_score_weight=red_flag_score_weight
@@ -345,8 +337,8 @@ class VacancyService(interface.IVacancyService):
     async def create_resume_weight(
             self,
             vacancy_id: int,
-            hard_skill_weight: int,
-            work_xp_weight: int,
+            accordance_xp_vacancy_score_threshold: int,
+            accordance_skill_vacancy_score_threshold: int,
             recommendation_weight: int,
             portfolio_weight: int,
     ) -> None:
@@ -362,8 +354,8 @@ class VacancyService(interface.IVacancyService):
 
                 await self.vacancy_repo.create_resume_weight(
                     vacancy_id=vacancy_id,
-                    hard_skill_weight=hard_skill_weight,
-                    work_xp_weight=work_xp_weight,
+                    accordance_xp_vacancy_score_threshold=accordance_xp_vacancy_score_threshold,
+                    accordance_skill_vacancy_score_threshold=accordance_skill_vacancy_score_threshold,
                     recommendation_weight=recommendation_weight,
                     portfolio_weight=portfolio_weight
                 )
@@ -380,8 +372,8 @@ class VacancyService(interface.IVacancyService):
     async def edit_resume_weight(
             self,
             vacancy_id: int,
-            hard_skill_weight: int | None,
-            work_xp_weight: int | None,
+            accordance_xp_vacancy_score_threshold: int | None,
+            accordance_skill_vacancy_score_threshold: int | None,
             recommendation_weight: int | None,
             portfolio_weight: int | None,
     ) -> None:
@@ -397,8 +389,8 @@ class VacancyService(interface.IVacancyService):
 
                 await self.vacancy_repo.edit_resume_weight(
                     vacancy_id=vacancy_id,
-                    hard_skill_weight=hard_skill_weight,
-                    work_xp_weight=work_xp_weight,
+                    accordance_xp_vacancy_score_threshold=accordance_xp_vacancy_score_threshold,
+                    accordance_skill_vacancy_score_threshold=accordance_skill_vacancy_score_threshold,
                     recommendation_weight=recommendation_weight,
                     portfolio_weight=portfolio_weight
                 )
@@ -444,7 +436,6 @@ class VacancyService(interface.IVacancyService):
 
                 response_data = self.extract_and_parse_json(llm_response)
                 tags = response_data.get("tags", [])
-
 
                 self.logger.info("Tags generated successfully", {
                     "tags_count": len(tags),
@@ -598,11 +589,14 @@ class VacancyService(interface.IVacancyService):
                     # Парсим ответ LLM
                     evaluation_data = self.extract_and_parse_json(llm_response)
 
-                    accordance_xp_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
-                    accordance_skill_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
+                    accordance_xp_vacancy_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
+                    accordance_skill_vacancy_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
+
+                    resume_criterion_weights = (await self.vacancy_repo.get_resume_criterion_weights(vacancy_id))[0]
 
                     # Проверяем пороговые значения (4)
-                    if accordance_xp_score >= 3 and accordance_skill_score >= 3:
+                    if (accordance_xp_vacancy_score >= resume_criterion_weights.accordance_xp_vacancy_score_threshold
+                            and accordance_skill_vacancy_score >= resume_criterion_weights.accordance_skill_vacancy_score_threshold):
                         # Сохраняем резюме в WeedFS
                         # resume_file_io = io.BytesIO(resume_content)
                         # upload_result = self.storage.upload(resume_file_io, resume_file.filename)
@@ -615,8 +609,8 @@ class VacancyService(interface.IVacancyService):
                             candidate_email=evaluation_data.get("candidate_email", "unknown@example.com"),
                             candidate_phone=evaluation_data.get("candidate_phone", "Unknown"),
                             candidate_resume_fid=candidate_resume_fid,
-                            accordance_xp_vacancy_score=accordance_xp_score,
-                            accordance_skill_vacancy_score=accordance_skill_score
+                            accordance_xp_vacancy_score=accordance_xp_vacancy_score,
+                            accordance_skill_vacancy_score=accordance_skill_vacancy_score
                         )
 
                         # Создаем объект Interview для возврата
@@ -627,8 +621,8 @@ class VacancyService(interface.IVacancyService):
                             candidate_email=evaluation_data.get("candidate_email", "unknown@example.com"),
                             candidate_phone=evaluation_data.get("candidate_phone", "Unknown"),
                             candidate_resume_fid=candidate_resume_fid,
-                            accordance_xp_vacancy_score=accordance_xp_score,
-                            accordance_skill_vacancy_score=accordance_skill_score,
+                            accordance_xp_vacancy_score=accordance_xp_vacancy_score,
+                            accordance_skill_vacancy_score=accordance_skill_vacancy_score,
                             red_flag_score=0,
                             hard_skill_score=0,
                             soft_skill_score=0,
@@ -648,13 +642,13 @@ class VacancyService(interface.IVacancyService):
 
                         self.logger.info("Resume passed evaluation, interview created", {
                             "interview_id": interview_id,
-                            "accordance_xp_score": accordance_xp_score,
-                            "accordance_skill_score": accordance_skill_score
+                            "accordance_xp_vacancy_score": accordance_xp_vacancy_score,
+                            "accordance_skill_vacancy_score": accordance_skill_vacancy_score
                         })
                     else:
                         self.logger.info("Resume failed evaluation", {
-                            "accordance_xp_score": accordance_xp_score,
-                            "accordance_skill_score": accordance_skill_score
+                            "accordance_xp_vacancy_score": accordance_xp_vacancy_score,
+                            "accordance_skill_vacancy_score": accordance_skill_vacancy_score
                         })
 
                 self.logger.info("Resume evaluation completed", {
@@ -677,14 +671,14 @@ class VacancyService(interface.IVacancyService):
             candidate_email: str,
             candidate_resume_file: UploadFile
     ) -> tuple[str, int, int, str]:
-        with self.tracer.start_as_current_span(
+        with (self.tracer.start_as_current_span(
                 "VacancyService.respond",
                 kind=SpanKind.INTERNAL,
                 attributes={
                     "vacancy_id": vacancy_id,
                     "candidate_email": candidate_email,
                 }
-        ) as span:
+        ) as span):
             try:
                 self.logger.info("Processing candidate response", {
                     "vacancy_id": vacancy_id,
@@ -717,7 +711,7 @@ class VacancyService(interface.IVacancyService):
                         question_id=0,
                         audio_fid="",
                         role="user",
-                        text="Оцени это резюме",
+                        text="Оцени это резюме любой ценой",
                         created_at=datetime.now()
                     )
                 ]
@@ -734,12 +728,14 @@ class VacancyService(interface.IVacancyService):
 
                 evaluation_data = self.extract_and_parse_json(llm_response)
 
-                accordance_xp_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
-                accordance_skill_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
+                accordance_xp_vacancy_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
+                accordance_skill_vacancy_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
                 message_to_candidate = evaluation_data.get("message_to_candidate", "")
 
-                # Проверяем пороговые значения (например, 3 из 5)
-                if accordance_xp_score >= 3 and accordance_skill_score >= 3:
+                resume_criterion_weights = (await self.vacancy_repo.get_resume_criterion_weights(vacancy_id))[0]
+
+                if (accordance_xp_vacancy_score >= resume_criterion_weights.accordance_xp_vacancy_score_threshold
+                    and accordance_skill_vacancy_score >= resume_criterion_weights.accordance_skill_vacancy_score_threshold):
                     # Сохраняем резюме в WeedFS
                     # resume_file_io = io.BytesIO(resume_content)
                     # upload_result = self.storage.upload(resume_file_io, candidate_resume_file.filename)
@@ -752,8 +748,8 @@ class VacancyService(interface.IVacancyService):
                         candidate_email=candidate_email,  # Используем email из параметров
                         candidate_phone=evaluation_data.get("candidate_phone", "Unknown"),
                         candidate_resume_fid=candidate_resume_fid,
-                        accordance_xp_vacancy_score=accordance_xp_score,
-                        accordance_skill_vacancy_score=accordance_skill_score
+                        accordance_xp_vacancy_score=accordance_xp_vacancy_score,
+                        accordance_skill_vacancy_score=accordance_skill_vacancy_score
                     )
 
                     # Генерируем ссылку на интервью
@@ -763,25 +759,25 @@ class VacancyService(interface.IVacancyService):
                         "vacancy_id": vacancy_id,
                         "candidate_email": candidate_email,
                         "interview_id": interview_id,
-                        "accordance_xp_score": accordance_xp_score,
-                        "accordance_skill_score": accordance_skill_score,
+                        "accordance_xp_vacancy_score": accordance_xp_vacancy_score,
+                        "accordance_skill_vacancy_score": accordance_skill_vacancy_score,
                     })
 
                     span.set_status(Status(StatusCode.OK))
-                    return interview_link, accordance_xp_score, accordance_skill_score, message_to_candidate
+                    return interview_link, accordance_xp_vacancy_score, accordance_skill_vacancy_score, message_to_candidate
 
                 else:
                     self.logger.info("Candidate resume rejected - scores below threshold", {
                         "vacancy_id": vacancy_id,
                         "candidate_email": candidate_email,
-                        "accordance_xp_score": accordance_xp_score,
-                        "accordance_skill_score": accordance_skill_score,
+                        "accordance_xp_vacancy_score": accordance_xp_vacancy_score,
+                        "accordance_skill_vacancy_score": accordance_skill_vacancy_score,
                         "min_threshold": 4,
                     })
 
                     # Возвращаем пустую ссылку при отклонении
                     span.set_status(Status(StatusCode.OK))
-                    return "", accordance_xp_score, accordance_skill_score, message_to_candidate
+                    return "", accordance_xp_vacancy_score, accordance_skill_vacancy_score, message_to_candidate
 
             except Exception as err:
                 span.record_exception(err)

@@ -101,8 +101,6 @@ class VacancyCriterionWeights:
     logic_structure_score_weight: int
     soft_skill_score_weight: int
     hard_skill_score_weight: int
-    accordance_xp_vacancy_score_weight: int
-    accordance_skill_vacancy_score_weight: int
     accordance_xp_resume_score_weight: int
     accordance_skill_resume_score_weight: int
     red_flag_score_weight: int
@@ -118,8 +116,6 @@ class VacancyCriterionWeights:
                 logic_structure_score_weight=row.logic_structure_score_weight,
                 soft_skill_score_weight=row.soft_skill_score_weight,
                 hard_skill_score_weight=row.hard_skill_score_weight,
-                accordance_xp_vacancy_score_weight=row.accordance_xp_vacancy_score_weight,
-                accordance_skill_vacancy_score_weight=row.accordance_skill_vacancy_score_weight,
                 accordance_xp_resume_score_weight=row.accordance_xp_resume_score_weight,
                 accordance_skill_resume_score_weight=row.accordance_skill_resume_score_weight,
                 red_flag_score_weight=row.red_flag_score_weight,
@@ -128,12 +124,25 @@ class VacancyCriterionWeights:
             for row in rows
         ]
 
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "vacancy_id": self.vacancy_id,
+            "logic_structure_score_weight": self.logic_structure_score_weight,
+            "soft_skill_score_weight": self.soft_skill_score_weight,
+            "hard_skill_score_weight": self.hard_skill_score_weight,
+            "accordance_xp_resume_score_weight": self.accordance_xp_resume_score_weight,
+            "accordance_skill_resume_score_weight": self.accordance_skill_resume_score_weight,
+            "red_flag_score_weight": self.red_flag_score_weight
+        }
+
+
 @dataclass
 class ResumeCriterionWeights:
     id: int
     vacancy_id: int
-    hard_skill_weight: int
-    work_xp_weight: int
+    accordance_xp_vacancy_score_threshold: int
+    accordance_skill_vacancy_score_threshold: int
     recommendation_weight: int
     portfolio_weight: int
 
@@ -145,10 +154,21 @@ class ResumeCriterionWeights:
             cls(
                 id=row.id,
                 vacancy_id=row.vacancy_id,
-                hard_skill_weight=row.hard_skill_weight,
-                work_xp_weight=row.work_xp_weight,
+                accordance_xp_vacancy_score_threshold=row.accordance_xp_vacancy_score_threshold,
+                accordance_skill_vacancy_score_threshold=row.accordance_skill_vacancy_score_threshold,
                 recommendation_weight=row.recommendation_weight,
-                portfolio_weight=row.portfolio_weight
+                portfolio_weight=row.portfolio_weight,
+                created_at=row.created_at
             )
             for row in rows
         ]
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "vacancy_id": self.vacancy_id,
+            "accordance_xp_vacancy_score_threshold": self.accordance_xp_vacancy_score_threshold,
+            "accordance_skill_vacancy_score_threshold": self.accordance_skill_vacancy_score_threshold,
+            "recommendation_weight": self.recommendation_weight,
+            "portfolio_weight": self.portfolio_weight
+        }

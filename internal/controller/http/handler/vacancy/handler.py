@@ -225,22 +225,20 @@ class VacancyController(interface.IVacancyController):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def create_vacancy_criterion_weight(self, body: CreateVacancyCriterionWeightBody) -> JSONResponse:
+    async def create_interview_criterion_weight(self, body: CreateInterviewCriterionWeightBody) -> JSONResponse:
         with self.tracer.start_as_current_span(
-                "VacancyController.create_vacancy_criterion_weight",
+                "VacancyController.create_interview_criterion_weight",
                 kind=SpanKind.INTERNAL,
                 attributes={"vacancy_id": body.vacancy_id}
         ) as span:
             try:
                 self.logger.info("Creating vacancy criterion weights", {"vacancy_id": body.vacancy_id})
 
-                await self.vacancy_service.create_vacancy_criterion_weight(
+                await self.vacancy_service.create_interview_criterion_weight(
                     vacancy_id=body.vacancy_id,
                     logic_structure_score_weight=body.logic_structure_score_weight,
                     soft_skill_score_weight=body.soft_skill_score_weight,
                     hard_skill_score_weight=body.hard_skill_score_weight,
-                    accordance_xp_vacancy_score_weight=body.accordance_xp_vacancy_score_weight,
-                    accordance_skill_vacancy_score_weight=body.accordance_skill_vacancy_score_weight,
                     accordance_xp_resume_score_weight=body.accordance_xp_resume_score_weight,
                     accordance_skill_resume_score_weight=body.accordance_skill_resume_score_weight,
                     red_flag_score_weight=body.red_flag_score_weight
@@ -259,22 +257,20 @@ class VacancyController(interface.IVacancyController):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def edit_vacancy_criterion_weight(self, body: EditVacancyCriterionWeightBody) -> JSONResponse:
+    async def edit_interview_criterion_weight(self, body: EditInterviewCriterionWeightBody) -> JSONResponse:
         with self.tracer.start_as_current_span(
-                "VacancyController.edit_vacancy_criterion_weight",
+                "VacancyController.edit_interview_criterion_weight",
                 kind=SpanKind.INTERNAL,
                 attributes={"vacancy_id": body.vacancy_id}
         ) as span:
             try:
                 self.logger.info("Editing vacancy criterion weights", {"vacancy_id": body.vacancy_id})
 
-                await self.vacancy_service.edit_vacancy_criterion_weight(
+                await self.vacancy_service.edit_interview_criterion_weight(
                     vacancy_id=body.vacancy_id,
                     logic_structure_score_weight=body.logic_structure_score_weight,
                     soft_skill_score_weight=body.soft_skill_score_weight,
                     hard_skill_score_weight=body.hard_skill_score_weight,
-                    accordance_xp_vacancy_score_weight=body.accordance_xp_vacancy_score_weight,
-                    accordance_skill_vacancy_score_weight=body.accordance_skill_vacancy_score_weight,
                     accordance_xp_resume_score_weight=body.accordance_xp_resume_score_weight,
                     accordance_skill_resume_score_weight=body.accordance_skill_resume_score_weight,
                     red_flag_score_weight=body.red_flag_score_weight
@@ -304,8 +300,8 @@ class VacancyController(interface.IVacancyController):
 
                 await self.vacancy_service.create_resume_weight(
                     vacancy_id=body.vacancy_id,
-                    hard_skill_weight=body.hard_skill_weight,
-                    work_xp_weight=body.work_xp_weight,
+                    accordance_xp_vacancy_score_threshold=body.accordance_xp_vacancy_score_threshold,
+                    accordance_skill_vacancy_score_threshold=body.accordance_skill_vacancy_score_threshold,
                     recommendation_weight=body.recommendation_weight,
                     portfolio_weight=body.portfolio_weight
                 )
@@ -334,8 +330,8 @@ class VacancyController(interface.IVacancyController):
 
                 await self.vacancy_service.edit_resume_weight(
                     vacancy_id=body.vacancy_id,
-                    hard_skill_weight=body.hard_skill_weight,
-                    work_xp_weight=body.work_xp_weight,
+                    accordance_xp_vacancy_score_threshold=body.accordance_xp_vacancy_score_threshold,
+                    accordance_skill_vacancy_score_threshold=body.accordance_skill_vacancy_score_threshold,
                     recommendation_weight=body.recommendation_weight,
                     portfolio_weight=body.portfolio_weight
                 )

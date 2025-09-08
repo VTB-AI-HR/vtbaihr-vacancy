@@ -28,15 +28,13 @@ CREATE TABLE IF NOT EXISTS vacancy_questions(
 """
 
 create_interview_weights_table = """
-CREATE TABLE IF NOT EXISTS vacancy_criterion_weights(
+CREATE TABLE IF NOT EXISTS interview_criterion_weights(
     id SERIAL PRIMARY KEY,
     vacancy_id INTEGER NOT NULL REFERENCES vacancies(id) ON DELETE CASCADE,
     
     logic_structure_score_weight INTEGER NOT NULL,
     soft_skill_score_weight INTEGER NOT NULL,
     hard_skill_score_weight INTEGER NOT NULL,
-    accordance_xp_vacancy_score_weight INTEGER NOT NULL,
-    accordance_skill_vacancy_score_weight INTEGER NOT NULL,
     accordance_xp_resume_score_weight INTEGER NOT NULL,
     accordance_skill_resume_score_weight INTEGER NOT NULL,
     red_flag_score_weight INTEGER NOT NULL,
@@ -50,8 +48,8 @@ CREATE TABLE IF NOT EXISTS resume_criterion_weights(
     id SERIAL PRIMARY KEY,
     vacancy_id INTEGER NOT NULL REFERENCES vacancies(id) ON DELETE CASCADE,
     
-    hard_skill_weight INTEGER NOT NULL,
-    work_xp_weight INTEGER NOT NULL,
+    accordance_xp_vacancy_score_threshold INTEGER NOT NULL,
+    accordance_skill_vacancy_score_threshold INTEGER NOT NULL,
     recommendation_weight INTEGER NOT NULL,
     portfolio_weight INTEGER NOT NULL,
     
@@ -128,7 +126,7 @@ DROP TABLE IF EXISTS vacancy_questions CASCADE;
 """
 
 drop_interview_weights_table = """
-DROP TABLE IF EXISTS vacancy_criterion_weights CASCADE;
+DROP TABLE IF EXISTS interview_criterion_weights CASCADE;
 """
 
 drop_resume_weights_table = """

@@ -48,14 +48,12 @@ DELETE FROM vacancy_questions
 WHERE id = :question_id;
 """
 
-create_vacancy_criterion_weight_query = """
-INSERT INTO vacancy_criterion_weights (
+create_interview_criterion_weight_query = """
+INSERT INTO interview_criterion_weights (
     vacancy_id,
     logic_structure_score_weight,
     soft_skill_score_weight,
     hard_skill_score_weight,
-    accordance_xp_vacancy_score_weight,
-    accordance_skill_vacancy_score_weight,
     accordance_xp_resume_score_weight,
     accordance_skill_resume_score_weight,
     red_flag_score_weight
@@ -65,8 +63,6 @@ VALUES (
     :logic_structure_score_weight,
     :soft_skill_score_weight,
     :hard_skill_score_weight,
-    :accordance_xp_vacancy_score_weight,
-    :accordance_skill_vacancy_score_weight,
     :accordance_xp_resume_score_weight,
     :accordance_skill_resume_score_weight,
     :red_flag_score_weight
@@ -77,15 +73,15 @@ RETURNING id;
 create_resume_weight_query = """
 INSERT INTO resume_criterion_weights (
     vacancy_id,
-    hard_skill_weight,
-    work_xp_weight,
+    accordance_xp_vacancy_score_threshold,
+    accordance_skill_vacancy_score_threshold,
     recommendation_weight,
     portfolio_weight
 )
 VALUES (
     :vacancy_id,
-    :hard_skill_weight,
-    :work_xp_weight,
+    :accordance_xp_vacancy_score_threshold,
+    :accordance_skill_vacancy_score_threshold,
     :recommendation_weight,
     :portfolio_weight
 )
@@ -113,8 +109,8 @@ SELECT * FROM vacancy_questions
 WHERE id = :question_id;
 """
 
-get_vacancy_criterion_weights_query = """
-SELECT * FROM vacancy_criterion_weights
+get_interview_criterion_weights_query = """
+SELECT * FROM interview_criterion_weights
 WHERE vacancy_id = :vacancy_id;
 """
 

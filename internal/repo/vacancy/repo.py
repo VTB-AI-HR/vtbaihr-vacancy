@@ -231,20 +231,18 @@ class VacancyRepo(interface.IVacancyRepo):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def create_vacancy_criterion_weight(
+    async def create_interview_criterion_weight(
             self,
             vacancy_id: int,
             logic_structure_score_weight: int,
             soft_skill_score_weight: int,
             hard_skill_score_weight: int,
-            accordance_xp_vacancy_score_weight: int,
-            accordance_skill_vacancy_score_weight: int,
             accordance_xp_resume_score_weight: int,
             accordance_skill_resume_score_weight: int,
             red_flag_score_weight: int,
     ) -> None:
         with self.tracer.start_as_current_span(
-                "VacancyRepo.create_vacancy_criterion_weight",
+                "VacancyRepo.create_interview_criterion_weight",
                 kind=SpanKind.INTERNAL,
                 attributes={
                     "vacancy_id": vacancy_id,
@@ -256,13 +254,11 @@ class VacancyRepo(interface.IVacancyRepo):
                     'logic_structure_score_weight': logic_structure_score_weight,
                     'soft_skill_score_weight': soft_skill_score_weight,
                     'hard_skill_score_weight': hard_skill_score_weight,
-                    'accordance_xp_vacancy_score_weight': accordance_xp_vacancy_score_weight,
-                    'accordance_skill_vacancy_score_weight': accordance_skill_vacancy_score_weight,
                     'accordance_xp_resume_score_weight': accordance_xp_resume_score_weight,
                     'accordance_skill_resume_score_weight': accordance_skill_resume_score_weight,
                     'red_flag_score_weight': red_flag_score_weight,
                 }
-                await self.db.insert(create_vacancy_criterion_weight_query, args)
+                await self.db.insert(create_interview_criterion_weight_query, args)
 
                 span.set_status(Status(StatusCode.OK))
             except Exception as err:
@@ -270,20 +266,18 @@ class VacancyRepo(interface.IVacancyRepo):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def edit_vacancy_criterion_weight(
+    async def edit_interview_criterion_weight(
             self,
             vacancy_id: int,
             logic_structure_score_weight: int | None,
             soft_skill_score_weight: int | None,
             hard_skill_score_weight: int | None,
-            accordance_xp_vacancy_score_weight: int | None,
-            accordance_skill_vacancy_score_weight: int | None,
             accordance_xp_resume_score_weight: int | None,
             accordance_skill_resume_score_weight: int | None,
             red_flag_score_weight: int | None,
     ) -> None:
         with self.tracer.start_as_current_span(
-                "VacancyRepo.edit_vacancy_criterion_weight",
+                "VacancyRepo.edit_interview_criterion_weight",
                 kind=SpanKind.INTERNAL,
                 attributes={
                     "vacancy_id": vacancy_id,
@@ -305,15 +299,6 @@ class VacancyRepo(interface.IVacancyRepo):
                     update_fields.append("hard_skill_score_weight = :hard_skill_score_weight")
                     args['hard_skill_score_weight'] = hard_skill_score_weight
 
-                if accordance_xp_vacancy_score_weight is not None:
-                    update_fields.append("accordance_xp_vacancy_score_weight = :accordance_xp_vacancy_score_weight")
-                    args['accordance_xp_vacancy_score_weight'] = accordance_xp_vacancy_score_weight
-
-                if accordance_skill_vacancy_score_weight is not None:
-                    update_fields.append(
-                        "accordance_skill_vacancy_score_weight = :accordance_skill_vacancy_score_weight")
-                    args['accordance_skill_vacancy_score_weight'] = accordance_skill_vacancy_score_weight
-
                 if accordance_xp_resume_score_weight is not None:
                     update_fields.append("accordance_xp_resume_score_weight = :accordance_xp_resume_score_weight")
                     args['accordance_xp_resume_score_weight'] = accordance_xp_resume_score_weight
@@ -331,7 +316,7 @@ class VacancyRepo(interface.IVacancyRepo):
                     return
 
                 query = f"""
-                UPDATE vacancy_criterion_weights
+                UPDATE interview_criterion_weights
                 SET {', '.join(update_fields)}
                 WHERE vacancy_id = :vacancy_id;
                 """
@@ -347,8 +332,8 @@ class VacancyRepo(interface.IVacancyRepo):
     async def create_resume_weight(
             self,
             vacancy_id: int,
-            hard_skill_weight: int,
-            work_xp_weight: int,
+            accordance_xp_vacancy_score_threshold: int,
+            accordance_skill_vacancy_score_threshold: int,
             recommendation_weight: int,
             portfolio_weight: int,
     ) -> None:
@@ -362,8 +347,8 @@ class VacancyRepo(interface.IVacancyRepo):
             try:
                 args = {
                     'vacancy_id': vacancy_id,
-                    'hard_skill_weight': hard_skill_weight,
-                    'work_xp_weight': work_xp_weight,
+                    'accordance_xp_vacancy_score_threshold': accordance_xp_vacancy_score_threshold,
+                    'accordance_skill_vacancy_score_threshold': accordance_skill_vacancy_score_threshold,
                     'recommendation_weight': recommendation_weight,
                     'portfolio_weight': portfolio_weight,
                 }
@@ -378,8 +363,8 @@ class VacancyRepo(interface.IVacancyRepo):
     async def edit_resume_weight(
             self,
             vacancy_id: int,
-            hard_skill_weight: int | None,
-            work_xp_weight: int | None,
+            accordance_xp_vacancy_score_threshold: int | None,
+            accordance_skill_vacancy_score_threshold: int | None,
             recommendation_weight: int | None,
             portfolio_weight: int | None,
     ) -> None:
@@ -394,13 +379,13 @@ class VacancyRepo(interface.IVacancyRepo):
                 update_fields = []
                 args = {'vacancy_id': vacancy_id}
 
-                if hard_skill_weight is not None:
-                    update_fields.append("hard_skill_weight = :hard_skill_weight")
-                    args['hard_skill_weight'] = hard_skill_weight
+                if accordance_xp_vacancy_score_threshold is not None:
+                    update_fields.append("accordance_xp_vacancy_score_threshold = :accordance_xp_vacancy_score_threshold")
+                    args['accordance_xp_vacancy_score_threshold'] = accordance_xp_vacancy_score_threshold
 
-                if work_xp_weight is not None:
-                    update_fields.append("work_xp_weight = :work_xp_weight")
-                    args['work_xp_weight'] = work_xp_weight
+                if accordance_skill_vacancy_score_threshold is not None:
+                    update_fields.append("accordance_skill_vacancy_score_threshold = :accordance_skill_vacancy_score_threshold")
+                    args['accordance_skill_vacancy_score_threshold'] = accordance_skill_vacancy_score_threshold
 
                 if recommendation_weight is not None:
                     update_fields.append("recommendation_weight = :recommendation_weight")
@@ -479,6 +464,46 @@ class VacancyRepo(interface.IVacancyRepo):
 
                 span.set_status(Status(StatusCode.OK))
                 return questions
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise err
+
+    async def get_interview_criterion_weights(self, vacancy_id: int) -> list[model.VacancyCriterionWeights]:
+        with self.tracer.start_as_current_span(
+                "VacancyRepo.get_interview_criterion_weights",
+                kind=SpanKind.INTERNAL,
+                attributes={
+                    "vacancy_id": vacancy_id,
+                }
+        ) as span:
+            try:
+                args = {'vacancy_id': vacancy_id}
+                rows = await self.db.select(get_interview_criterion_weights_query, args)
+                weights = model.VacancyCriterionWeights.serialize(rows) if rows else []
+
+                span.set_status(Status(StatusCode.OK))
+                return weights
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise err
+
+    async def get_resume_criterion_weights(self, vacancy_id: int) -> list[model.ResumeCriterionWeights]:
+        with self.tracer.start_as_current_span(
+                "VacancyRepo.get_resume_criterion_weights",
+                kind=SpanKind.INTERNAL,
+                attributes={
+                    "vacancy_id": vacancy_id,
+                }
+        ) as span:
+            try:
+                args = {'vacancy_id': vacancy_id}
+                rows = await self.db.select(get_resume_criterion_weights_query, args)
+                weights = model.ResumeCriterionWeights.serialize(rows) if rows else []
+
+                span.set_status(Status(StatusCode.OK))
+                return weights
             except Exception as err:
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
