@@ -38,10 +38,10 @@ class VacancyPromptGenerator(interface.IVacancyPromptGenerator):
   "questions": [
     {{
       "question": "Текст вопроса",
-      "question_type": "{questions_type.value}",
+      "question_type": "Тип вопроса (soft/hard)",
       "hint_for_evaluation": "Подсказка для оценки ответа",
       "weight": число от 1 до 5,
-      "response_time": "Время на ответ в минутах"
+      "response_time": Время на ответ в минутах (int)
     }}
   ]
 }}
@@ -82,9 +82,9 @@ class VacancyPromptGenerator(interface.IVacancyPromptGenerator):
 Ответ должен быть ТОЛЬКО в формате JSON без дополнительного текста:
 
 {{
-    "candidate_name": Имя кандидата,
-    "candidate_email": Email кандидата,
-    "candidate_phone": Телефон кандидата,
+    "candidate_name": Имя кандидата, если не указано, то оставь пустую строку,
+    "candidate_email": Email кандидата, если не указано, то оставь пустую строку,
+    "candidate_phone": Телефон кандидата, если не указано, то оставь пустую строку,
     "red_flags_score": Насколько резюме соответствует критериям красных флагов (число от 0 до 5),
     "accordance_xp_vacancy_score": Насколько резюме подходит к вакансии по опыту (число от 0 до 5),
     "accordance_skill_vacancy_score": Насколько резюме подходит к вакансии по навыкам (число от 0 до 5),
