@@ -180,7 +180,7 @@ def include_vacancy_handlers(
         vacancy_controller.get_interview_weights,
         methods=["GET"],
         tags=["Vacancy"],
-        response_model=list[model.VacancyWeights],
+        response_model=list[model.InterviewWeights],
     )
 
     # Получение весов критериев резюме
