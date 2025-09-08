@@ -112,8 +112,8 @@ class CandidateAnswer:
                 interview_id=row.interview_id,
                 response_time=row.response_time,
                 message_ids=row.message_ids,
-                message_to_candidate=rows.message_to_candidate,
-                message_to_hr=rows.message_to_hr,
+                message_to_candidate=row.message_to_candidate,
+                message_to_hr=row.message_to_hr,
                 score=row.score,
                 created_at=row.created_at
             )
