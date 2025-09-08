@@ -363,7 +363,7 @@ class InterviewService(interface.IInterviewService):
             accordance_xp_resume_score: int,
             accordance_skill_resume_score: int,
             interview_weights: model.InterviewWeights
-    ) -> float:
+    ) -> int:
         # Получаем веса из объекта VacancyWeights
         w_red_flag = interview_weights.red_flag_score_weight
         w_hard_skill = interview_weights.hard_skill_score_weight
@@ -378,7 +378,7 @@ class InterviewService(interface.IInterviewService):
 
         # Избегаем деления на ноль
         if total_weight == 0:
-            return 0.0
+            return 0
 
         # Красные флаги работают в обратную сторону - чем больше красных флагов, тем хуже
         # Инвертируем red_flag_score (5 - red_flag_score)
@@ -401,7 +401,7 @@ class InterviewService(interface.IInterviewService):
         general_score = weighted_sum / max_possible_score
 
         # Ограничиваем значение диапазоном [0.0, 1.0]
-        return max(0.0, min(1.0, general_score))
+        return int(max(0.0, min(1.0, general_score)) * 10)
 
     async def get_all_interview(self, vacancy_id: int) -> list[model.Interview]:
         return await self.interview_repo.get_all_interview(vacancy_id)
