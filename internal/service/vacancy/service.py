@@ -839,7 +839,7 @@ class VacancyService(interface.IVacancyService):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def get_interview_weights(self, vacancy_id: int) -> list[model.VacancyWeights]:
+    async def get_interview_weights(self, vacancy_id: int) -> list[model.InterviewWeights]:
         with self.tracer.start_as_current_span(
                 "VacancyService.get_interview_criterion_weights",
                 kind=SpanKind.INTERNAL,

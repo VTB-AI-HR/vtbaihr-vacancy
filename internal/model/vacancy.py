@@ -95,7 +95,7 @@ class VacancyQuestion:
 
 
 @dataclass
-class VacancyWeights:
+class InterviewWeights:
     id: int
     vacancy_id: int
     logic_structure_score_weight: int
@@ -108,7 +108,7 @@ class VacancyWeights:
     created_at: datetime
 
     @classmethod
-    def serialize(cls, rows) -> List['VacancyWeights']:
+    def serialize(cls, rows) -> List['InterviewWeights']:
         return [
             cls(
                 id=row.id,

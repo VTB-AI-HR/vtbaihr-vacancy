@@ -277,8 +277,21 @@ class InterviewService(interface.IInterviewService):
 
         interview_evaluation = self.extract_and_parse_json(interview_evaluation_str)
 
-        general_score = 0.5
-        general_result = model.GeneralResult.NEXT if general_score > 0.6 else model.GeneralResult.REJECTED
+        interview_weights = (await self.vacancy_repo.get_interview_weights(vacancy.id))[0]
+
+        # Рассчитываем общий балл
+        general_score = self.__calculate_general_score(
+            red_flag_score=interview_evaluation["red_flag_score"],
+            hard_skill_score=interview_evaluation["hard_skill_score"],
+            soft_skill_score=interview_evaluation["soft_skill_score"],
+            logic_structure_score=interview_evaluation["logic_structure_score"],
+            accordance_xp_resume_score=interview_evaluation["accordance_xp_resume_score"],
+            accordance_skill_resume_score=interview_evaluation["accordance_skill_resume_score"],
+            interview_weights=interview_weights
+        )
+
+        # Определяем результат на основе порогового значения
+        general_result = model.GeneralResult.NEXT if general_score >= 0.6 else model.GeneralResult.REJECTED
 
         await self.interview_repo.fill_interview_criterion(
             interview_id=interview_id,
@@ -340,6 +353,55 @@ class InterviewService(interface.IInterviewService):
             message_to_candidate=message_to_candidate,
             response_time=response_time
         )
+
+    def __calculate_general_score(
+            self,
+            red_flag_score: int,
+            hard_skill_score: int,
+            soft_skill_score: int,
+            logic_structure_score: int,
+            accordance_xp_resume_score: int,
+            accordance_skill_resume_score: int,
+            interview_weights: model.InterviewWeights
+    ) -> float:
+        # Получаем веса из объекта VacancyWeights
+        w_red_flag = interview_weights.red_flag_score_weight
+        w_hard_skill = interview_weights.hard_skill_score_weight
+        w_soft_skill = interview_weights.soft_skill_score_weight
+        w_logic_structure = interview_weights.logic_structure_score_weight
+        w_accordance_xp = interview_weights.accordance_xp_resume_score_weight
+        w_accordance_skill = interview_weights.accordance_skill_resume_score_weight
+
+        # Рассчитываем общую сумму весов
+        total_weight = (w_red_flag + w_hard_skill + w_soft_skill +
+                        w_logic_structure + w_accordance_xp + w_accordance_skill)
+
+        # Избегаем деления на ноль
+        if total_weight == 0:
+            return 0.0
+
+        # Красные флаги работают в обратную сторону - чем больше красных флагов, тем хуже
+        # Инвертируем red_flag_score (5 - red_flag_score)
+        inverted_red_flag_score = 5 - red_flag_score
+
+        # Рассчитываем взвешенную сумму
+        weighted_sum = (
+                inverted_red_flag_score * w_red_flag +
+                hard_skill_score * w_hard_skill +
+                soft_skill_score * w_soft_skill +
+                logic_structure_score * w_logic_structure +
+                accordance_xp_resume_score * w_accordance_xp +
+                accordance_skill_resume_score * w_accordance_skill
+        )
+
+        # Максимально возможная оценка (все критерии по 5 баллов)
+        max_possible_score = 5 * total_weight
+
+        # Нормализуем к диапазону 0.0 - 1.0
+        general_score = weighted_sum / max_possible_score
+
+        # Ограничиваем значение диапазоном [0.0, 1.0]
+        return max(0.0, min(1.0, general_score))
 
     async def get_all_interview(self, vacancy_id: int) -> list[model.Interview]:
         return await self.interview_repo.get_all_interview(vacancy_id)

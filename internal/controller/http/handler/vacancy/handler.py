@@ -1,5 +1,5 @@
 from opentelemetry.trace import Status, StatusCode, SpanKind
-from fastapi import UploadFile, Form, File
+from fastapi import UploadFile, Form
 from fastapi.responses import JSONResponse
 
 from .model import *

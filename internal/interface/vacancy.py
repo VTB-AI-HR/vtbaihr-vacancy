@@ -200,7 +200,7 @@ class IVacancyService(Protocol):
     async def get_all_question(self, vacancy_id: int) -> list[model.VacancyQuestion]: pass
 
     @abstractmethod
-    async def get_interview_weights(self, vacancy_id: int) -> list[model.VacancyWeights]:
+    async def get_interview_weights(self, vacancy_id: int) -> list[model.InterviewWeights]:
         pass
 
     @abstractmethod
@@ -312,7 +312,7 @@ class IVacancyRepo(Protocol):
     async def get_all_question(self, vacancy_id: int) -> list[model.VacancyQuestion]: pass
 
     @abstractmethod
-    async def get_interview_weights(self, vacancy_id: int) -> list[model.VacancyWeights]: pass
+    async def get_interview_weights(self, vacancy_id: int) -> list[model.InterviewWeights]: pass
 
     @abstractmethod
     async def get_resume_weights(self, vacancy_id: int) -> list[model.ResumeWeights]: pass
