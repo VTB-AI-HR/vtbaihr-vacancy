@@ -71,7 +71,7 @@ RETURNING id;
 """
 
 create_resume_weights_query = """
-INSERT INTO resume_criterion_weights (
+INSERT INTO resume_weights (
     vacancy_id,
     accordance_xp_vacancy_score_threshold,
     accordance_skill_vacancy_score_threshold,
