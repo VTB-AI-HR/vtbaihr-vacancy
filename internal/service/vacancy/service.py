@@ -18,6 +18,7 @@ class VacancyService(interface.IVacancyService):
             storage: interface.IStorage,
             vacancy_prompt_generator: interface.IVacancyPromptGenerator,
             llm_client: interface.ILLMClient,
+            email_client: interface.IEmailClient,
     ):
         self.tracer = tel.tracer()
         self.logger = tel.logger()
@@ -26,6 +27,8 @@ class VacancyService(interface.IVacancyService):
         self.storage = storage
         self.vacancy_prompt_generator = vacancy_prompt_generator
         self.llm_client = llm_client
+        self.email_client = email_client
+
 
     async def create_vacancy(
             self,
@@ -605,11 +608,14 @@ class VacancyService(interface.IVacancyService):
                         upload_result = self.storage.upload(resume_file_io, resume_file.filename)
                         candidate_resume_fid = upload_result.fid
 
+                        candidate_email = evaluation_data.get("candidate_email", "unknown@example.com")
+                        candidate_name = evaluation_data.get("candidate_name", "Unknown")
+
                         # Создаем интервью
                         interview_id = await self.interview_repo.create_interview(
                             vacancy_id=vacancy_id,
-                            candidate_name=evaluation_data.get("candidate_name", "Unknown"),
-                            candidate_email=evaluation_data.get("candidate_email", "unknown@example.com"),
+                            candidate_name=candidate_name,
+                            candidate_email=candidate_email,
                             candidate_phone=evaluation_data.get("candidate_phone", "Unknown"),
                             candidate_resume_fid=candidate_resume_fid,
                             candidate_resume_filename=resume_file.filename,
@@ -617,12 +623,20 @@ class VacancyService(interface.IVacancyService):
                             accordance_skill_vacancy_score=accordance_skill_vacancy_score
                         )
 
+                        # if candidate_email != "Unknown" and "@" in candidate_email:
+                        #     await self._send_interview_invitation(
+                        #         candidate_email=candidate_email,
+                        #         candidate_name=candidate_name,
+                        #         vacancy_name=vacancy.name,
+                        #         interview_id=interview_id
+                        #     )
+
                         # Создаем объект Interview для возврата
                         interview = model.Interview(
                             id=interview_id,
                             vacancy_id=vacancy_id,
-                            candidate_name=evaluation_data.get("candidate_name", "Unknown"),
-                            candidate_email=evaluation_data.get("candidate_email", "unknown@example.com"),
+                            candidate_name=candidate_name,
+                            candidate_email=candidate_email,
                             candidate_phone=evaluation_data.get("candidate_phone", "Unknown"),
                             candidate_resume_fid=candidate_resume_fid,
                             candidate_resume_filename=resume_file.filename,
@@ -761,6 +775,13 @@ class VacancyService(interface.IVacancyService):
 
                     # Генерируем ссылку на интервью
                     interview_link = f"/interview/start/{interview_id}"
+
+                    # email_sent = await self._send_interview_invitation(
+                    #     candidate_email=candidate_email,
+                    #     candidate_name=evaluation_data.get("candidate_name", "Unknown"),
+                    #     vacancy_name=vacancy.name,
+                    #     interview_id=interview_id
+                    # )
 
                     self.logger.info("Candidate resume approved, interview created", {
                         "vacancy_id": vacancy_id,
@@ -908,3 +929,94 @@ class VacancyService(interface.IVacancyService):
         json_str = match.group(0)
         data = json.loads(json_str)
         return data
+
+    async def _send_interview_invitation(
+            self,
+            candidate_email: str,
+            candidate_name: str,
+            vacancy_name: str,
+            interview_id: int
+    ) -> bool:
+        """Отправляет приглашение на интервью кандидату"""
+        try:
+            subject = f"Приглашение на интервью - {vacancy_name}"
+
+            # Формируем HTML письмо
+            body = f"""
+<html>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: #2c3e50;">Приглашение на интервью</h2>
+
+            <p>Здравствуйте, {candidate_name}!</p>
+
+            <p>Поздравляем! Ваше резюме прошло предварительный отбор на позицию <strong>{vacancy_name}</strong>.</p>
+
+            <p>Мы приглашаем Вас пройти следующий этап - интервью с нашей системой ИИ.</p>
+
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
+                <h3 style="color: #495057; margin-top: 0;">Как пройти интервью:</h3>
+                <ol>
+                    <li>Перейдите по ссылке ниже</li>
+                    <li>Следуйте инструкциям системы</li>
+                    <li>Отвечайте на вопросы честно и подробно</li>
+                    <li>Убедитесь, что у вас есть доступ к микрофону</li>
+                </ol>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="/interview/start/{interview_id}" 
+                   style="background-color: #007bff; color: white; padding: 12px 30px; 
+                          text-decoration: none; border-radius: 5px; display: inline-block;
+                          font-weight: bold;">
+                    Начать интервью
+                </a>
+            </div>
+
+            <p style="color: #6c757d; font-size: 0.9em;">
+                <strong>Важно:</strong> Интервью займет примерно 15-30 минут. 
+                Рекомендуем проходить его в тихом месте с хорошим интернет-соединением.
+            </p>
+
+            <hr style="border: none; border-top: 1px solid #dee2e6; margin: 30px 0;">
+
+            <p style="color: #6c757d; font-size: 0.8em;">
+                Если у вас возникнут вопросы, пожалуйста, свяжитесь с нами.<br>
+                Удачи на интервью!
+            </p>
+        </div>
+    </body>
+</html>
+"""
+
+            # Отправляем email
+            email_sent = await self.email_client.send_email(
+                to_email=candidate_email,
+                subject=subject,
+                body=body,
+                is_html=True
+            )
+
+            if email_sent:
+                self.logger.info("Interview invitation sent successfully", {
+                    "candidate_email": candidate_email,
+                    "candidate_name": candidate_name,
+                    "vacancy_name": vacancy_name,
+                    "interview_id": interview_id
+                })
+            else:
+                self.logger.warning("Failed to send interview invitation", {
+                    "candidate_email": candidate_email,
+                    "candidate_name": candidate_name,
+                    "vacancy_name": vacancy_name,
+                    "interview_id": interview_id
+                })
+
+            return email_sent
+
+        except Exception as err:
+            self.logger.error("Error sending interview invitation", {
+                "candidate_email": candidate_email,
+                "error": str(err)
+            })
+            return False

@@ -5,6 +5,7 @@ from infrastructure.weedfs.weedfs import Weed
 from infrastructure.telemetry.telemetry import Telemetry, AlertManager
 
 from pkg.client.external.openai.client import GPTClient
+from pkg.client.external.email.client import EmailClient
 
 from internal.controller.http.middlerware.middleware import HttpMiddleware
 
@@ -53,6 +54,16 @@ db = PG(tel, cfg.db_user, cfg.db_pass, cfg.db_host, cfg.db_port, cfg.db_name)
 storage = Weed(cfg.weed_master_host, cfg.weed_master_port)
 llm_client = GPTClient(tel, cfg.openai_api_key)
 
+# Добавляем инициализацию EmailClient
+email_client = EmailClient(
+    tel=tel,
+    smtp_host=cfg.smtp_host,
+    smtp_port=cfg.smtp_port,
+    smtp_user=cfg.smtp_user,
+    smtp_password=cfg.smtp_password,
+    use_tls=cfg.smtp_use_tls
+)
+
 # Инициализация репозиториев
 vacancy_repo = VacancyRepo(tel, db)
 interview_repo = InterviewRepo(tel, db)
@@ -61,7 +72,17 @@ interview_repo = InterviewRepo(tel, db)
 interview_prompt_generator = InterviewPromptGenerator(tel)
 vacancy_prompt_generator = VacancyPromptGenerator(tel)
 
-vacancy_service = VacancyService(tel, vacancy_repo, interview_repo, storage, vacancy_prompt_generator, llm_client)
+# Обновляем VacancyService, добавляя email_client
+vacancy_service = VacancyService(
+    tel,
+    vacancy_repo,
+    interview_repo,
+    storage,
+    vacancy_prompt_generator,
+    llm_client,
+    email_client  # Добавляем email_client
+)
+
 interview_service = InterviewService(
     tel,
     vacancy_repo,
