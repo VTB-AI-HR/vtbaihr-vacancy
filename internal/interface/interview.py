@@ -97,7 +97,8 @@ class IInterviewRepo(Protocol):
             self,
             candidate_answer_id: int,
             score: int,
-            llm_comment: str,
+            message_to_candidate: str,
+            message_to_hr: str,
             response_time: int
     ) -> None: pass
 

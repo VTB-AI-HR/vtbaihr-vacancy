@@ -306,7 +306,7 @@ class InterviewService(interface.IInterviewService):
             current_question: model.VacancyQuestion,
             vacancy: model.Vacancy,
             interview_messages: list[model.InterviewMessage]
-    ):
+    ) -> None:
         answer_evaluation_system_prompt = self.interview_prompt_generator.get_answer_evaluation_system_prompt(
             question=current_question,
             vacancy=vacancy
@@ -330,12 +330,14 @@ class InterviewService(interface.IInterviewService):
 
         evaluation_data = self.extract_and_parse_json(question_evaluation_str)
         score = evaluation_data["score"]
-        llm_comment = evaluation_data["llm_comment"]
+        message_to_candidate = evaluation_data["message_to_candidate"]
+        message_to_hr = evaluation_data["message_to_hr"]
 
         await self.interview_repo.evaluation_candidate_answer(
             candidate_answer_id=candidate_answer_id,
             score=score,
-            llm_comment=llm_comment,
+            message_to_hr=message_to_hr,
+            message_to_candidate=message_to_candidate,
             response_time=response_time
         )
 

@@ -139,7 +139,8 @@ class InterviewRepo(interface.IInterviewRepo):
             self,
             candidate_answer_id: int,
             score: int,
-            llm_comment: str,
+            message_to_candidate: str,
+            message_to_hr: str,
             response_time: int
     ) -> None:
         with self.tracer.start_as_current_span(
@@ -154,7 +155,8 @@ class InterviewRepo(interface.IInterviewRepo):
                 args = {
                     'candidate_answer_id': candidate_answer_id,
                     'score': score,
-                    'llm_comment': llm_comment,
+                    'message_to_candidate': message_to_candidate,
+                    'message_to_hr': message_to_hr,
                     'response_time': response_time,
                 }
                 await self.db.update(evaluation_candidate_answer, args)

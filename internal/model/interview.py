@@ -97,7 +97,8 @@ class CandidateAnswer:
     interview_id: int
     response_time: int
     message_ids: list[int]
-    llm_comment: str
+    message_to_candidate: str
+    message_to_hr: str
     score: int
 
     created_at: datetime
@@ -111,7 +112,8 @@ class CandidateAnswer:
                 interview_id=row.interview_id,
                 response_time=row.response_time,
                 message_ids=row.message_ids,
-                llm_comment=row.llm_comment,
+                message_to_candidate=rows.message_to_candidate,
+                message_to_hr=rows.message_to_hr,
                 score=row.score,
                 created_at=row.created_at
             )
@@ -125,7 +127,8 @@ class CandidateAnswer:
             "interview_id": self.interview_id,
             "response_time": self.response_time,
             "message_ids": self.message_ids,
-            "llm_comment": self.llm_comment,
+            "message_to_candidate": self.message_to_candidate,
+            "message_to_hr": self.message_to_hr,
             "score": self.score,
             "created_at": self.created_at.isoformat()
         }

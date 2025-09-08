@@ -80,7 +80,8 @@ evaluation_candidate_answer = """
 UPDATE candidate_answers
 SET 
     score = :score,
-    llm_comment = :llm_comment,
+    message_to_candidate = :message_to_candidate,
+    message_to_hr = :message_to_hr,
     response_time = :response_time
 WHERE id = :candidate_answer_id;
 """

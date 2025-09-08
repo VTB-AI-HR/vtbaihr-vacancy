@@ -97,7 +97,8 @@ CREATE TABLE IF NOT EXISTS candidate_answers(
     
     response_time INTEGER DEFAULT 0,
     message_ids INTEGER[] DEFAULT '{}',
-    llm_comment TEXT DEFAULT '',
+    message_to_candidate TEXT DEFAULT '',
+    message_to_hr TEXT DEFAULT '',
     score INTEGER DEFAULT 0,
     
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
