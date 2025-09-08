@@ -1,6 +1,8 @@
 from fastapi import FastAPI, Path, Form, File, UploadFile
 from typing import List
 
+from starlette.responses import StreamingResponse
+
 from internal import model, interface
 from internal.controller.http.handler.interview.model import *
 from internal.controller.http.handler.vacancy.model import *
@@ -232,6 +234,14 @@ def include_interview_handlers(
         methods=["GET"],
         tags=["Interview"],
         response_model=GetCandidateAnswersResponse,
+    )
+
+    app.add_api_route(
+        prefix + "/interview/audio/{audio_fid}/{audio_filename}",
+        interview_controller.download_audio,
+        methods=["GET"],
+        tags=["Interview"],
+        response_class=StreamingResponse,
     )
 
 

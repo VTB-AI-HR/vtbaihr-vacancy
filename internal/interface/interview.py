@@ -1,3 +1,4 @@
+import io
 from abc import abstractmethod
 from typing import Protocol
 
@@ -57,6 +58,9 @@ class IInterviewService(Protocol):
             self,
             interview_id: int
     ) -> tuple[list[model.CandidateAnswer], list[model.InterviewMessage]]: pass
+
+    @abstractmethod
+    def download_audio(self, audio_fid: str, audio_filename: str) -> tuple[io.BytesIO, str]: pass
 
 
 class IInterviewRepo(Protocol):

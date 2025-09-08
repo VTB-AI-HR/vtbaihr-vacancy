@@ -236,7 +236,8 @@ class InterviewController(interface.IInterviewController):
                     media_type=content_type,
                     headers={
                         "Content-Disposition": f"attachment; filename={audio_filename}",
-                        "Cache-Control": "no-cache"
+                        "Cache-Control": "no-cache",
+                        "Accept-Ranges": "bytes"
                     }
                 )
 
