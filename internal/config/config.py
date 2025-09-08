@@ -43,3 +43,10 @@ class Config:
 
         # OpenAI configuration
         self.openai_api_key = os.getenv("VTBAIHR_OPENAI_API_KEY", "")
+
+        # SMTP Email configuration
+        self.smtp_host = os.getenv("VTBAIHR_SMTP_HOST", "smtp.gmail.com")
+        self.smtp_port = int(os.getenv("VTBAIHR_SMTP_PORT", "587"))
+        self.smtp_user = os.getenv("VTBAIHR_SMTP_USER", "")
+        self.smtp_password = os.getenv("VTBAIHR_SMTP_PASSWORD", "")
+        self.smtp_use_tls = os.getenv("VTBAIHR_SMTP_USE_TLS", "true").lower() == "true"

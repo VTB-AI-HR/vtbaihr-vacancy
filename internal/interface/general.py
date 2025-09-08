@@ -74,6 +74,16 @@ class IStorage(Protocol):
     @abstractmethod
     def update(self, file: io.BytesIO, fid: str, name: str): pass
 
+class IEmailClient(Protocol):
+    @abstractmethod
+    async def send_email(
+            self,
+            to_email: str,
+            subject: str,
+            body: str,
+            is_html: bool = True,
+            attachments: list[tuple] = None
+    ) -> bool: pass
 
 class IDB(Protocol):
 
