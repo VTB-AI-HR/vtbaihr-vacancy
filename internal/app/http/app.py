@@ -175,6 +175,23 @@ def include_vacancy_handlers(
         response_model=list[model.VacancyQuestion],
     )
 
+    app.add_api_route(
+        prefix + "/criterion-weight/{vacancy_id}",
+        vacancy_controller.get_interview_criterion_weights,
+        methods=["GET"],
+        tags=["Vacancy"],
+        response_model=list[model.VacancyCriterionWeights],
+    )
+
+    # Получение весов критериев резюме
+    app.add_api_route(
+        prefix + "/resume-weight/{vacancy_id}",
+        vacancy_controller.get_resume_criterion_weights,
+        methods=["GET"],
+        tags=["Vacancy"],
+        response_model=list[model.ResumeCriterionWeights],
+    )
+
 
 def include_interview_handlers(
         app: FastAPI,

@@ -586,3 +586,63 @@ class VacancyController(interface.IVacancyController):
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
+
+    async def get_interview_criterion_weights(self, vacancy_id: int) -> JSONResponse:
+        with self.tracer.start_as_current_span(
+                "VacancyController.get_interview_criterion_weights",
+                kind=SpanKind.INTERNAL,
+                attributes={"vacancy_id": vacancy_id}
+        ) as span:
+            try:
+                self.logger.info("Getting interview criterion weights request", {"vacancy_id": vacancy_id})
+
+                weights = await self.vacancy_service.get_interview_criterion_weights(vacancy_id)
+
+                # Конвертируем в словари для JSON ответа
+                weights_dict = [weight.to_dict() for weight in weights]
+
+                self.logger.info("Interview criterion weights retrieved successfully", {
+                    "vacancy_id": vacancy_id,
+                    "weights_found": len(weights) > 0
+                })
+
+                span.set_status(Status(StatusCode.OK))
+                return JSONResponse(
+                    status_code=200,
+                    content=weights_dict
+                )
+
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise err
+
+    async def get_resume_criterion_weights(self, vacancy_id: int) -> JSONResponse:
+        with self.tracer.start_as_current_span(
+                "VacancyController.get_resume_criterion_weights",
+                kind=SpanKind.INTERNAL,
+                attributes={"vacancy_id": vacancy_id}
+        ) as span:
+            try:
+                self.logger.info("Getting resume criterion weights request", {"vacancy_id": vacancy_id})
+
+                weights = await self.vacancy_service.get_resume_criterion_weights(vacancy_id)
+
+                # Конвертируем в словари для JSON ответа
+                weights_dict = [weight.to_dict() for weight in weights]
+
+                self.logger.info("Resume criterion weights retrieved successfully", {
+                    "vacancy_id": vacancy_id,
+                    "weights_found": len(weights) > 0
+                })
+
+                span.set_status(Status(StatusCode.OK))
+                return JSONResponse(
+                    status_code=200,
+                    content=weights_dict
+                )
+
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise err

@@ -839,6 +839,62 @@ class VacancyService(interface.IVacancyService):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
+    async def get_interview_criterion_weights(self, vacancy_id: int) -> list[model.VacancyCriterionWeights]:
+        with self.tracer.start_as_current_span(
+                "VacancyService.get_interview_criterion_weights",
+                kind=SpanKind.INTERNAL,
+                attributes={
+                    "vacancy_id": vacancy_id,
+                }
+        ) as span:
+            try:
+                self.logger.info("Retrieving interview criterion weights for vacancy", {
+                    "vacancy_id": vacancy_id
+                })
+
+                weights = await self.vacancy_repo.get_interview_criterion_weights(vacancy_id)
+
+                self.logger.info("Successfully retrieved interview criterion weights", {
+                    "vacancy_id": vacancy_id,
+                    "weights_found": len(weights) > 0
+                })
+
+                span.set_status(Status(StatusCode.OK))
+                return weights
+
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise err
+
+    async def get_resume_criterion_weights(self, vacancy_id: int) -> list[model.ResumeCriterionWeights]:
+        with self.tracer.start_as_current_span(
+                "VacancyService.get_resume_criterion_weights",
+                kind=SpanKind.INTERNAL,
+                attributes={
+                    "vacancy_id": vacancy_id,
+                }
+        ) as span:
+            try:
+                self.logger.info("Retrieving resume criterion weights for vacancy", {
+                    "vacancy_id": vacancy_id
+                })
+
+                weights = await self.vacancy_repo.get_resume_criterion_weights(vacancy_id)
+
+                self.logger.info("Successfully retrieved resume criterion weights", {
+                    "vacancy_id": vacancy_id,
+                    "weights_found": len(weights) > 0
+                })
+
+                span.set_status(Status(StatusCode.OK))
+                return weights
+
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise err
+
     def extract_and_parse_json(self, text: str) -> dict:
         match = re.search(r"\{.*\}", text, re.DOTALL)
 
