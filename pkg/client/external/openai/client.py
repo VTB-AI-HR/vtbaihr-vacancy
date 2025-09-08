@@ -119,7 +119,7 @@ class GPTClient(interface.ILLMClient):
     async def text_to_speech(
             self,
             text: str,
-            voice: str = "nova",
+            voice: str = "alloy",
             tts_model: str = "tts-1-hd"
     ) -> bytes:
         with self.tracer.start_as_current_span(
@@ -127,12 +127,6 @@ class GPTClient(interface.ILLMClient):
                 kind=SpanKind.CLIENT,
         ) as span:
             try:
-                instructions = """
-Говори медленно и четко для технических терминов.
-                Особенно внимательно произноси названия технологий.
-                Делай паузы между сложными концепциями.
-                Используй спокойную, объясняющую интонацию.
-"""
                 response = await self.client.audio.speech.create(
                     model=tts_model,
                     voice=voice,
