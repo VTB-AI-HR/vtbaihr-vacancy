@@ -25,7 +25,7 @@ class InterviewController(interface.IInterviewController):
             try:
                 self.logger.info("Starting interview request", {"interview_id": interview_id})
 
-                message_to_candidate, total_questions, question_id = await self.interview_service.start_interview(
+                message_to_candidate, total_questions, question_id, llm_audio_filename, llm_audio_fid = await self.interview_service.start_interview(
                     interview_id
                 )
 
@@ -41,7 +41,9 @@ class InterviewController(interface.IInterviewController):
                     content={
                         "message_to_candidate": message_to_candidate,
                         "total_question": total_questions,
-                        "question_id": question_id
+                        "question_id": question_id,
+                        "llm_audio_filename": llm_audio_filename,
+                        "llm_audio_fid": llm_audio_fid,
                     }
                 )
 
@@ -71,7 +73,7 @@ class InterviewController(interface.IInterviewController):
                     "content_type": audio_file.content_type
                 })
 
-                next_question_id, message_to_candidate, interview_result = await self.interview_service.send_answer(
+                next_question_id, message_to_candidate, interview_result, llm_audio_filename, llm_audio_fid = await self.interview_service.send_answer(
                     interview_id=interview_id,
                     question_id=question_id,
                     audio_file=audio_file
@@ -90,7 +92,9 @@ class InterviewController(interface.IInterviewController):
                     content={
                         "question_id": next_question_id,
                         "message_to_candidate": message_to_candidate,
-                        "interview_result": interview_result
+                        "interview_result": interview_result,
+                        "llm_audio_filename": llm_audio_filename,
+                        "llm_audio_fid": llm_audio_fid,
                     }
                 )
             except Exception as err:

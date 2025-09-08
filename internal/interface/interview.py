@@ -45,7 +45,7 @@ class IInterviewController(Protocol):
 
 class IInterviewService(Protocol):
     @abstractmethod
-    async def start_interview(self, interview_id: int) -> tuple[str, int, int]:
+    async def start_interview(self, interview_id: int) -> tuple[str, int, int, str, str]:
         pass
 
     @abstractmethod
@@ -54,7 +54,7 @@ class IInterviewService(Protocol):
             interview_id: int,
             question_id: int,
             audio_file: UploadFile
-    ) -> tuple[int, str, dict]:
+    ) -> tuple[int, str, dict, str, str]:
         pass
 
     async def get_all_interview(self, vacancy_id: int) -> list[model.Interview]: pass

@@ -27,7 +27,7 @@ class InterviewService(interface.IInterviewService):
         self.llm_client = llm_client
         self.storage = storage
 
-    async def start_interview(self, interview_id: int) -> tuple[str, int, int]:
+    async def start_interview(self, interview_id: int) -> tuple[str, int, int, str, str]:
         interview = (await self.interview_repo.get_interview_by_id(interview_id))[0]
         vacancy = (await self.vacancy_repo.get_vacancy_by_id(interview.vacancy_id))[0]
         questions = await self.vacancy_repo.get_all_question(vacancy.id)
@@ -87,14 +87,14 @@ class InterviewService(interface.IInterviewService):
             candidate_answer_id=candidate_answer_id
         )
 
-        return message_to_candidate, len(questions), questions[0].id
+        return message_to_candidate, len(questions), questions[0].id, llm_audio_filename, llm_audio_fid
 
     async def send_answer(
             self,
             interview_id: int,
             question_id: int,
             audio_file: UploadFile
-    ) -> tuple[int, str, dict]:
+    ) -> tuple[int, str, dict, str, str]:
         try:
             # 1. Получаем необходимые данные
             interview = (await self.interview_repo.get_interview_by_id(interview_id))[0]
@@ -169,7 +169,9 @@ class InterviewService(interface.IInterviewService):
                 return (
                     question_id,
                     message_to_candidate,
-                    {}
+                    {},
+                    llm_audio_filename,
+                    llm_audio_fid
                 )
 
             elif action == "next_question" and current_question_order_number < len(questions):
@@ -186,7 +188,9 @@ class InterviewService(interface.IInterviewService):
                 return (
                     next_question.id,
                     message_to_candidate,
-                    {}
+                    {},
+                    llm_audio_filename,
+                    llm_audio_fid
                 )
 
             elif action == "finish_interview" or action == "next_question" and current_question_order_number == len(
@@ -202,7 +206,9 @@ class InterviewService(interface.IInterviewService):
                 return (
                     question_id,
                     message_to_candidate,
-                    interview.to_dict()
+                    interview.to_dict(),
+                    llm_audio_filename,
+                    llm_audio_fid
                 )
 
             return question_id, message_to_candidate, {}
