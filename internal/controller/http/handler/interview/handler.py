@@ -245,3 +245,59 @@ class InterviewController(interface.IInterviewController):
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
+
+    async def download_resume(
+            self,
+            resume_fid: str = Path(...),
+            resume_filename: str = Path(...)
+    ) -> StreamingResponse:
+        """Скачивает резюме кандидата по ID интервью"""
+        with self.tracer.start_as_current_span(
+                "InterviewController.download_resume",
+                kind=SpanKind.INTERNAL,
+                attributes={"resume_fid": resume_fid, "resume_filename": resume_filename}
+        ) as span:
+            try:
+                # Получаем поток файла резюме из сервиса
+                resume_stream, content_type = await self.interview_service.download_resume(
+                    resume_fid,
+                    resume_filename
+                )
+
+                # Определяем MIME тип для резюме
+                if not content_type or content_type == "application/octet-stream":
+                    if resume_filename.lower().endswith('.pdf'):
+                        content_type = "application/pdf"
+                    elif resume_filename.lower().endswith(('.doc', '.docx')):
+                        content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    elif resume_filename.lower().endswith('.txt'):
+                        content_type = "text/plain"
+                    else:
+                        content_type = "application/octet-stream"  # default
+
+                def iterfile():
+                    """Генератор для стриминга файла"""
+                    try:
+                        while True:
+                            chunk = resume_stream.read(8192)  # Читаем по 8KB
+                            if not chunk:
+                                break
+                            yield chunk
+                    finally:
+                        resume_stream.close()
+
+                span.set_status(Status(StatusCode.OK))
+                return StreamingResponse(
+                    iterfile(),
+                    media_type=content_type,
+                    headers={
+                        "Content-Disposition": f"attachment; filename={resume_filename}",
+                        "Cache-Control": "no-cache",
+                        "Accept-Ranges": "bytes"
+                    }
+                )
+
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise err

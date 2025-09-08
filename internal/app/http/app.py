@@ -244,6 +244,14 @@ def include_interview_handlers(
         response_class=StreamingResponse,
     )
 
+    app.add_api_route(
+        prefix + "/interview/resume/{resume_fid}/{resume_filename}",
+        interview_controller.download_resume,
+        methods=["GET"],
+        tags=["Interview"],
+        response_class=StreamingResponse,
+    )
+
 
 def include_db_handler(app: FastAPI, db: interface.IDB, prefix: str):
     app.add_api_route(prefix + "/table/create", create_table_handler(db), methods=["GET"])

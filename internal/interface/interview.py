@@ -36,6 +36,12 @@ class IInterviewController(Protocol):
             audio_filename: str = Path(...)
     ) -> StreamingResponse: pass
 
+    async def download_resume(
+            self,
+            resume_fid: str = Path(...),
+            resume_filename: str = Path(...)
+    ) -> StreamingResponse: pass
+
 
 class IInterviewService(Protocol):
     @abstractmethod
@@ -60,7 +66,10 @@ class IInterviewService(Protocol):
     ) -> tuple[list[model.CandidateAnswer], list[model.InterviewMessage]]: pass
 
     @abstractmethod
-    def download_audio(self, audio_fid: str, audio_filename: str) -> tuple[io.BytesIO, str]: pass
+    async def download_audio(self, audio_fid: str, audio_filename: str) -> tuple[io.BytesIO, str]: pass
+
+    @abstractmethod
+    async def download_resume(self, resume_fid: str, resume_filename: str) -> tuple[io.BytesIO, str]: pass
 
 
 class IInterviewRepo(Protocol):

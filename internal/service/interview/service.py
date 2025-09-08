@@ -422,7 +422,7 @@ class InterviewService(interface.IInterviewService):
 
         return candidate_answers, interview_messages
 
-    def download_audio(self, audio_fid: str, audio_filename: str) -> tuple[io.BytesIO, str]:
+    async def download_audio(self, audio_fid: str, audio_filename: str) -> tuple[io.BytesIO, str]:
         try:
             self.logger.info("Downloading audio file from storage", {
                 "audio_fid": audio_fid,
@@ -435,6 +435,27 @@ class InterviewService(interface.IInterviewService):
             self.logger.info("Audio file downloaded successfully from storage", {
                 "audio_fid": audio_fid,
                 "audio_filename": audio_filename,
+                "content_type": content_type
+            })
+
+            return audio_stream, content_type
+
+        except Exception as err:
+            raise err
+
+    async def download_resume(self, resume_fid: str, resume_filename: str) -> tuple[io.BytesIO, str]:
+        try:
+            self.logger.info("Downloading resume file from storage", {
+                "resume_fid": resume_fid,
+                "resume_filename": resume_filename
+            })
+
+            # Скачиваем файл из storage
+            audio_stream, content_type = self.storage.download(resume_fid, resume_filename)
+
+            self.logger.info("resume file downloaded successfully from storage", {
+                "resume_fid": resume_fid,
+                "resume_filename": resume_filename,
                 "content_type": content_type
             })
 
