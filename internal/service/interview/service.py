@@ -291,7 +291,7 @@ class InterviewService(interface.IInterviewService):
         )
 
         # Определяем результат на основе порогового значения
-        general_result = model.GeneralResult.NEXT if general_score >= 0.6 else model.GeneralResult.REJECTED
+        general_result = model.GeneralResult.NEXT if general_score >= 6 else model.GeneralResult.REJECTED
 
         await self.interview_repo.fill_interview_criterion(
             interview_id=interview_id,
