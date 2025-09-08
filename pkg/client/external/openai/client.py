@@ -132,7 +132,7 @@ class GPTClient(interface.ILLMClient):
                     voice=voice,
                     input=text,
                     response_format="mp3",
-                    speed=0.8,
+                    speed=0.85,
                 )
 
                 audio_content = response.content
