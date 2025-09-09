@@ -793,7 +793,7 @@ class VacancyService(interface.IVacancyService):
                     #     vacancy_name=vacancy.name,
                     #     interview_id=interview_id
                     # )
-                    # await self.telegram_client.send_message_to_telegram(candidate_telegram_login, "Вы прошли интервью")
+                    await self.telegram_client.send_message_to_telegram(candidate_telegram_login, "Вы прошли интервью")
 
                     self.logger.info("Candidate resume approved, interview created", {
                         "vacancy_id": vacancy_id,
