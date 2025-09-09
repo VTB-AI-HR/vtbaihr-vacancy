@@ -635,7 +635,7 @@ class VacancyService(interface.IVacancyService):
                         #         vacancy_name=vacancy.name,
                         #         interview_id=interview_id
                         #     )
-                        # await self.telegram_client.send_message_to_telegram(candidate_telegram_login, "Вы прошли интервью")
+                        await self.telegram_client.send_message_to_telegram(candidate_telegram_login, "Вы прошли интервью")
 
                         # Создаем объект Interview для возврата
                         interview = model.Interview(
@@ -974,7 +974,7 @@ class VacancyService(interface.IVacancyService):
         data = json.loads(json_str)
         return data
 
-    async def _send_interview_invitation(
+    async def _send_interview_invitation_to_email(
             self,
             candidate_email: str,
             candidate_name: str,
