@@ -144,7 +144,7 @@ class ITelegramClient(Protocol):
     @abstractmethod
     async def send_message_to_telegram(
             self,
-            tg_username: str,
+            tg_user_data: str,
             text: str
     ): pass
 

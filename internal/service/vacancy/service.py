@@ -1120,7 +1120,7 @@ class VacancyService(interface.IVacancyService):
                 # Отправляем сообщение
                 try:
                     await self.telegram_client.send_message_to_telegram(
-                        tg_username=candidate_telegram_login,
+                        tg_user_data=candidate_telegram_login,
                         text=message_text
                     )
                     telegram_sent = True
@@ -1130,7 +1130,7 @@ class VacancyService(interface.IVacancyService):
                     span.set_status(Status(StatusCode.ERROR, str(err)))
                     try:
                         await self.telegram_client.send_message_to_telegram(
-                            tg_username=candidate_phone,
+                            tg_user_data=candidate_phone,
                             text=message_text
                         )
                     except Exception as err:
