@@ -440,6 +440,27 @@ class InterviewService(interface.IInterviewService):
     async def get_all_interview(self, vacancy_id: int) -> list[model.Interview]:
         return await self.interview_repo.get_all_interview(vacancy_id)
 
+    async def get_interview_by_id(self, interview_id: int) -> model.Interview:
+        try:
+            self.logger.info("Getting interview by ID", {"interview_id": interview_id})
+
+            interviews = await self.interview_repo.get_interview_by_id(interview_id)
+            if not interviews:
+                raise ValueError(f"Interview with id {interview_id} not found")
+
+            interview = interviews[0]
+
+            self.logger.info("Interview retrieved successfully", {
+                "interview_id": interview_id,
+                "vacancy_id": interview.vacancy_id,
+                "candidate_email": interview.candidate_email
+            })
+
+            return interview
+
+        except Exception as err:
+            raise err
+
     async def get_interview_details(
             self,
             interview_id: int

@@ -235,6 +235,14 @@ def include_interview_handlers(
         response_model=list[model.Interview],
     )
 
+    app.add_api_route(
+        prefix + "/interview/{interview_id}",
+        interview_controller.get_interview_by_id,
+        methods=["GET"],
+        tags=["Interview"],
+        response_model=model.Interview,
+    )
+
     # Получение деталей интервью
     app.add_api_route(
         prefix + "/interview/{interview_id}/details",

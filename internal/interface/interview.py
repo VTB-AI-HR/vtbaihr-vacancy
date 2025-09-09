@@ -27,6 +27,10 @@ class IInterviewController(Protocol):
     async def get_all_interview(self, vacancy_id: int) -> JSONResponse: pass
 
     @abstractmethod
+    async def get_interview_by_id(self, interview_id: int) -> JSONResponse:
+        pass
+
+    @abstractmethod
     async def get_interview_details(self, interview_id: int) -> JSONResponse: pass
 
     @abstractmethod
@@ -58,6 +62,10 @@ class IInterviewService(Protocol):
         pass
 
     async def get_all_interview(self, vacancy_id: int) -> list[model.Interview]: pass
+
+    @abstractmethod
+    async def get_interview_by_id(self, interview_id: int) -> model.Interview:
+        pass
 
     @abstractmethod
     async def get_interview_details(

@@ -133,6 +133,37 @@ class InterviewController(interface.IInterviewController):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
+    async def get_interview_by_id(self, interview_id: int = Path(...)) -> JSONResponse:
+        """Получает интервью по ID"""
+        with self.tracer.start_as_current_span(
+                "InterviewController.get_interview_by_id",
+                kind=SpanKind.INTERNAL,
+                attributes={"interview_id": interview_id}
+        ) as span:
+            try:
+                self.logger.info("Getting interview by ID request", {"interview_id": interview_id})
+
+                interview = await self.interview_service.get_interview_by_id(interview_id)
+
+                # Конвертируем в словарь для JSON ответа
+                interview_dict = interview.to_dict()
+
+                self.logger.info("Interview retrieved successfully", {
+                    "interview_id": interview_id,
+                    "vacancy_id": interview.vacancy_id
+                })
+
+                span.set_status(Status(StatusCode.OK))
+                return JSONResponse(
+                    status_code=200,
+                    content=interview_dict
+                )
+
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise err
+
     async def get_interview_details(self, interview_id: int = Path(...)) -> JSONResponse:
         """Получает детали интервью включая ответы кандидата и сообщения"""
         with self.tracer.start_as_current_span(
