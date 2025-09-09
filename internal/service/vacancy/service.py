@@ -19,6 +19,7 @@ class VacancyService(interface.IVacancyService):
             vacancy_prompt_generator: interface.IVacancyPromptGenerator,
             llm_client: interface.ILLMClient,
             email_client: interface.IEmailClient,
+            telegram_client: interface.ITelegramClient,
     ):
         self.tracer = tel.tracer()
         self.logger = tel.logger()
@@ -28,6 +29,7 @@ class VacancyService(interface.IVacancyService):
         self.vacancy_prompt_generator = vacancy_prompt_generator
         self.llm_client = llm_client
         self.email_client = email_client
+        self.telegram_client = telegram_client
 
 
     async def create_vacancy(
@@ -633,6 +635,7 @@ class VacancyService(interface.IVacancyService):
                         #         vacancy_name=vacancy.name,
                         #         interview_id=interview_id
                         #     )
+                        # await self.telegram_client.send_message_to_telegram(candidate_telegram_login, "Вы прошли интервью")
 
                         # Создаем объект Interview для возврата
                         interview = model.Interview(
@@ -790,6 +793,7 @@ class VacancyService(interface.IVacancyService):
                     #     vacancy_name=vacancy.name,
                     #     interview_id=interview_id
                     # )
+                    # await self.telegram_client.send_message_to_telegram(candidate_telegram_login, "Вы прошли интервью")
 
                     self.logger.info("Candidate resume approved, interview created", {
                         "vacancy_id": vacancy_id,
