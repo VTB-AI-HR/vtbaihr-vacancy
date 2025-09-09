@@ -573,14 +573,22 @@ class VacancyService(interface.IVacancyService):
                     ]
 
                     # Оцениваем резюме с помощью LLM
-                    llm_response = await self.llm_client.generate(
+                    llm_response_str = await self.llm_client.generate(
                         history=history,
                         system_prompt=system_prompt,
                         pdf_file=resume_content
                     )
-                    self.logger.info("LLM response", {"llm_response": llm_response})
+                    self.logger.info("LLM response", {"llm_response": llm_response_str})
 
-                    evaluation_data = self.extract_and_parse_json(llm_response)
+                    try:
+                        evaluation_data = self.extract_and_parse_json(llm_response_str)
+                    except Exception as err:
+                        evaluation_data = await self.retry_llm_generate(
+                            history=history,
+                            system_prompt=system_prompt,
+                            llm_response_str=llm_response_str,
+                            pdf_file=resume_content
+                        )
 
                     accordance_xp_vacancy_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
                     accordance_skill_vacancy_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
@@ -736,16 +744,24 @@ class VacancyService(interface.IVacancyService):
                     )
                 ]
                 # Оцениваем резюме с помощью LLM
-                llm_response = await self.llm_client.generate(
+                llm_response_str = await self.llm_client.generate(
                     history=history,
                     system_prompt=system_prompt,
                     pdf_file=resume_content
                 )
 
-                self.logger.info("LLM response ", {"llm_response": llm_response})
+                self.logger.info("LLM response ", {"llm_response": llm_response_str})
 
                 # Парсим ответ LLM
-                evaluation_data = self.extract_and_parse_json(llm_response)
+                try:
+                    evaluation_data = self.extract_and_parse_json(llm_response_str)
+                except Exception as err:
+                    evaluation_data = await self.retry_llm_generate(
+                        history=history,
+                        system_prompt=system_prompt,
+                        llm_response_str=llm_response_str,
+                        pdf_file=resume_content
+                    )
 
                 accordance_xp_vacancy_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
                 accordance_skill_vacancy_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
@@ -1146,3 +1162,43 @@ class VacancyService(interface.IVacancyService):
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
+
+    async def retry_llm_generate(
+            self,
+            history: list[model.InterviewMessage],
+            llm_response_str: str,
+            system_prompt: str,
+            pdf_file: bytes,
+    ):
+        history.append(
+            model.InterviewMessage(
+                id=0,
+                interview_id=0,
+                question_id=0,
+                audio_name="0",
+                audio_fid="0",
+                role="assistant",
+                text=llm_response_str,
+                created_at=datetime.now()
+            )
+        )
+        history.append(
+            model.InterviewMessage(
+                id=0,
+                interview_id=0,
+                question_id=0,
+                audio_name="0",
+                audio_fid="0",
+                role="user",
+                text="Я же просил JSON формат, как в системно промпте, дай ответ в JSON формате",
+                created_at=datetime.now()
+            )
+        )
+        llm_response_str = await self.llm_client.generate(
+            history=history,
+            system_prompt=system_prompt,
+            pdf_file=pdf_file,
+        )
+        llm_response = self.extract_and_parse_json(llm_response_str)
+        return llm_response
+
