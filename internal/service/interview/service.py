@@ -28,11 +28,13 @@ class InterviewService(interface.IInterviewService):
         self.storage = storage
 
     async def start_interview(self, interview_id: int) -> tuple[str, int, int, str, str]:
+        # Получаем все необходимые данные
         interview = (await self.interview_repo.get_interview_by_id(interview_id))[0]
         vacancy = (await self.vacancy_repo.get_vacancy_by_id(interview.vacancy_id))[0]
         questions = await self.vacancy_repo.get_all_question(vacancy.id)
         current_question = questions[0]
 
+        # Создаем приветственное сообщение
         hello_interview_system_prompt = self.interview_prompt_generator.get_hello_interview_system_prompt(
             vacancy,
             questions,
@@ -60,9 +62,8 @@ class InterviewService(interface.IInterviewService):
         hello_interview = self.extract_and_parse_json(hello_interview_str)
         message_to_candidate = hello_interview["message_to_candidate"]
 
+        # Создаем голосовое для кандидата
         llm_audio = await self.llm_client.text_to_speech(message_to_candidate)
-
-        # Сохраняем аудио в storage
         llm_audio_filename = f"hello_interview_{interview_id}_{current_question.id}.mp3"
         llm_audio_file_io = io.BytesIO(llm_audio)
         upload_response = self.storage.upload(llm_audio_file_io, llm_audio_filename)
@@ -128,7 +129,7 @@ class InterviewService(interface.IInterviewService):
                 candidate_answer_id=candidate_answer.id
             )
 
-            # 5. Определяем действие через LLM (continue, next_question, finish_interview)
+            # 5. Определяем действие через LLM (delve_into_question, next_question, finish_interview)
             interview_management_system_prompt = self.interview_prompt_generator.get_interview_management_system_prompt(
                 vacancy=vacancy,
                 questions=questions,
@@ -145,6 +146,7 @@ class InterviewService(interface.IInterviewService):
             action = llm_response["action"]
             message_to_candidate: str = llm_response["message_to_candidate"]
 
+            # 6. Создаем голосовое для кандидата
             llm_audio = await self.llm_client.text_to_speech(message_to_candidate)
             llm_audio_filename = f"message_to_candidate_{interview_id}_{current_question.id}_{uuid.uuid4()}.mp3"
             llm_audio_file_io = io.BytesIO(llm_audio)
@@ -319,6 +321,7 @@ class InterviewService(interface.IInterviewService):
             interview_messages=interview_messages,
         )
 
+        # Подводим итоги интервью
         interview_summary_system_prompt = self.interview_prompt_generator.get_interview_summary_system_prompt(
             vacancy=vacancy,
             questions=questions

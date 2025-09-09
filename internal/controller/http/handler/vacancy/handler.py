@@ -516,7 +516,7 @@ class VacancyController(interface.IVacancyController):
                         "accordance_xp_score": accordance_xp_score,
                         "accordance_skill_score": accordance_skill_score
                     })
-                    status_code = 200  # Все еще успешный ответ, но без ссылки на интервью
+                    status_code = 200
 
                 span.set_status(Status(StatusCode.OK))
                 return JSONResponse(
@@ -538,8 +538,6 @@ class VacancyController(interface.IVacancyController):
                 self.logger.info("Getting all vacancies request")
 
                 vacancies = await self.vacancy_service.get_all_vacancy()
-
-                # Конвертируем в словари для JSON ответа
                 vacancies_dict = [vacancy.to_dict() for vacancy in vacancies]
 
                 self.logger.info("All vacancies retrieved successfully", {
@@ -567,8 +565,6 @@ class VacancyController(interface.IVacancyController):
                 self.logger.info("Getting all questions request", {"vacancy_id": vacancy_id})
 
                 questions = await self.vacancy_service.get_all_question(vacancy_id)
-
-                # Конвертируем в словари для JSON ответа
                 questions_dict = [question.to_dict() for question in questions]
 
                 self.logger.info("All questions retrieved successfully", {
@@ -597,8 +593,6 @@ class VacancyController(interface.IVacancyController):
                 self.logger.info("Getting question by ID request", {"question_id": question_id})
 
                 question = await self.vacancy_service.get_question_by_id(question_id)
-
-                # Конвертируем в словарь для JSON ответа
                 question_dict = question.to_dict()
 
                 self.logger.info("Question retrieved successfully", {
@@ -627,8 +621,6 @@ class VacancyController(interface.IVacancyController):
                 self.logger.info("Getting interview criterion weights request", {"vacancy_id": vacancy_id})
 
                 weights = await self.vacancy_service.get_interview_weights(vacancy_id)
-
-                # Конвертируем в словари для JSON ответа
                 weights_dict = [weight.to_dict() for weight in weights]
 
                 self.logger.info("Interview criterion weights retrieved successfully", {
@@ -657,8 +649,6 @@ class VacancyController(interface.IVacancyController):
                 self.logger.info("Getting resume criterion weights request", {"vacancy_id": vacancy_id})
 
                 weights = await self.vacancy_service.get_resume_weights(vacancy_id)
-
-                # Конвертируем в словари для JSON ответа
                 weights_dict = [weight.to_dict() for weight in weights]
 
                 self.logger.info("Resume criterion weights retrieved successfully", {

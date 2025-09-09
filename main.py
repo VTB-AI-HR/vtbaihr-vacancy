@@ -55,8 +55,6 @@ tel = Telemetry(
 db = PG(tel, cfg.db_user, cfg.db_pass, cfg.db_host, cfg.db_port, cfg.db_name)
 storage = Weed(cfg.weed_master_host, cfg.weed_master_port)
 llm_client = GPTClient(tel, cfg.openai_api_key)
-
-# Добавляем инициализацию EmailClient
 email_client = EmailClient(
     tel=tel,
     smtp_host=cfg.smtp_host,
@@ -65,8 +63,6 @@ email_client = EmailClient(
     smtp_password=cfg.smtp_password,
     use_tls=cfg.smtp_use_tls
 )
-
-# Добавляем инициализацию TelegramClient
 telegram_client = LTelegramClient(tel, cfg.tg_api_id, cfg.tg_api_hash, cfg.tg_session_string)
 
 # Инициализация репозиториев
@@ -76,8 +72,6 @@ interview_repo = InterviewRepo(tel, db)
 # Инициализация сервисов
 interview_prompt_generator = InterviewPromptGenerator(tel)
 vacancy_prompt_generator = VacancyPromptGenerator(tel)
-
-# Обновляем VacancyService, добавляя email_client
 vacancy_service = VacancyService(
     tel,
     vacancy_repo,

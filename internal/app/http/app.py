@@ -179,6 +179,7 @@ def include_vacancy_handlers(
         response_model=list[model.VacancyQuestion],
     )
 
+    # Получение вопроса по ID
     app.add_api_route(
         prefix + "/question/{question_id}",
         vacancy_controller.get_question_by_id,
@@ -187,6 +188,7 @@ def include_vacancy_handlers(
         response_model=model.VacancyQuestion,
     )
 
+    # Получить веса оценки интервью
     app.add_api_route(
         prefix + "/interview-weights/{vacancy_id}",
         vacancy_controller.get_interview_weights,
@@ -237,6 +239,7 @@ def include_interview_handlers(
         response_model=list[model.Interview],
     )
 
+    # Получить интервью по ID
     app.add_api_route(
         prefix + "/interview/{interview_id}",
         interview_controller.get_interview_by_id,
@@ -254,6 +257,7 @@ def include_interview_handlers(
         response_model=GetCandidateAnswersResponse,
     )
 
+    # Скачать аудио файл
     app.add_api_route(
         prefix + "/interview/audio/{audio_fid}/{audio_filename}",
         interview_controller.download_audio,
@@ -262,6 +266,7 @@ def include_interview_handlers(
         response_class=StreamingResponse,
     )
 
+    # Скачать резюме
     app.add_api_route(
         prefix + "/interview/resume/{resume_fid}/{resume_filename}",
         interview_controller.download_resume,
@@ -276,6 +281,7 @@ def include_telegram_handlers(
         telegram_controller: interface.ITelegramHTTPController,
         prefix: str
 ):
+    # Сгенерировать QR Code
     app.add_api_route(
         prefix + "/telegram/qr/generate",
         telegram_controller.generate_qr_code,

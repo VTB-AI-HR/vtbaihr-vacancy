@@ -103,7 +103,6 @@ class InterviewController(interface.IInterviewController):
                 raise err
 
     async def get_all_interview(self, vacancy_id: int = Path(...)) -> JSONResponse:
-        """Получает все интервью для указанной вакансии"""
         with self.tracer.start_as_current_span(
                 "InterviewController.get_all_interview",
                 kind=SpanKind.INTERNAL,
@@ -113,8 +112,6 @@ class InterviewController(interface.IInterviewController):
                 self.logger.info("Getting all interviews request", {"vacancy_id": vacancy_id})
 
                 interviews = await self.interview_service.get_all_interview(vacancy_id)
-
-                # Конвертируем в словари для JSON ответа
                 interviews_dict = [interview.to_dict() for interview in interviews]
 
                 self.logger.info("All interviews retrieved successfully", {
@@ -134,7 +131,6 @@ class InterviewController(interface.IInterviewController):
                 raise err
 
     async def get_interview_by_id(self, interview_id: int = Path(...)) -> JSONResponse:
-        """Получает интервью по ID"""
         with self.tracer.start_as_current_span(
                 "InterviewController.get_interview_by_id",
                 kind=SpanKind.INTERNAL,
@@ -144,8 +140,6 @@ class InterviewController(interface.IInterviewController):
                 self.logger.info("Getting interview by ID request", {"interview_id": interview_id})
 
                 interview = await self.interview_service.get_interview_by_id(interview_id)
-
-                # Конвертируем в словарь для JSON ответа
                 interview_dict = interview.to_dict()
 
                 self.logger.info("Interview retrieved successfully", {
@@ -165,7 +159,6 @@ class InterviewController(interface.IInterviewController):
                 raise err
 
     async def get_interview_details(self, interview_id: int = Path(...)) -> JSONResponse:
-        """Получает детали интервью включая ответы кандидата и сообщения"""
         with self.tracer.start_as_current_span(
                 "InterviewController.get_interview_details",
                 kind=SpanKind.INTERNAL,
@@ -177,8 +170,6 @@ class InterviewController(interface.IInterviewController):
                 candidate_answers, interview_messages = await self.interview_service.get_interview_details(
                     interview_id
                 )
-
-                # Конвертируем в словари для JSON ответа
                 candidate_answers_dict = [answer.to_dict() for answer in candidate_answers]
                 interview_messages_dict = [message.to_dict() for message in interview_messages]
 
@@ -197,17 +188,6 @@ class InterviewController(interface.IInterviewController):
                     }
                 )
 
-            except ValueError as err:
-                span.record_exception(err)
-                span.set_status(Status(StatusCode.ERROR, str(err)))
-                self.logger.warning("Interview not found", {
-                    "interview_id": interview_id,
-                    "error": str(err)
-                })
-                return JSONResponse(
-                    status_code=404,
-                    content={"error": "Interview not found"}
-                )
             except Exception as err:
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
@@ -232,7 +212,6 @@ class InterviewController(interface.IInterviewController):
                     "audio_filename": audio_filename
                 })
 
-                # Загружаем файл из storage
                 audio_stream, content_type = await self.interview_service.download_audio(audio_fid, audio_filename)
 
                 # Определяем MIME тип для аудио файлов
@@ -249,7 +228,6 @@ class InterviewController(interface.IInterviewController):
                         content_type = "audio/mpeg"  # default
 
                 def iterfile():
-                    """Генератор для стриминга файла"""
                     try:
                         while True:
                             chunk = audio_stream.read(8192)  # Читаем по 8KB
@@ -286,7 +264,6 @@ class InterviewController(interface.IInterviewController):
             resume_fid: str = Path(...),
             resume_filename: str = Path(...)
     ) -> StreamingResponse:
-        """Скачивает резюме кандидата по ID интервью"""
         with self.tracer.start_as_current_span(
                 "InterviewController.download_resume",
                 kind=SpanKind.INTERNAL,
@@ -311,7 +288,6 @@ class InterviewController(interface.IInterviewController):
                         content_type = "application/octet-stream"  # default
 
                 def iterfile():
-                    """Генератор для стриминга файла"""
                     try:
                         while True:
                             chunk = resume_stream.read(8192)  # Читаем по 8KB

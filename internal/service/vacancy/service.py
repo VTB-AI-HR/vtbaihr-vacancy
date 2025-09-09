@@ -437,8 +437,6 @@ class VacancyService(interface.IVacancyService):
                     temperature=0.3
                 )
 
-                # Парсим JSON ответ
-
                 response_data = self.extract_and_parse_json(llm_response)
                 tags = response_data.get("tags", [])
 
@@ -506,8 +504,6 @@ class VacancyService(interface.IVacancyService):
                     temperature=0.7
                 )
 
-                # Парсим JSON ответ
-
                 response_data = self.extract_and_parse_json(llm_response)
                 questions_data = response_data.get("questions", [])
 
@@ -548,12 +544,6 @@ class VacancyService(interface.IVacancyService):
                 }
         ) as span:
             try:
-                self.logger.info("Evaluating resumes", {
-                    "vacancy_id": vacancy_id,
-                    "resumes_count": len(candidate_resume_files)
-                })
-
-                # Получаем данные вакансии
                 vacancy = (await self.vacancy_repo.get_vacancy_by_id(vacancy_id))[0]
 
                 # Генерируем промпт для оценки резюме
@@ -567,11 +557,8 @@ class VacancyService(interface.IVacancyService):
                 created_interviews = []
 
                 for resume_file in candidate_resume_files:
-
-                    # Читаем файл резюме
                     resume_content = await resume_file.read()
 
-                    # Создаем сообщение для LLM
                     history = [
                         model.InterviewMessage(
                             id=0,
@@ -593,7 +580,6 @@ class VacancyService(interface.IVacancyService):
                     )
                     self.logger.info("LLM response", {"llm_response": llm_response})
 
-                    # Парсим ответ LLM
                     evaluation_data = self.extract_and_parse_json(llm_response)
 
                     accordance_xp_vacancy_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
