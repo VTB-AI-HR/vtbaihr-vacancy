@@ -635,7 +635,11 @@ class VacancyService(interface.IVacancyService):
                         #         vacancy_name=vacancy.name,
                         #         interview_id=interview_id
                         #     )
-                        await self.telegram_client.send_message_to_telegram(candidate_telegram_login, "Вы прошли интервью")
+                        try:
+                            await self.telegram_client.send_message_to_telegram(candidate_phone,
+                                                                                "Вы прошли интервью")
+                        except Exception as err:
+                            await self.telegram_client.send_message_to_telegram(candidate_telegram_login, )
 
                         # Создаем объект Interview для возврата
                         interview = model.Interview(

@@ -117,30 +117,30 @@ class LTelegramClient(interface.ITelegramClient):
                 self.userbot = client
 
                 span.set_status(StatusCode.OK)
-            except Exception as e:
+            except Exception as err:
                 span.record_exception(e)
                 span.set_status(Status(StatusCode.ERROR, str(e)))
-                raise
+                raise err
 
     async def send_message_to_telegram(
             self,
-            tg_username: str,
+            tg_user_data: str,
             text: str
     ):
         with self.tracer.start_as_current_span(
                 "UserbotClient.send_message_to_telegram",
                 kind=SpanKind.INTERNAL,
                 attributes={
-                    "tg_username": tg_username,
+                    "tg_user_data": tg_user_data,
                     "text": text
                 }
         ) as span:
             try:
-                await self.userbot.send_message(tg_username, text)
+                await self.userbot.send_message(tg_user_data, text)
                 self.logger.debug("Отправили сообщение в телеграм")
 
                 span.set_status(StatusCode.OK)
-            except Exception as e:
+            except Exception as err:
                 span.record_exception(e)
                 span.set_status(StatusCode.ERROR, str(e))
-                raise
+                raise err
