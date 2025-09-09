@@ -199,6 +199,7 @@ class InterviewService(interface.IInterviewService):
                     interview_id=interview_id,
                     candidate_answer_id=candidate_answer.id,
                     response_time=60,
+                    questions=questions,
                     interview_messages=interview_messages,
                     vacancy=vacancy,
                     current_question=current_question,
@@ -268,6 +269,7 @@ class InterviewService(interface.IInterviewService):
             interview_id: int,
             candidate_answer_id: int,
             response_time: int,
+            questions: list[model.VacancyQuestion],
             interview_messages: list[model.InterviewMessage],
             vacancy: model.Vacancy,
             current_question: model.VacancyQuestion
@@ -282,6 +284,7 @@ class InterviewService(interface.IInterviewService):
 
         interview_summary_system_prompt = self.interview_prompt_generator.get_interview_summary_system_prompt(
             vacancy=vacancy,
+            questions=questions
         )
 
         interview_messages = interview_messages + [

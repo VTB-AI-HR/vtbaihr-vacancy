@@ -138,7 +138,10 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
     def get_interview_summary_system_prompt(
             self,
             vacancy: model.Vacancy,
+            questions: list[model.VacancyQuestion],
     ) -> str:
+        questions_str = "\n".join([f"{i + 1}. {q.question} (Подсказка для оценки: {q.hint_for_evaluation})"
+                                   for i, q in enumerate(questions)])
         return f"""Ты эксперт по подведению итогов интервью.
 
 ИНФОРМАЦИЯ О ВАКАНСИИ:
@@ -148,8 +151,15 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 Теги/навыки: {', '.join(vacancy.tags)}
 Красные флаги: {vacancy.red_flags}
 
+ВОПРОСЫ:
+{questions_str}
+
+
 ЗАДАЧА:
 На основе всего интервью оцени кандидата по следующим критериям (шкала 0-5):
+
+УСЛОВИЯ:
+- Канндидат может сдаваться, пропускать вопросы, хитртить, заканчивать досрочно. Все это учитывай при оценке
 
 ФОРМАТ ОТВЕТА:
 Ответ должен быть ТОЛЬКО в формате JSON без дополнительного текста:

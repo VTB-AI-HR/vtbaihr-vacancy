@@ -203,4 +203,5 @@ class IInterviewPromptGenerator(Protocol):
     def get_interview_summary_system_prompt(
             self,
             vacancy: model.Vacancy,
+            questions: list[model.VacancyQuestion],
     ) -> str: pass
