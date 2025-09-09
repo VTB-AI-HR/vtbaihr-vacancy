@@ -434,12 +434,23 @@ class InterviewService(interface.IInterviewService):
                 created_at=datetime.now(),
             )
         ]
+
+
         question_evaluation_str = await self.llm_client.generate(
             history=question_history,
             system_prompt=answer_evaluation_system_prompt
         )
 
-        evaluation_data = self.extract_and_parse_json(question_evaluation_str)
+        try:
+            evaluation_data = self.extract_and_parse_json(question_evaluation_str)
+        except Exception as e:
+            self.logger.warning("LLM вернула не JSON")
+            evaluation_data = await self.retry_llm_generate(
+                history=question_history,
+                llm_response_str=question_evaluation_str,
+                system_prompt=answer_evaluation_system_prompt,
+            )
+
         score = evaluation_data["score"]
         message_to_candidate = evaluation_data["message_to_candidate"]
         message_to_hr = evaluation_data["message_to_hr"]
