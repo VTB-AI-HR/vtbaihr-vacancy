@@ -118,8 +118,8 @@ class LTelegramClient(interface.ITelegramClient):
 
                 span.set_status(StatusCode.OK)
             except Exception as err:
-                span.record_exception(e)
-                span.set_status(Status(StatusCode.ERROR, str(e)))
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
     async def send_message_to_telegram(
