@@ -136,6 +136,7 @@ class InterviewService(interface.IInterviewService):
                 current_question_order_number=current_question_order_number
             )
             interview_messages = await self.interview_repo.get_interview_messages(interview_id)
+            interview_messages[0].text = transcribed_text + "\n\nНе забудь, что ответить надо в формате JSON"
             llm_response_str = await self.llm_client.generate(
                 history=interview_messages,
                 system_prompt=interview_management_system_prompt

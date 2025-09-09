@@ -80,10 +80,9 @@ class LTelegramClient(interface.ITelegramClient):
                 return img_buffer
 
             except Exception as e:
-                self.logger.error("Ошибка генерации QR кода", {"error": str(e)})
                 span.record_exception(e)
                 span.set_status(Status(StatusCode.ERROR, str(e)))
-                raise
+                raise err
 
     async def qr_code_status(self) -> tuple[str, str]:
         with self.tracer.start_as_current_span(
@@ -127,9 +126,8 @@ class LTelegramClient(interface.ITelegramClient):
                     try:
                         await self.userbot.get_me()
                         self.logger.info("Клиент успешно авторизован")
-                    except Exception as e:
-                        self.logger.error("Ошибка проверки авторизации", {"error": str(e)})
-                        return model.QRCodeStatus.ERROR, ""
+                    except Exception as err:
+                        raise err
 
                     span.set_status(Status(StatusCode.OK))
                     return model.QRCodeStatus.CONFIRMED, self.session_string
@@ -146,10 +144,9 @@ class LTelegramClient(interface.ITelegramClient):
                 self.logger.warning("QR токен недействителен")
                 return model.QRCodeStatus.ERROR, ""
             except Exception as e:
-                self.logger.error("Ошибка проверки статуса QR", {"error": str(e)})
                 span.record_exception(e)
                 span.set_status(Status(StatusCode.ERROR, str(e)))
-                return model.QRCodeStatus.ERROR, ""
+                raise err
 
     async def start(self):
         with self.tracer.start_as_current_span(
@@ -182,18 +179,15 @@ class LTelegramClient(interface.ITelegramClient):
                         })
                         self.userbot = client
                     except AuthKeyUnregisteredError:
-                        self.logger.error("Сессия не авторизована или истекла")
                         client.disconnect()
                         raise ValueError("Сессия недействительна, требуется повторная авторизация")
                     except SessionPasswordNeededError:
-                        self.logger.error("Требуется двухфакторная аутентификация")
                         client.disconnect()
                         raise ValueError("Требуется двухфакторная аутентификация")
 
                 span.set_status(Status(StatusCode.OK))
 
             except Exception as err:
-                self.logger.error("Ошибка запуска клиента", {"error": str(err)})
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
@@ -212,24 +206,11 @@ class LTelegramClient(interface.ITelegramClient):
         ) as span:
             try:
                 async with self._auth_lock:
-                    # Проверяем что клиент инициализирован
-                    if not self.userbot:
-                        self.logger.error("Telegram клиент не инициализирован")
-                        raise ValueError("Telegram клиент не инициализирован")
-
                     # Проверяем подключение
                     if not self.userbot.is_connected():
                         self.logger.info("Переподключение к Telegram")
                         await self.userbot.connect()
 
-                    # Проверяем авторизацию перед отправкой
-                    try:
-                        await self.userbot.get_me()
-                    except AuthKeyUnregisteredError:
-                        self.logger.error("Сессия стала недействительной")
-                        raise ValueError("Сессия Telegram недействительна")
-
-                    # Отправляем сообщение
                     await self.userbot.send_message(tg_user_data, text)
 
                     self.logger.info("Сообщение успешно отправлено", {
@@ -238,16 +219,10 @@ class LTelegramClient(interface.ITelegramClient):
 
                 span.set_status(Status(StatusCode.OK))
 
-            except ValueError as e:
-                # Не логируем как ошибку, это ожидаемые проблемы
-                self.logger.warning("Проблема с отправкой сообщения", {"error": str(e)})
-                span.set_status(Status(StatusCode.ERROR, str(e)))
-                raise
             except Exception as err:
-                self.logger.error("Неожиданная ошибка отправки сообщения", {"error": str(err)})
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
-                raise
+                raise err
 
     async def disconnect(self):
         """Метод для корректного отключения клиента"""
@@ -261,5 +236,5 @@ class LTelegramClient(interface.ITelegramClient):
                 self.qr_session = None
 
             self.logger.info("Telegram клиент отключен")
-        except Exception as e:
-            self.logger.error("Ошибка отключения клиента", {"error": str(e)})
+        except Exception as err:
+            raise err

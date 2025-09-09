@@ -625,6 +625,7 @@ class VacancyService(interface.IVacancyService):
                             candidate_phone=candidate_phone,
                             vacancy_name=vacancy.name,
                             interview_id=interview_id,
+                            vacancy_id=vacancy_id,
                             candidate_name=candidate_name,
                         )
 
@@ -789,6 +790,7 @@ class VacancyService(interface.IVacancyService):
                         candidate_phone=candidate_phone,
                         vacancy_name=vacancy.name,
                         interview_id=interview_id,
+                        vacancy_id=vacancy_id,
                         candidate_name=candidate_name,
                     )
 
@@ -1063,6 +1065,7 @@ class VacancyService(interface.IVacancyService):
             candidate_telegram_login: str,
             candidate_phone: str,
             vacancy_name: str,
+            vacancy_id: int,
             interview_id: int,
             candidate_name: str
     ) -> bool:
@@ -1077,7 +1080,7 @@ class VacancyService(interface.IVacancyService):
                 }
         ) as span:
             try:
-                interview_link = f"https://vtb-aihr.ru/interview/{interview_id}"
+                interview_link = f"https://vtb-aihr.ru/vacancy/{vacancy_id}/interview/{interview_id}"
 
                 message_text = f"""🎉 Поздравляем, {candidate_name}!
 
@@ -1142,4 +1145,4 @@ class VacancyService(interface.IVacancyService):
             except Exception as err:
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
-                return False
+                raise err
