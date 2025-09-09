@@ -26,6 +26,7 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 Название: {vacancy.name}
 Описание: {vacancy.description}
 Уровень: {vacancy.skill_lvl.value}
+Теги/навыки: {', '.join(vacancy.tags)}
 Красные флаги: {vacancy.red_flags}
 Всего вопросов: {len(questions)}
 
@@ -33,7 +34,7 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 {questions_str}
 
 ТВОЯ ЗАДАЧА:
-- Поприветствовать кандидата {candidate_name} и рассказать ему, где он, что происходит и задать первый вопрос.
+- Поприветствовать кандидата {candidate_name} и рассказать ему, где он, что происходит, что его ожидает и задать первый вопрос.
 
 ВОПРОСЫ ДЛЯ ИНТЕРВЬЮ (по порядку):
 {questions_str}
@@ -41,7 +42,7 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 ФОРМАТ ОТВЕТА:
 Ответ должен быть ТОЛЬКО в формате JSON без дополнительного текста:
 {{
-  "message_to_candidate": "Приветственное сообщение кандидату",
+  "message_to_candidate": "Сообщение кандидату",
 }}
 
 ВАЖНО: 
@@ -144,6 +145,7 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 Название: {vacancy.name}
 Описание: {vacancy.description}
 Уровень: {vacancy.skill_lvl.value}
+Теги/навыки: {', '.join(vacancy.tags)}
 Красные флаги: {vacancy.red_flags}
 
 ЗАДАЧА:
@@ -160,6 +162,7 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
     "accordance_skill_resume_score": Оценка по соответствию навыков в резюме и навыкам для вакансии (0-5),
     "strong_areas": Сильные стороны кандидата (str),
     "weak_areas": Слабые стороны кандидата (str),
+    "approved_skills": Список навыков, которые кандидат подтвердил своими ответами (list[str]),
     "message_to_candidate": Пояснение итогов интервью для кандидата (str),
     "message_to_hr": Пояснение итогов интервью для HR (str),
 }}

@@ -78,6 +78,7 @@ CREATE TABLE IF NOT EXISTS interviews(
     accordance_skill_resume_score INTEGER DEFAULT 0,
     strong_areas TEXT DEFAULT '',
     weak_areas TEXT DEFAULT '',
+    approved_skills TEXT[] DEFAULT '{}',
     
     general_score INTEGER DEFAULT 0,
     general_result TEXT NOT NULL,

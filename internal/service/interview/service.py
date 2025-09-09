@@ -211,7 +211,7 @@ class InterviewService(interface.IInterviewService):
                     llm_audio_fid
                 )
 
-            return question_id, message_to_candidate, {}
+            return question_id, message_to_candidate, {}, llm_audio_filename, llm_audio_fid
         except Exception as err:
             raise err
 
@@ -318,7 +318,12 @@ class InterviewService(interface.IInterviewService):
         )
 
         # Определяем результат на основе порогового значения
-        general_result = model.GeneralResult.NEXT if general_score >= 6 else model.GeneralResult.REJECTED
+        if general_score >= 7:
+            general_result = model.GeneralResult.NEXT
+        elif general_score >= 5:
+            general_result = model.GeneralResult.DISPUTABLE
+        else:
+            general_result = model.GeneralResult.REJECTED
 
         await self.interview_repo.fill_interview_criterion(
             interview_id=interview_id,
@@ -330,6 +335,7 @@ class InterviewService(interface.IInterviewService):
             accordance_skill_resume_score=interview_evaluation["accordance_skill_resume_score"],
             strong_areas=interview_evaluation["strong_areas"],
             weak_areas=interview_evaluation["weak_areas"],
+            approved_skills=interview_evaluation["approved_skills"],
             general_score=general_score,
             general_result=general_result,
             message_to_candidate=interview_evaluation["message_to_candidate"],

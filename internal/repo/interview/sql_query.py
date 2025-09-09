@@ -35,6 +35,7 @@ SET
     accordance_skill_resume_score = :accordance_skill_resume_score,
     strong_areas = :strong_areas,
     weak_areas = :weak_areas,
+    approved_skills = :approved_skills,
     general_score = :general_score,
     general_result = :general_result,
     message_to_candidate = :message_to_candidate,

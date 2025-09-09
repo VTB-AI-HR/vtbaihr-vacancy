@@ -7,6 +7,8 @@ class GeneralResult(Enum):
     NEXT = "next"
     REJECTED = "rejected"
     IN_PROCESS = "in_process"
+    DISPUTABLE = "disputable"
+
 
 
 @dataclass
@@ -30,6 +32,7 @@ class Interview:
     accordance_skill_resume_score: int
     strong_areas: str
     weak_areas: str
+    approved_skills: list[str]
 
     general_score: float
     general_result: GeneralResult
@@ -59,6 +62,7 @@ class Interview:
                 accordance_skill_resume_score=row.accordance_skill_resume_score,
                 strong_areas=row.strong_areas,
                 weak_areas=row.weak_areas,
+                approved_skills=row.approved_skills,
                 general_score=row.general_score,
                 general_result=GeneralResult(row.general_result),
                 message_to_candidate=row.message_to_candidate,
@@ -85,6 +89,7 @@ class Interview:
             "accordance_skill_resume_score": self.accordance_skill_resume_score,
             "strong_areas": self.strong_areas,
             "weak_areas": self.weak_areas,
+            "approved_skills": self.approved_skills,
             "general_score": self.general_score,
             "general_result": self.general_result.value,
             "message_to_candidate": self.message_to_candidate,

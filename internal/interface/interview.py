@@ -135,6 +135,7 @@ class IInterviewRepo(Protocol):
             accordance_skill_resume_score: int,
             strong_areas: str,
             weak_areas: str,
+            approved_skills: list[str],
             general_score: float,
             general_result: model.GeneralResult,
             message_to_candidate: str,
