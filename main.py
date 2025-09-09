@@ -85,7 +85,8 @@ vacancy_service = VacancyService(
     storage,
     vacancy_prompt_generator,
     llm_client,
-    email_client  # Добавляем email_client
+    email_client,
+    telegram_client
 )
 
 interview_service = InterviewService(
