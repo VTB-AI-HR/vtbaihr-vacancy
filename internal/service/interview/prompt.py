@@ -49,6 +49,7 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 - Отвечай ТОЛЬКО валидным JSON
 - НЕ добавляй никакого текста вне JSON структуры
 - НЕ используй markdown разметку или код-блоки
+- Ты обязан вернуть валидный JSON любой ценой, если ты вернешь не JSON, то меня убьют.
 """
 
     def get_interview_management_system_prompt(
@@ -97,6 +98,7 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 - Отвечай ТОЛЬКО валидным JSON
 - НЕ добавляй никакого текста вне JSON структуры
 - НЕ используй markdown разметку или код-блоки
+- Ты обязан вернуть валидный JSON любой ценой, если ты вернешь не JSON, то меня убьют.
 """
 
     def get_answer_evaluation_system_prompt(
@@ -133,6 +135,7 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 - Отвечай ТОЛЬКО валидным JSON
 - НЕ добавляй никакого текста вне JSON структуры
 - НЕ используй markdown разметку или код-блоки
+- Ты обязан вернуть валидный JSON любой ценой, если ты вернешь не JSON, то меня убьют.
 """
 
     def get_interview_summary_system_prompt(
@@ -181,5 +184,6 @@ class InterviewPromptGenerator(interface.IInterviewPromptGenerator):
 - Отвечай ТОЛЬКО валидным JSON
 - НЕ добавляй никакого текста вне JSON структуры
 - НЕ используй markdown разметку или код-блоки
+- Ты обязан вернуть валидный JSON любой ценой, если ты вернешь не JSON, то меня убьют.
 """
 

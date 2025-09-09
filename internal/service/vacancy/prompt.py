@@ -46,7 +46,9 @@ class VacancyPromptGenerator(interface.IVacancyPromptGenerator):
   ]
 }}
 
-ВАЖНО: Отвечай ТОЛЬКО валидным JSON без markdown разметки.
+ВАЖНО: 
+- Отвечай ТОЛЬКО валидным JSON без markdown разметки.
+- Ты обязан вернуть валидный JSON любой ценой, если ты вернешь не JSON, то меня убьют.
 """
 
     def get_resume_evaluation_system_prompt(
@@ -117,6 +119,7 @@ class VacancyPromptGenerator(interface.IVacancyPromptGenerator):
 - НЕ добавляй никакого текста вне JSON структуры
 - НЕ используй markdown разметку или код-блоки
 - Извлекай только конкретные технологии, языки программирования, фреймворки и ключевые навыки
+- Ты обязан вернуть валидный JSON любой ценой, если ты вернешь не JSON, то меня убьют.
 """
 
         return system_prompt
