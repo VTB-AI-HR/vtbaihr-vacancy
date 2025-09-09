@@ -875,6 +875,38 @@ class VacancyService(interface.IVacancyService):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
+    async def get_question_by_id(self, question_id: int) -> model.VacancyQuestion:
+        with self.tracer.start_as_current_span(
+                "VacancyService.get_question_by_id",
+                kind=SpanKind.INTERNAL,
+                attributes={
+                    "question_id": question_id,
+                }
+        ) as span:
+            try:
+                self.logger.info("Retrieving question by ID", {
+                    "question_id": question_id
+                })
+
+                questions = await self.vacancy_repo.get_question_by_id(question_id)
+                if not questions:
+                    raise ValueError(f"Question with id {question_id} not found")
+
+                question = questions[0]
+
+                self.logger.info("Successfully retrieved question by ID", {
+                    "question_id": question_id,
+                    "vacancy_id": question.vacancy_id
+                })
+
+                span.set_status(Status(StatusCode.OK))
+                return question
+
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise err
+
     async def get_interview_weights(self, vacancy_id: int) -> list[model.InterviewWeights]:
         with self.tracer.start_as_current_span(
                 "VacancyService.get_interview_criterion_weights",

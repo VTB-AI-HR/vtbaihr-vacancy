@@ -489,6 +489,26 @@ class VacancyRepo(interface.IVacancyRepo):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
+    async def get_question_by_id(self, question_id: int) -> list[model.VacancyQuestion]:
+        with self.tracer.start_as_current_span(
+                "VacancyRepo.get_question_by_id",
+                kind=SpanKind.INTERNAL,
+                attributes={
+                    "question_id": question_id,
+                }
+        ) as span:
+            try:
+                args = {'question_id': question_id}
+                rows = await self.db.select(get_question_by_id_query, args)
+                questions = model.VacancyQuestion.serialize(rows) if rows else []
+
+                span.set_status(Status(StatusCode.OK))
+                return questions
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise err
+
     async def get_resume_weights(self, vacancy_id: int) -> list[model.ResumeWeights]:
         with self.tracer.start_as_current_span(
                 "VacancyRepo.get_resume_weights",

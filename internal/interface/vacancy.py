@@ -67,6 +67,9 @@ class IVacancyController(Protocol):
     async def get_all_question(self, vacancy_id: int) -> JSONResponse: pass
 
     @abstractmethod
+    async def get_question_by_id(self, question_id: int) -> JSONResponse: pass
+
+    @abstractmethod
     async def get_interview_weights(self, vacancy_id: int) -> JSONResponse:
         pass
 
@@ -200,6 +203,9 @@ class IVacancyService(Protocol):
     async def get_all_question(self, vacancy_id: int) -> list[model.VacancyQuestion]: pass
 
     @abstractmethod
+    async def get_question_by_id(self, question_id: int) -> model.VacancyQuestion: pass
+
+    @abstractmethod
     async def get_interview_weights(self, vacancy_id: int) -> list[model.InterviewWeights]:
         pass
 
@@ -310,6 +316,9 @@ class IVacancyRepo(Protocol):
 
     @abstractmethod
     async def get_all_question(self, vacancy_id: int) -> list[model.VacancyQuestion]: pass
+
+    @abstractmethod
+    async def get_question_by_id(self, question_id: int) -> list[model.VacancyQuestion]: pass
 
     @abstractmethod
     async def get_interview_weights(self, vacancy_id: int) -> list[model.InterviewWeights]: pass

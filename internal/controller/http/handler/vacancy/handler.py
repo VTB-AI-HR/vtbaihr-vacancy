@@ -587,6 +587,36 @@ class VacancyController(interface.IVacancyController):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
+    async def get_question_by_id(self, question_id: int) -> JSONResponse:
+        with self.tracer.start_as_current_span(
+                "VacancyController.get_question_by_id",
+                kind=SpanKind.INTERNAL,
+                attributes={"question_id": question_id}
+        ) as span:
+            try:
+                self.logger.info("Getting question by ID request", {"question_id": question_id})
+
+                question = await self.vacancy_service.get_question_by_id(question_id)
+
+                # Конвертируем в словарь для JSON ответа
+                question_dict = question.to_dict()
+
+                self.logger.info("Question retrieved successfully", {
+                    "question_id": question_id,
+                    "vacancy_id": question.vacancy_id
+                })
+
+                span.set_status(Status(StatusCode.OK))
+                return JSONResponse(
+                    status_code=200,
+                    content=question_dict
+                )
+
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise err
+
     async def get_interview_weights(self, vacancy_id: int) -> JSONResponse:
         with self.tracer.start_as_current_span(
                 "VacancyController.get_interview_criterion_weights",

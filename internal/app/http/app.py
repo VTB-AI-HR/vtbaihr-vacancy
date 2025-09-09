@@ -178,6 +178,14 @@ def include_vacancy_handlers(
     )
 
     app.add_api_route(
+        prefix + "/question/{question_id}",
+        vacancy_controller.get_question_by_id,
+        methods=["GET"],
+        tags=["Question"],
+        response_model=model.VacancyQuestion,
+    )
+
+    app.add_api_route(
         prefix + "/interview-weights/{vacancy_id}",
         vacancy_controller.get_interview_weights,
         methods=["GET"],
