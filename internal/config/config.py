@@ -52,6 +52,6 @@ class Config:
         self.smtp_use_tls = os.getenv("VTBAIHR_SMTP_USE_TLS", "true").lower() == "true"
 
         # Telegram
-        self.tg_api_id = os.getenv("VTBAIHR_TG_API_ID", "")
+        self.tg_api_id = int(os.getenv("VTBAIHR_TG_API_ID", "0"))
         self.tg_api_hash = os.getenv("VTBAIHR_TG_API_HASH", "")
         self.tg_session_string = os.getenv("VTBAIHR_TG_SESSION_STRING", None)
