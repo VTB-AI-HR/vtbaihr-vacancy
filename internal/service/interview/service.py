@@ -151,20 +151,15 @@ class InterviewService(interface.IInterviewService):
             upload_response = self.storage.upload(llm_audio_file_io, llm_audio_filename)
             llm_audio_fid = upload_response.fid
 
-            llm_message_id = await self.interview_repo.create_interview_message(
-                interview_id=interview_id,
-                question_id=question_id,
-                audio_name=llm_audio_filename,
-                audio_fid=llm_audio_fid,
-                role="assistant",
-                text=message_to_candidate
-            )
-
             # 7. Обрабатываем разные сценарии
             if action == "delve_into_question":
                 await self.__continue_question(
-                    llm_message_id=llm_message_id,
                     candidate_answer_id=candidate_answer.id,
+                    interview_id=interview_id,
+                    question_id=question_id,
+                    llm_audio_filename=llm_audio_filename,
+                    llm_audio_fid=llm_audio_fid,
+                    message_to_candidate=message_to_candidate,
                 )
                 return (
                     question_id,
@@ -177,7 +172,9 @@ class InterviewService(interface.IInterviewService):
             elif action == "next_question" and current_question_order_number < len(questions):
                 next_question = await self.__next_question(
                     interview_id=interview_id,
-                    llm_message_id=llm_message_id,
+                    llm_audio_filename=llm_audio_filename,
+                    llm_audio_fid=llm_audio_fid,
+                    message_to_candidate=message_to_candidate,
                     candidate_answer_id=candidate_answer.id,
                     response_time=60,
                     current_question=current_question,
@@ -199,6 +196,9 @@ class InterviewService(interface.IInterviewService):
                     interview_id=interview_id,
                     candidate_answer_id=candidate_answer.id,
                     response_time=60,
+                    llm_audio_filename=llm_audio_filename,
+                    llm_audio_fid=llm_audio_fid,
+                    message_to_candidate=message_to_candidate,
                     questions=questions,
                     interview_messages=interview_messages,
                     vacancy=vacancy,
@@ -216,13 +216,23 @@ class InterviewService(interface.IInterviewService):
         except Exception as err:
             raise err
 
-
     async def __continue_question(
             self,
-            llm_message_id: int,
-            candidate_answer_id: int
+            candidate_answer_id: int,
+            interview_id: int,
+            question_id: int,
+            llm_audio_filename: str,
+            llm_audio_fid: str,
+            message_to_candidate: str,
     ):
-
+        llm_message_id = await self.interview_repo.create_interview_message(
+            interview_id=interview_id,
+            question_id=question_id,
+            audio_name=llm_audio_filename,
+            audio_fid=llm_audio_fid,
+            role="assistant",
+            text=message_to_candidate
+        )
         await self.interview_repo.add_message_to_candidate_answer(
             message_id=llm_message_id,
             candidate_answer_id=candidate_answer_id
@@ -231,7 +241,9 @@ class InterviewService(interface.IInterviewService):
     async def __next_question(
             self,
             interview_id: int,
-            llm_message_id: int,
+            llm_audio_filename: str,
+            llm_audio_fid: str,
+            message_to_candidate: str,
             candidate_answer_id: int,
             response_time: int,
             current_question: model.VacancyQuestion,
@@ -255,6 +267,14 @@ class InterviewService(interface.IInterviewService):
                     next_question.id,
                     interview_id
                 )
+                llm_message_id = await self.interview_repo.create_interview_message(
+                    interview_id=interview_id,
+                    question_id=next_question.id,
+                    audio_name=llm_audio_filename,
+                    audio_fid=llm_audio_fid,
+                    role="assistant",
+                    text=message_to_candidate
+                )
 
                 await self.interview_repo.add_message_to_candidate_answer(
                     message_id=llm_message_id,
@@ -269,11 +289,28 @@ class InterviewService(interface.IInterviewService):
             interview_id: int,
             candidate_answer_id: int,
             response_time: int,
+            llm_audio_filename: str,
+            llm_audio_fid: str,
+            message_to_candidate: str,
             questions: list[model.VacancyQuestion],
             interview_messages: list[model.InterviewMessage],
             vacancy: model.Vacancy,
             current_question: model.VacancyQuestion
     ) -> model.Interview:
+        llm_message_id = await self.interview_repo.create_interview_message(
+            interview_id=interview_id,
+            question_id=current_question.id,
+            audio_name=llm_audio_filename,
+            audio_fid=llm_audio_fid,
+            role="assistant",
+            text=message_to_candidate
+        )
+
+        await self.interview_repo.add_message_to_candidate_answer(
+            message_id=llm_message_id,
+            candidate_answer_id=candidate_answer_id
+        )
+
         await self.__evaluate_answer(
             candidate_answer_id=candidate_answer_id,
             response_time=response_time,
@@ -521,4 +558,3 @@ class InterviewService(interface.IInterviewService):
         json_str = match.group(0)
         data = json.loads(json_str)
         return data
-
