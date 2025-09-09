@@ -6,11 +6,13 @@ from infrastructure.telemetry.telemetry import Telemetry, AlertManager
 
 from pkg.client.external.openai.client import GPTClient
 from pkg.client.external.email.client import EmailClient
+from pkg.client.external.telegram.client import LTelegramClient
 
 from internal.controller.http.middlerware.middleware import HttpMiddleware
 
 from internal.controller.http.handler.vacancy.handler import VacancyController
 from internal.controller.http.handler.interview.handler import InterviewController
+from internal.controller.http.handler.telegram.handler import TelegramHTTPController
 
 from internal.service.vacancy.service import VacancyService
 from internal.service.interview.service import InterviewService
@@ -64,6 +66,9 @@ email_client = EmailClient(
     use_tls=cfg.smtp_use_tls
 )
 
+# Добавляем инициализацию TelegramClient
+telegram_client = LTelegramClient(tel, cfg.tg_api_id, cfg.tg_api_hash, cfg.tg_session_string)
+
 # Инициализация репозиториев
 vacancy_repo = VacancyRepo(tel, db)
 interview_repo = InterviewRepo(tel, db)
@@ -95,6 +100,7 @@ interview_service = InterviewService(
 # Инициализация контроллеров
 vacancy_controller = VacancyController(tel, vacancy_service)
 interview_controller = InterviewController(tel, interview_service)
+telegram_controller = TelegramHTTPController(tel, telegram_client)
 
 # Инициализация middleware
 http_middleware = HttpMiddleware(tel, cfg.prefix)
@@ -104,6 +110,7 @@ if __name__ == "__main__":
         db,
         vacancy_controller,
         interview_controller,
+        telegram_controller,
         http_middleware,
         cfg.prefix,
     )

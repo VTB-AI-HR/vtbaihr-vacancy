@@ -9,6 +9,8 @@ python-multipart
 pypdf
 pdf2image
 pillow
+telethon
+segno
 
 
 hiredis==3.2.1
