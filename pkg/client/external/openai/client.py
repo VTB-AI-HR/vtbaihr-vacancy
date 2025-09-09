@@ -146,25 +146,41 @@ class GPTClient(interface.ILLMClient):
                 raise
 
     def _extract_text_from_pdf(self, pdf_bytes: bytes) -> str:
-        """Извлекает текст из PDF файла"""
-        reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
-        text = ""
-        for page in reader.pages:
-            text += page.extract_text()
-        return text
+        with self.tracer.start_as_current_span(
+                "GPTClient._extract_text_from_pdf",
+                kind=SpanKind.CLIENT,
+        ) as span:
+            try:
+                """Извлекает текст из PDF файла"""
+                reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
+                text = ""
+                for page in reader.pages:
+                    text += page.extract_text()
+                return text
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise
 
     def _pdf_to_images(self, pdf_bytes: bytes) -> list[str]:
-        """Конвертирует PDF страницы в base64 изображения"""
-        # Конвертируем PDF в изображения
-        images = convert_from_bytes(pdf_bytes, dpi=200)
+        with self.tracer.start_as_current_span(
+                "GPTClient._pdf_to_images",
+                kind=SpanKind.CLIENT,
+        ) as span:
+            try:
+                images = convert_from_bytes(pdf_bytes, dpi=200)
 
-        base64_images = []
-        for img in images:
-            # Конвертируем PIL Image в base64
-            buffer = io.BytesIO()
-            img.save(buffer, format='PNG')
-            img_data = buffer.getvalue()
-            base64_image = base64.b64encode(img_data).decode('utf-8')
-            base64_images.append(base64_image)
+                base64_images = []
+                for img in images:
+                    # Конвертируем PIL Image в base64
+                    buffer = io.BytesIO()
+                    img.save(buffer, format='PNG')
+                    img_data = buffer.getvalue()
+                    base64_image = base64.b64encode(img_data).decode('utf-8')
+                    base64_images.append(base64_image)
 
-        return base64_images
+                return base64_images
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise err

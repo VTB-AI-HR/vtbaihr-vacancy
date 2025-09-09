@@ -386,6 +386,9 @@ class VacancyController(interface.IVacancyController):
                 }
         ) as span:
             try:
+                if body.count_questions > 30:
+                    raise Exception("Too many questions")
+
                 self.logger.info("Generating questions request", {
                     "vacancy_id": body.vacancy_id,
                     "questions_type": body.questions_type.value,
@@ -431,6 +434,9 @@ class VacancyController(interface.IVacancyController):
                 }
         ) as span:
             try:
+                if len(candidate_resume_files) > 10:
+                    raise Exception("Too many files")
+
                 self.logger.info("Evaluating resumes request", {
                     "vacancy_id": vacancy_id,
                     "resumes_count": len(candidate_resume_files)
