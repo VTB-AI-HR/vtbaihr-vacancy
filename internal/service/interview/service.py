@@ -63,6 +63,7 @@ class InterviewService(interface.IInterviewService):
         try:
             hello_interview = self.extract_and_parse_json(hello_interview_str)
         except Exception as e:
+            self.logger.warning("LLM вернула не JSON")
             hello_interview = self.retry_llm_generate(
                 history=history,
                 llm_response_str=hello_interview_str,
@@ -156,6 +157,7 @@ class InterviewService(interface.IInterviewService):
             try:
                 llm_response = self.extract_and_parse_json(llm_response_str)
             except Exception as e:
+                self.logger.warning("LLM вернула не JSON")
                 llm_response = self.retry_llm_generate(
                     history=interview_messages,
                     llm_response_str=llm_response_str,
