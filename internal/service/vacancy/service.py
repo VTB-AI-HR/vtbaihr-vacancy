@@ -31,7 +31,6 @@ class VacancyService(interface.IVacancyService):
         self.email_client = email_client
         self.telegram_client = telegram_client
 
-
     async def create_vacancy(
             self,
             name: str,
@@ -635,11 +634,13 @@ class VacancyService(interface.IVacancyService):
                         #         vacancy_name=vacancy.name,
                         #         interview_id=interview_id
                         #     )
-                        try:
-                            await self.telegram_client.send_message_to_telegram(candidate_phone,
-                                                                                "Вы прошли интервью")
-                        except Exception as err:
-                            await self.telegram_client.send_message_to_telegram(candidate_telegram_login, )
+                        await self._send_interview_invitation_to_telegram(
+                            candidate_telegram_login=candidate_telegram_login,
+                            candidate_phone=candidate_phone,
+                            vacancy_name=vacancy.name,
+                            interview_id=interview_id,
+                            candidate_name=candidate_name,
+                        )
 
                         # Создаем объект Interview для возврата
                         interview = model.Interview(
@@ -797,7 +798,13 @@ class VacancyService(interface.IVacancyService):
                     #     vacancy_name=vacancy.name,
                     #     interview_id=interview_id
                     # )
-                    await self.telegram_client.send_message_to_telegram(candidate_telegram_login, "Вы прошли интервью")
+                    await self._send_interview_invitation_to_telegram(
+                        candidate_telegram_login=candidate_telegram_login,
+                        candidate_phone=candidate_phone,
+                        vacancy_name=vacancy.name,
+                        interview_id=interview_id,
+                        candidate_name=candidate_name,
+                    )
 
                     self.logger.info("Candidate resume approved, interview created", {
                         "vacancy_id": vacancy_id,
@@ -1063,8 +1070,90 @@ class VacancyService(interface.IVacancyService):
             return email_sent
 
         except Exception as err:
-            self.logger.error("Error sending interview invitation", {
-                "candidate_email": candidate_email,
-                "error": str(err)
-            })
             return False
+
+    async def _send_interview_invitation_to_telegram(
+            self,
+            candidate_telegram_login: str,
+            candidate_phone: str,
+            vacancy_name: str,
+            interview_id: int,
+            candidate_name: str
+    ) -> bool:
+        with self.tracer.start_as_current_span(
+                "VacancyService.send_telegram_notification",
+                kind=SpanKind.INTERNAL,
+                attributes={
+                    "candidate_telegram_login": candidate_telegram_login,
+                    "candidate_phone": candidate_phone,
+                    "vacancy_name": vacancy_name,
+                    "interview_id": interview_id
+                }
+        ) as span:
+            try:
+                interview_link = f"https://vtb-aihr.ru/interview/{interview_id}"
+
+                message_text = f"""🎉 Поздравляем, {candidate_name}!
+
+Ваше резюме прошло предварительный отбор на позицию:
+📋 {vacancy_name}
+
+Мы приглашаем вас пройти следующий этап - интервью с нашей AI-системой.
+
+🔗 Ссылка для прохождения интервью:
+{interview_link}
+
+📝 Рекомендации:
+- Убедитесь в наличии микрофона
+- Выберите тихое место
+- Интервью займет 15-30 минут
+- Отвечайте честно и подробно
+
+Удачи! 🍀"""
+
+                self.logger.info("Отправка Telegram уведомления", {
+                    "candidate_telegram_login": candidate_telegram_login,
+                    "candidate_phone": candidate_phone,
+                    "vacancy_name": vacancy_name,
+                })
+
+                # Отправляем сообщение
+                try:
+                    await self.telegram_client.send_message_to_telegram(
+                        tg_username=candidate_telegram_login,
+                        text=message_text
+                    )
+                    telegram_sent = True
+
+                except Exception as err:
+                    span.record_exception(err)
+                    span.set_status(Status(StatusCode.ERROR, str(err)))
+                    try:
+                        await self.telegram_client.send_message_to_telegram(
+                            tg_username=candidate_phone,
+                            text=message_text
+                        )
+                    except Exception as err:
+                        span.record_exception(err)
+                        span.set_status(Status(StatusCode.ERROR, str(err)))
+                        telegram_sent = False
+
+                if telegram_sent:
+                    self.logger.info("Telegram уведомление отправлено успешно", {
+                        "candidate_telegram_login": candidate_telegram_login,
+                        "candidate_phone": candidate_phone
+                    })
+                    span.set_status(Status(StatusCode.OK))
+                    return True
+                else:
+                    self.logger.warning("Telegram уведомление не отправлено", {
+                        "candidate_telegram_login": candidate_telegram_login,
+                        "candidate_phone": candidate_phone
+                    })
+                    span.set_status(Status(StatusCode.ERROR))
+                    return False
+
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                return False
