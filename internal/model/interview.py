@@ -19,6 +19,7 @@ class Interview:
     candidate_email: str
     candidate_name: str
     candidate_phone: str
+    candidate_telegram_login: str
     candidate_resume_fid: str
     candidate_resume_filename: str
     accordance_xp_vacancy_score: int
@@ -48,6 +49,7 @@ class Interview:
                 id=row.id,
                 vacancy_id=row.vacancy_id,
                 candidate_name=row.candidate_name,
+                candidate_telegram_login=row.candidate_telegram_login,
                 candidate_phone=row.candidate_phone,
                 candidate_email=row.candidate_email,
                 candidate_resume_fid=row.candidate_resume_fid,
@@ -77,6 +79,9 @@ class Interview:
             "id": self.id,
             "vacancy_id": self.vacancy_id,
             "candidate_email": self.candidate_email,
+            "candidate_phone": self.candidate_phone,
+            "candidate_name": self.candidate_name,
+            "candidate_telegram_login": self.candidate_telegram_login,
             "candidate_resume_fid": self.candidate_resume_fid,
             "candidate_resume_filename": self.candidate_resume_filename,
             "accordance_xp_vacancy_score": self.accordance_xp_vacancy_score,

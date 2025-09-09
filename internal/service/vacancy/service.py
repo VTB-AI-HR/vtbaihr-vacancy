@@ -610,13 +610,16 @@ class VacancyService(interface.IVacancyService):
 
                         candidate_email = evaluation_data.get("candidate_email", "unknown@example.com")
                         candidate_name = evaluation_data.get("candidate_name", "Unknown")
+                        candidate_telegram_login = evaluation_data.get("candidate_telegram_login", "Unknown")
+                        candidate_phone = evaluation_data.get("candidate_phone", "Unknown")
 
                         # Создаем интервью
                         interview_id = await self.interview_repo.create_interview(
                             vacancy_id=vacancy_id,
                             candidate_name=candidate_name,
                             candidate_email=candidate_email,
-                            candidate_phone=evaluation_data.get("candidate_phone", "Unknown"),
+                            candidate_phone=candidate_phone,
+                            candidate_telegram_login=candidate_telegram_login,
                             candidate_resume_fid=candidate_resume_fid,
                             candidate_resume_filename=resume_file.filename,
                             accordance_xp_vacancy_score=accordance_xp_vacancy_score,
@@ -637,7 +640,8 @@ class VacancyService(interface.IVacancyService):
                             vacancy_id=vacancy_id,
                             candidate_name=candidate_name,
                             candidate_email=candidate_email,
-                            candidate_phone=evaluation_data.get("candidate_phone", "Unknown"),
+                            candidate_phone=candidate_phone,
+                            candidate_telegram_login=candidate_telegram_login,
                             candidate_resume_fid=candidate_resume_fid,
                             candidate_resume_filename=resume_file.filename,
                             accordance_xp_vacancy_score=accordance_xp_vacancy_score,
@@ -650,6 +654,7 @@ class VacancyService(interface.IVacancyService):
                             accordance_skill_resume_score=0,
                             strong_areas="",
                             weak_areas="",
+                            approved_skills=[],
                             general_score=0.0,
                             general_result=model.GeneralResult.IN_PROCESS,
                             message_to_candidate=evaluation_data.get("message_to_candidate", ""),
@@ -745,7 +750,6 @@ class VacancyService(interface.IVacancyService):
                 self.logger.info("LLM response ", {"llm_response": llm_response})
 
                 # Парсим ответ LLM
-
                 evaluation_data = self.extract_and_parse_json(llm_response)
 
                 accordance_xp_vacancy_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
@@ -761,12 +765,16 @@ class VacancyService(interface.IVacancyService):
                     upload_result = self.storage.upload(resume_file_io, candidate_resume_file.filename)
                     candidate_resume_fid = upload_result.fid
 
-                    # Создаем интервью
+                    candidate_name = evaluation_data.get("candidate_name", "Unknown")
+                    candidate_telegram_login = evaluation_data.get("candidate_telegram_login", "Unknown")
+                    candidate_phone = evaluation_data.get("candidate_phone", "Unknown")
+
                     interview_id = await self.interview_repo.create_interview(
                         vacancy_id=vacancy_id,
-                        candidate_name=evaluation_data.get("candidate_name", "Unknown"),
-                        candidate_email=candidate_email,  # Используем email из параметров
-                        candidate_phone=evaluation_data.get("candidate_phone", "Unknown"),
+                        candidate_name=candidate_name,
+                        candidate_email=candidate_email,
+                        candidate_phone=candidate_phone,
+                        candidate_telegram_login=candidate_telegram_login,
                         candidate_resume_fid=candidate_resume_fid,
                         candidate_resume_filename=candidate_resume_file.filename,
                         accordance_xp_vacancy_score=accordance_xp_vacancy_score,

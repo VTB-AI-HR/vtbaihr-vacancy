@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS interviews(
     candidate_email TEXT NOT NULL,
     candidate_name TEXT NOT NULL,
     candidate_phone TEXT NOT NULL,
+    candidate_telegram_login TEXT NOT NULL,
     candidate_resume_fid TEXT NOT NULL,
     candidate_resume_filename TEXT NOT NULL,
     accordance_xp_vacancy_score INTEGER NOT NULL,

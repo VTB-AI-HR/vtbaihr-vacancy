@@ -84,6 +84,7 @@ class VacancyPromptGenerator(interface.IVacancyPromptGenerator):
 {{
     "candidate_name": "Как бы ты назвал кандидата, если не найдешь ничего, что может быть названием, то оставь 'Unknown'",
     "candidate_email": "Email кандидата, если не нашел, то оставь 'Unknown'",
+    "candidate_telegram_login": "Telegram login кандидата, если не нашел, то оставь 'Unknown'",
     "candidate_phone": "Телефон кандидата, если не нашел, то оставь 'Unknown'",
     "red_flags_score": Насколько резюме соответствует критериям красных флагов (число от 0 до 5),
     "accordance_xp_vacancy_score": Насколько резюме подходит к вакансии по опыту (число от 0 до 5),

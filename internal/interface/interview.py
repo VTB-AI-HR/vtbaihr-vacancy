@@ -80,6 +80,7 @@ class IInterviewRepo(Protocol):
             candidate_name: str,
             candidate_email: str,
             candidate_phone: str,
+            candidate_telegram_login: str,
             candidate_resume_fid: str,
             candidate_resume_filename: str,
             accordance_xp_vacancy_score: int,
