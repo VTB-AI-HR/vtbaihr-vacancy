@@ -12,6 +12,7 @@ def NewHTTP(
         db: interface.IDB,
         vacancy_controller: interface.IVacancyController,
         interview_controller: interface.IInterviewController,
+        telegram_controller: interface.ITelegramHTTPController,
         http_middleware: interface.IHttpMiddleware,
         prefix: str
 ):
@@ -25,6 +26,7 @@ def NewHTTP(
 
     include_vacancy_handlers(app, vacancy_controller, prefix)
     include_interview_handlers(app, interview_controller, prefix)
+    include_telegram_handlers(app, telegram_controller, prefix)
 
     return app
 
@@ -266,6 +268,36 @@ def include_interview_handlers(
         methods=["GET"],
         tags=["Interview"],
         response_class=StreamingResponse,
+    )
+
+
+def include_telegram_handlers(
+        app: FastAPI,
+        telegram_controller: interface.ITelegramHTTPController,
+        prefix: str
+):
+    app.add_api_route(
+        prefix + "/telegram/qr/generate",
+        telegram_controller.generate_qr_code,
+        methods=["GET"],
+        tags=["Telegram"],
+        response_class=StreamingResponse,
+    )
+
+    # Проверка статуса QR кода
+    app.add_api_route(
+        prefix + "/telegram/qr/status",
+        telegram_controller.check_qr_status,
+        methods=["GET"],
+        tags=["Telegram"],
+    )
+
+    # Запуск Telegram клиента
+    app.add_api_route(
+        prefix + "/telegram/start",
+        telegram_controller.start_telegram_client,
+        methods=["POST"],
+        tags=["Telegram"],
     )
 
 

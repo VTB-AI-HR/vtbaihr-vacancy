@@ -3,8 +3,10 @@ from abc import abstractmethod
 from typing import Protocol, Sequence, Any
 
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from opentelemetry.metrics import Meter
 from opentelemetry.trace import Tracer
+from starlette.responses import StreamingResponse
 from weed.util import WeedOperationResponse
 
 from internal import model
@@ -145,4 +147,17 @@ class ITelegramClient(Protocol):
             tg_username: str,
             text: str
     ): pass
+
+class ITelegramHTTPController(Protocol):
+    @abstractmethod
+    async def generate_qr_code(self) -> StreamingResponse:
+        pass
+
+    @abstractmethod
+    async def check_qr_status(self) -> JSONResponse:
+        pass
+
+    @abstractmethod
+    async def start_telegram_client(self) -> JSONResponse:
+        pass
 
