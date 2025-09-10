@@ -79,8 +79,8 @@ class LTelegramClient(interface.ITelegramClient):
                 return img_buffer
 
             except Exception as err:
-                span.record_exception(e)
-                span.set_status(Status(StatusCode.ERROR, str(e)))
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
     async def qr_code_status(self) -> tuple[str, str]:
