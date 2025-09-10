@@ -455,33 +455,78 @@ class VacancyService(interface.IVacancyService):
                     vacancy_tags=vacancy.tags
                 )
 
-                # Создаем задачи для параллельной обработки
-                tasks = []
-                for resume_file in candidate_resume_files:
-                    task = self.__process_single_resume(
-                        resume_file=resume_file,
+                # Этап 1: Параллельно читаем все файлы резюме
+                self.logger.info("Начинаем параллельное чтение файлов резюме", {
+                    "vacancy_id": vacancy_id,
+                    "files_count": len(candidate_resume_files)
+                })
+
+                read_tasks = [
+                    self._read_resume_file(resume_file)
+                    for resume_file in candidate_resume_files
+                ]
+
+                # Получаем содержимое всех файлов параллельно
+                file_contents = await asyncio.gather(*read_tasks, return_exceptions=True)
+
+                # Подготавливаем данные для обработки (фильтруем ошибки чтения)
+                resumes_to_process = []
+                read_errors = []
+
+                for i, content in enumerate(file_contents):
+                    if isinstance(content, Exception):
+                        self.logger.error(f"Ошибка при чтении файла {candidate_resume_files[i].filename}", {
+                            "error": str(content),
+                            "filename": candidate_resume_files[i].filename
+                        })
+                        read_errors.append({
+                            "filename": candidate_resume_files[i].filename,
+                            "error": str(content)
+                        })
+                    else:
+                        resumes_to_process.append({
+                            "file": candidate_resume_files[i],
+                            "content": content
+                        })
+
+                self.logger.info("Файлы прочитаны", {
+                    "vacancy_id": vacancy_id,
+                    "successfully_read": len(resumes_to_process),
+                    "read_errors": len(read_errors)
+                })
+
+                # Этап 2: Параллельно обрабатываем все резюме через LLM
+                self.logger.info("Начинаем параллельную обработку резюме через LLM", {
+                    "vacancy_id": vacancy_id,
+                    "resumes_count": len(resumes_to_process)
+                })
+
+                process_tasks = [
+                    self._process_resume_with_llm(
+                        resume_data=resume_data,
                         vacancy_id=vacancy_id,
                         vacancy=vacancy,
                         system_prompt=system_prompt,
                         resume_weights=resume_weights
                     )
-                    tasks.append(task)
+                    for resume_data in resumes_to_process
+                ]
 
-                # Выполняем все задачи параллельно
-                results = await asyncio.gather(*tasks, return_exceptions=True)
+                # Выполняем все LLM запросы параллельно
+                results = await asyncio.gather(*process_tasks, return_exceptions=True)
 
                 # Фильтруем успешные результаты и ошибки
                 created_interviews = []
-                errors = []
+                process_errors = []
 
                 for i, result in enumerate(results):
                     if isinstance(result, Exception):
-                        self.logger.error(f"Ошибка при обработке резюме {candidate_resume_files[i].filename}", {
+                        self.logger.error(f"Ошибка при обработке резюме {resumes_to_process[i]['file'].filename}", {
                             "error": str(result),
-                            "filename": candidate_resume_files[i].filename
+                            "filename": resumes_to_process[i]['file'].filename
                         })
-                        errors.append({
-                            "filename": candidate_resume_files[i].filename,
+                        process_errors.append({
+                            "filename": resumes_to_process[i]['file'].filename,
                             "error": str(result)
                         })
                     elif result is not None:
@@ -490,27 +535,41 @@ class VacancyService(interface.IVacancyService):
                 self.logger.info("Все резюме проверены", {
                     "vacancy_id": vacancy_id,
                     "total_resumes": len(candidate_resume_files),
+                    "successfully_read": len(resumes_to_process),
                     "created_interviews": len(created_interviews),
-                    "errors_count": len(errors)
+                    "read_errors_count": len(read_errors),
+                    "process_errors_count": len(process_errors)
                 })
 
                 span.set_status(Status(StatusCode.OK))
                 return created_interviews
+
             except Exception as err:
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def __process_single_resume(
+    async def _read_resume_file(self, resume_file: UploadFile) -> bytes:
+        try:
+            content = await resume_file.read()
+            await resume_file.seek(0)
+            return content
+        except Exception as e:
+            self.logger.error(f"Ошибка при чтении файла {resume_file.filename}", {"error": str(e)})
+            raise e
+
+    async def _process_resume_with_llm(
             self,
-            resume_file: UploadFile,
+            resume_data: dict,
             vacancy_id: int,
             vacancy,
             system_prompt: str,
             resume_weights
     ) -> model.Interview | None:
+        """Обрабатывает резюме через LLM и создает интервью при необходимости"""
         try:
-            resume_content = await resume_file.read()
+            resume_file = resume_data["file"]
+            resume_content = resume_data["content"]
 
             history = [
                 model.InterviewMessage(
