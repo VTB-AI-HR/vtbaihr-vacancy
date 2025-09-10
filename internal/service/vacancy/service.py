@@ -1026,6 +1026,8 @@ class VacancyService(interface.IVacancyService):
                     span.record_exception(err)
                     span.set_status(Status(StatusCode.ERROR, str(err)))
                     try:
+                        if candidate_phone == "Unknown":
+                            raise Exception("")
                         await self.telegram_client.send_message_to_telegram(
                             tg_user_data=candidate_phone,
                             text=message_text
