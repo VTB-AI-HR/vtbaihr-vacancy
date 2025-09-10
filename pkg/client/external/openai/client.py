@@ -29,7 +29,7 @@ class GPTClient(interface.ILLMClient):
             history: list[model.InterviewMessage],
             system_prompt: str = "",
             temperature: float = 0.5,
-            llm_model: str = "gpt-4o",
+            llm_model: str = "gpt-5",
             pdf_file: bytes = None,
     ) -> str:
         with self.tracer.start_as_current_span(
@@ -49,7 +49,7 @@ class GPTClient(interface.ILLMClient):
                 ]
 
                 if pdf_file is not None:
-                    if llm_model in ["gpt-4o", "gpt-4o-mini"]:
+                    if llm_model in ["gpt-5", "gpt-4o", "gpt-4o-mini"]:
                         # Подход 1: Конвертируем PDF в изображения (для vision моделей)
                         images = self._pdf_to_images(pdf_file)
 

@@ -112,7 +112,7 @@ class ILLMClient(Protocol):
             history: list[model.InterviewMessage],
             system_prompt: str = "",
             temperature: float = 0.5,
-            llm_model: str = "gpt-4o-mini",
+            llm_model: str = "gpt-5",
             pdf_file: bytes = None,
     ) -> str: pass
 
