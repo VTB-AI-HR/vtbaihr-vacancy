@@ -766,14 +766,14 @@ class VacancyService(interface.IVacancyService):
                     #     vacancy_name=vacancy.name,
                     #     interview_id=interview_id
                     # )
-                    # await self.__send_interview_invitation_to_telegram(
-                    #     candidate_telegram_login=candidate_telegram_login,
-                    #     candidate_phone=candidate_phone,
-                    #     vacancy_name=vacancy.name,
-                    #     interview_id=interview_id,
-                    #     vacancy_id=vacancy_id,
-                    #     candidate_name=candidate_name,
-                    # )
+                    await self.__send_interview_invitation_to_telegram(
+                        candidate_telegram_login=candidate_telegram_login,
+                        candidate_phone=candidate_phone,
+                        vacancy_name=vacancy.name,
+                        interview_id=interview_id,
+                        vacancy_id=vacancy_id,
+                        candidate_name=candidate_name
+                    )
 
                     span.set_status(Status(StatusCode.OK))
                     return interview_link, accordance_xp_vacancy_score, accordance_skill_vacancy_score, message_to_candidate

@@ -52,7 +52,15 @@ class LTelegramClient(interface.ITelegramClient):
                         pass
 
                 session = StringSession()
-                client = TelegramClient(session, self.api_id, self.api_hash)
+                client = TelegramClient(
+                    session,
+                    self.api_id,
+                    self.api_hash,
+                    device_model='Server',
+                    system_version='Linux',
+                    app_version='1.0',
+                    lang_code='ru'
+                )
                 await client.connect()
 
                 self.qr_session = model.QrSession(
@@ -99,8 +107,9 @@ class LTelegramClient(interface.ITelegramClient):
                 auth_result = await self.qr_session.client(ExportLoginTokenRequest(
                     api_id=self.api_id,
                     api_hash=self.api_hash,
-                    except_ids=[]
-                ))
+                    except_ids=[],
+                ),
+                )
 
                 if isinstance(auth_result, LoginTokenSuccess):
                     self.logger.info("QR код успешно подтвержден")
@@ -165,7 +174,15 @@ class LTelegramClient(interface.ITelegramClient):
                             pass
 
                     session = StringSession(self.session_string)
-                    client = TelegramClient(session, self.api_id, self.api_hash)
+                    client = TelegramClient(
+                        session,
+                        self.api_id,
+                        self.api_hash,
+                        device_model='Server',
+                        system_version='Linux',
+                        app_version='1.0',
+                        lang_code='ru'
+                    )
 
                     await client.connect()
 
