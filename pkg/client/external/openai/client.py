@@ -10,7 +10,7 @@ from pdf2image import convert_from_bytes
 
 import openai
 from opentelemetry.trace import Status, StatusCode, SpanKind
-from pydantic import json
+import json
 
 from internal import interface
 from internal import model
