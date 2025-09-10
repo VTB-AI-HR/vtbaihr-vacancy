@@ -505,7 +505,6 @@ class VacancyService(interface.IVacancyService):
                     self._process_resume_with_llm(
                         resume_data=resume_data,
                         vacancy_id=vacancy_id,
-                        vacancy=vacancy,
                         system_prompt=system_prompt,
                         resume_weights=resume_weights
                     )
@@ -562,7 +561,6 @@ class VacancyService(interface.IVacancyService):
             self,
             resume_data: dict,
             vacancy_id: int,
-            vacancy,
             system_prompt: str,
             resume_weights
     ) -> model.Interview | None:
