@@ -1,7 +1,7 @@
 import uvicorn
 
 from infrastructure.pg.pg import PG
-from infrastructure.weedfs.weedfs import Weed
+from infrastructure.weedfs.weedfs import AsyncWeed
 from infrastructure.telemetry.telemetry import Telemetry, AlertManager
 
 from pkg.client.external.openai.client import GPTClient
@@ -53,7 +53,7 @@ tel = Telemetry(
 
 # Инициализация клиентов
 db = PG(tel, cfg.db_user, cfg.db_pass, cfg.db_host, cfg.db_port, cfg.db_name)
-storage = Weed(cfg.weed_master_host, cfg.weed_master_port)
+storage = AsyncWeed(cfg.weed_master_host, cfg.weed_master_port)
 llm_client = GPTClient(tel, cfg.openai_api_key)
 email_client = EmailClient(
     tel=tel,
