@@ -106,6 +106,7 @@ if __name__ == "__main__":
         vacancy_controller,
         interview_controller,
         telegram_controller,
+        telegram_client,
         http_middleware,
         cfg.prefix,
     )

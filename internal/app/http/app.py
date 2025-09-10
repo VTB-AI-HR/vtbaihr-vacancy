@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Path, Form, File, UploadFile
 from typing import List
 
@@ -13,6 +15,7 @@ def NewHTTP(
         vacancy_controller: interface.IVacancyController,
         interview_controller: interface.IInterviewController,
         telegram_controller: interface.ITelegramHTTPController,
+        telegram_client: interface.ITelegramClient,
         http_middleware: interface.IHttpMiddleware,
         prefix: str
 ):
@@ -20,6 +23,7 @@ def NewHTTP(
         openapi_url=prefix + "/openapi.json",
         docs_url=prefix + "/docs",
         redoc_url=prefix + "/redoc",
+        lifespan=on_startup(telegram_client)
     )
     include_middleware(app, http_middleware)
     include_db_handler(app, db, prefix)
@@ -29,6 +33,15 @@ def NewHTTP(
     include_telegram_handlers(app, telegram_controller, prefix)
 
     return app
+
+
+def on_startup(telegram_client: interface.ITelegramClient):
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        await telegram_client.start()
+        yield
+
+    return lifespan
 
 
 def include_middleware(
