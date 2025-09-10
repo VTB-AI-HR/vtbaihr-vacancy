@@ -45,12 +45,7 @@ class EmailClient(interface.IEmailClient):
                 }
         ) as span:
             try:
-                self.logger.info("Sending email", {
-                    "to_email": to_email,
-                    "subject": subject
-                })
-
-                result = self._send_email_sync(
+                result = self.__send_email_sync(
                     to_email,
                     subject,
                     body,
@@ -59,16 +54,8 @@ class EmailClient(interface.IEmailClient):
                 )
 
                 if result:
-                    self.logger.info("Email sent successfully", {
-                        "to_email": to_email,
-                        "subject": subject
-                    })
                     span.set_status(Status(StatusCode.OK))
                 else:
-                    self.logger.warning("Failed to send email", {
-                        "to_email": to_email,
-                        "subject": subject
-                    })
                     span.set_status(Status(StatusCode.ERROR, "Failed to send email"))
 
                 return result
@@ -78,7 +65,7 @@ class EmailClient(interface.IEmailClient):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    def _send_email_sync(
+    def __send_email_sync(
             self,
             to_email: str,
             subject: str,
@@ -87,19 +74,16 @@ class EmailClient(interface.IEmailClient):
             attachments: Optional[List[tuple]]
     ) -> bool:
         try:
-            # Создаем сообщение
             message = MIMEMultipart()
             message["From"] = self.smtp_user
             message["To"] = to_email
             message["Subject"] = subject
 
-            # Добавляем тело сообщения
             if is_html:
                 message.attach(MIMEText(body, "html"))
             else:
                 message.attach(MIMEText(body, "plain"))
 
-            # Добавляем вложения если есть
             if attachments:
                 for filename, content in attachments:
                     part = MIMEBase('application', 'octet-stream')
@@ -111,7 +95,6 @@ class EmailClient(interface.IEmailClient):
                     )
                     message.attach(part)
 
-            # Подключаемся к SMTP серверу и отправляем
             with smtplib.SMTP(self.smtp_host, self.smtp_port) as server:
                 if self.use_tls:
                     server.starttls()
@@ -121,5 +104,4 @@ class EmailClient(interface.IEmailClient):
             return True
 
         except Exception as e:
-            self.logger.error("SMTP error", {"error": str(e)})
             return False

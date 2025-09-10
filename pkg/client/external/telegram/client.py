@@ -40,7 +40,7 @@ class LTelegramClient(interface.ITelegramClient):
 
     async def generate_qr_code(self) -> io.BytesIO:
         with self.tracer.start_as_current_span(
-                "UserbotClient.generate_qr_code",
+                "LTelegramClient.generate_qr_code",
                 kind=SpanKind.INTERNAL
         ) as span:
             try:
@@ -75,18 +75,17 @@ class LTelegramClient(interface.ITelegramClient):
                 qr.save(img_buffer, kind='png', scale=8)
                 img_buffer.seek(0)
 
-                self.logger.info("QR код успешно сгенерирован")
                 span.set_status(Status(StatusCode.OK))
                 return img_buffer
 
-            except Exception as e:
+            except Exception as err:
                 span.record_exception(e)
                 span.set_status(Status(StatusCode.ERROR, str(e)))
                 raise err
 
     async def qr_code_status(self) -> tuple[str, str]:
         with self.tracer.start_as_current_span(
-                "UserbotClient.qr_code_status",
+                "LTelegramClient.qr_code_status",
                 kind=SpanKind.INTERNAL
         ) as span:
             try:
@@ -150,7 +149,7 @@ class LTelegramClient(interface.ITelegramClient):
 
     async def start(self):
         with self.tracer.start_as_current_span(
-                "UserbotClient.start",
+                "LTelegramClient.start",
                 kind=SpanKind.INTERNAL,
         ) as span:
             try:
@@ -198,7 +197,7 @@ class LTelegramClient(interface.ITelegramClient):
             text: str
     ):
         with self.tracer.start_as_current_span(
-                "UserbotClient.send_message_to_telegram",
+                "LTelegramClient.send_message_to_telegram",
                 kind=SpanKind.INTERNAL,
                 attributes={
                     "tg_user_data": tg_user_data,
@@ -208,14 +207,10 @@ class LTelegramClient(interface.ITelegramClient):
                 async with self._auth_lock:
                     # Проверяем подключение
                     if not self.userbot.is_connected():
-                        self.logger.info("Переподключение к Telegram")
                         await self.userbot.connect()
 
                     await self.userbot.send_message(tg_user_data, text)
 
-                    self.logger.info("Сообщение успешно отправлено", {
-                        "recipient": tg_user_data
-                    })
 
                 span.set_status(Status(StatusCode.OK))
 

@@ -23,13 +23,13 @@ class InterviewController(interface.IInterviewController):
                 attributes={"interview_id": interview_id}
         ) as span:
             try:
-                self.logger.info("Starting interview request", {"interview_id": interview_id})
+                self.logger.info("Начали создание интервью", {"interview_id": interview_id})
 
                 message_to_candidate, total_questions, question_id, llm_audio_filename, llm_audio_fid = await self.interview_service.start_interview(
                     interview_id
                 )
 
-                self.logger.info("Interview started successfully", {
+                self.logger.info("Создали инетрвью", {
                     "interview_id": interview_id,
                     "total_questions": total_questions,
                     "first_question_id": question_id
@@ -67,7 +67,7 @@ class InterviewController(interface.IInterviewController):
                 }
         ) as span:
             try:
-                self.logger.info("Processing answer request", {
+                self.logger.info("Начали обработку ответа на вопрос", {
                     "question_id": question_id,
                     "interview_id": interview_id,
                     "content_type": audio_file.content_type
@@ -79,7 +79,7 @@ class InterviewController(interface.IInterviewController):
                     audio_file=audio_file
                 )
 
-                self.logger.info("Answer processed successfully", {
+                self.logger.info("Обработали ответ на вопрос", {
                     "question_id": question_id,
                     "interview_id": interview_id,
                     "next_question_id": next_question_id,
@@ -109,12 +109,12 @@ class InterviewController(interface.IInterviewController):
                 attributes={"vacancy_id": vacancy_id}
         ) as span:
             try:
-                self.logger.info("Getting all interviews request", {"vacancy_id": vacancy_id})
+                self.logger.info("Начали получение всех интервью", {"vacancy_id": vacancy_id})
 
                 interviews = await self.interview_service.get_all_interview(vacancy_id)
                 interviews_dict = [interview.to_dict() for interview in interviews]
 
-                self.logger.info("All interviews retrieved successfully", {
+                self.logger.info("Получили все интервью", {
                     "vacancy_id": vacancy_id,
                     "interviews_count": len(interviews)
                 })
@@ -137,12 +137,12 @@ class InterviewController(interface.IInterviewController):
                 attributes={"interview_id": interview_id}
         ) as span:
             try:
-                self.logger.info("Getting interview by ID request", {"interview_id": interview_id})
+                self.logger.info("Начали получение интервью по ID", {"interview_id": interview_id})
 
                 interview = await self.interview_service.get_interview_by_id(interview_id)
                 interview_dict = interview.to_dict()
 
-                self.logger.info("Interview retrieved successfully", {
+                self.logger.info("Получили интервью по ID", {
                     "interview_id": interview_id,
                     "vacancy_id": interview.vacancy_id
                 })
@@ -165,7 +165,7 @@ class InterviewController(interface.IInterviewController):
                 attributes={"interview_id": interview_id}
         ) as span:
             try:
-                self.logger.info("Getting interview details request", {"interview_id": interview_id})
+                self.logger.info("Начали получение деталей интервью", {"interview_id": interview_id})
 
                 candidate_answers, interview_messages = await self.interview_service.get_interview_details(
                     interview_id
@@ -173,7 +173,7 @@ class InterviewController(interface.IInterviewController):
                 candidate_answers_dict = [answer.to_dict() for answer in candidate_answers]
                 interview_messages_dict = [message.to_dict() for message in interview_messages]
 
-                self.logger.info("Interview details retrieved successfully", {
+                self.logger.info("Получили детали интервью", {
                     "interview_id": interview_id,
                     "candidate_answers_count": len(candidate_answers),
                     "interview_messages_count": len(interview_messages)
@@ -207,7 +207,7 @@ class InterviewController(interface.IInterviewController):
                 }
         ) as span:
             try:
-                self.logger.info("Downloading audio file", {
+                self.logger.info("Начали скачивание аудио файла", {
                     "audio_fid": audio_fid,
                     "audio_filename": audio_filename
                 })
@@ -237,7 +237,7 @@ class InterviewController(interface.IInterviewController):
                     finally:
                         audio_stream.close()
 
-                self.logger.info("Audio file downloaded successfully", {
+                self.logger.info("Скачали аудиофайл", {
                     "audio_fid": audio_fid,
                     "audio_filename": audio_filename,
                     "content_type": content_type
@@ -270,6 +270,11 @@ class InterviewController(interface.IInterviewController):
                 attributes={"resume_fid": resume_fid, "resume_filename": resume_filename}
         ) as span:
             try:
+                self.logger.info("Начали скачивание резюме", {
+                    "resume_fid": resume_fid,
+                    "resume_filename": resume_filename
+                })
+
                 # Получаем поток файла резюме из сервиса
                 resume_stream, content_type = await self.interview_service.download_resume(
                     resume_fid,
@@ -296,6 +301,11 @@ class InterviewController(interface.IInterviewController):
                             yield chunk
                     finally:
                         resume_stream.close()
+
+                self.logger.info("Скачали резюме", {
+                    "resume_fid": resume_fid,
+                    "resume_filename": resume_filename
+                })
 
                 span.set_status(Status(StatusCode.OK))
                 return StreamingResponse(

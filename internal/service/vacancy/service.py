@@ -48,11 +48,6 @@ class VacancyService(interface.IVacancyService):
                 }
         ) as span:
             try:
-                self.logger.info("Creating new vacancy", {
-                    "vacancy_name": name,
-                    "skill_level": skill_lvl.value,
-                    "tags_count": len(tags)
-                })
 
                 vacancy_id = await self.vacancy_repo.create_vacancy(
                     name=name,
@@ -61,11 +56,6 @@ class VacancyService(interface.IVacancyService):
                     red_flags=red_flags,
                     skill_lvl=skill_lvl
                 )
-
-                self.logger.info("Vacancy created successfully", {
-                    "vacancy_id": vacancy_id,
-                    "vacancy_name": name
-                })
 
                 span.set_status(Status(StatusCode.OK))
                 return vacancy_id
@@ -84,12 +74,7 @@ class VacancyService(interface.IVacancyService):
                 }
         ) as span:
             try:
-                self.logger.info("Deleting vacancy", {"vacancy_id": vacancy_id})
-
                 await self.vacancy_repo.delete_vacancy(vacancy_id)
-
-                self.logger.info("Vacancy deleted successfully", {"vacancy_id": vacancy_id})
-
                 span.set_status(Status(StatusCode.OK))
 
             except Exception as err:
@@ -114,17 +99,6 @@ class VacancyService(interface.IVacancyService):
                 }
         ) as span:
             try:
-                self.logger.info("Editing vacancy", {
-                    "vacancy_id": vacancy_id,
-                    "fields_to_update": {
-                        "name": name is not None,
-                        "tags": tags is not None,
-                        "description": description is not None,
-                        "red_flags": red_flags is not None,
-                        "skill_lvl": skill_lvl is not None,
-                    }
-                })
-
                 await self.vacancy_repo.edit_vacancy(
                     vacancy_id=vacancy_id,
                     name=name,
@@ -133,8 +107,6 @@ class VacancyService(interface.IVacancyService):
                     red_flags=red_flags,
                     skill_lvl=skill_lvl
                 )
-
-                self.logger.info("Vacancy edited successfully", {"vacancy_id": vacancy_id})
 
                 span.set_status(Status(StatusCode.OK))
 
@@ -162,13 +134,6 @@ class VacancyService(interface.IVacancyService):
                 }
         ) as span:
             try:
-                self.logger.info("Adding question to vacancy", {
-                    "vacancy_id": vacancy_id,
-                    "question_type": question_type.value,
-                    "weight": weight,
-                    "response_time": response_time
-                })
-
                 question_id = await self.vacancy_repo.add_question(
                     vacancy_id=vacancy_id,
                     question=question,
@@ -177,11 +142,6 @@ class VacancyService(interface.IVacancyService):
                     question_type=question_type,
                     response_time=response_time
                 )
-
-                self.logger.info("Question added successfully", {
-                    "question_id": question_id,
-                    "vacancy_id": vacancy_id
-                })
 
                 span.set_status(Status(StatusCode.OK))
                 return question_id
@@ -208,17 +168,6 @@ class VacancyService(interface.IVacancyService):
                 }
         ) as span:
             try:
-                self.logger.info("Editing question", {
-                    "question_id": question_id,
-                    "fields_to_update": {
-                        "question": question is not None,
-                        "hint_for_evaluation": hint_for_evaluation is not None,
-                        "weight": weight is not None,
-                        "question_type": question_type is not None,
-                        "response_time": response_time is not None,
-                    }
-                })
-
                 await self.vacancy_repo.edit_question(
                     question_id=question_id,
                     question=question,
@@ -227,8 +176,6 @@ class VacancyService(interface.IVacancyService):
                     question_type=question_type,
                     response_time=response_time
                 )
-
-                self.logger.info("Question edited successfully", {"question_id": question_id})
 
                 span.set_status(Status(StatusCode.OK))
                 return question_id
@@ -247,12 +194,7 @@ class VacancyService(interface.IVacancyService):
                 }
         ) as span:
             try:
-                self.logger.info("Deleting question", {"question_id": question_id})
-
                 await self.vacancy_repo.delete_question(question_id)
-
-                self.logger.info("Question deleted successfully", {"question_id": question_id})
-
                 span.set_status(Status(StatusCode.OK))
 
             except Exception as err:
@@ -278,8 +220,6 @@ class VacancyService(interface.IVacancyService):
                 }
         ) as span:
             try:
-                self.logger.info("Creating vacancy criterion weights", {"vacancy_id": vacancy_id})
-
                 await self.vacancy_repo.create_interview_weights(
                     vacancy_id=vacancy_id,
                     logic_structure_score_weight=logic_structure_score_weight,
@@ -289,8 +229,6 @@ class VacancyService(interface.IVacancyService):
                     accordance_skill_resume_score_weight=accordance_skill_resume_score_weight,
                     red_flag_score_weight=red_flag_score_weight
                 )
-
-                self.logger.info("Vacancy criterion weights created successfully", {"vacancy_id": vacancy_id})
 
                 span.set_status(Status(StatusCode.OK))
 
@@ -317,8 +255,6 @@ class VacancyService(interface.IVacancyService):
                 }
         ) as span:
             try:
-                self.logger.info("Editing vacancy criterion weights", {"vacancy_id": vacancy_id})
-
                 await self.vacancy_repo.edit_interview_weights(
                     vacancy_id=vacancy_id,
                     logic_structure_score_weight=logic_structure_score_weight,
@@ -328,9 +264,6 @@ class VacancyService(interface.IVacancyService):
                     accordance_skill_resume_score_weight=accordance_skill_resume_score_weight,
                     red_flag_score_weight=red_flag_score_weight
                 )
-
-                self.logger.info("Vacancy criterion weights edited successfully", {"vacancy_id": vacancy_id})
-
                 span.set_status(Status(StatusCode.OK))
 
             except Exception as err:
@@ -354,8 +287,6 @@ class VacancyService(interface.IVacancyService):
                 }
         ) as span:
             try:
-                self.logger.info("Creating resume weights", {"vacancy_id": vacancy_id})
-
                 await self.vacancy_repo.create_resume_weights(
                     vacancy_id=vacancy_id,
                     accordance_xp_vacancy_score_threshold=accordance_xp_vacancy_score_threshold,
@@ -363,9 +294,6 @@ class VacancyService(interface.IVacancyService):
                     recommendation_weight=recommendation_weight,
                     portfolio_weight=portfolio_weight
                 )
-
-                self.logger.info("Resume weights created successfully", {"vacancy_id": vacancy_id})
-
                 span.set_status(Status(StatusCode.OK))
 
             except Exception as err:
@@ -389,8 +317,6 @@ class VacancyService(interface.IVacancyService):
                 }
         ) as span:
             try:
-                self.logger.info("Editing resume weights", {"vacancy_id": vacancy_id})
-
                 await self.vacancy_repo.edit_resume_weights(
                     vacancy_id=vacancy_id,
                     accordance_xp_vacancy_score_threshold=accordance_xp_vacancy_score_threshold,
@@ -398,9 +324,6 @@ class VacancyService(interface.IVacancyService):
                     recommendation_weight=recommendation_weight,
                     portfolio_weight=portfolio_weight
                 )
-
-                self.logger.info("Resume weights edited successfully", {"vacancy_id": vacancy_id})
-
                 span.set_status(Status(StatusCode.OK))
 
             except Exception as err:
@@ -414,8 +337,6 @@ class VacancyService(interface.IVacancyService):
                 kind=SpanKind.INTERNAL,
         ) as span:
             try:
-                self.logger.info("Generating tags for vacancy description")
-
                 generation_tag_system_prompt = self.vacancy_prompt_generator.get_generate_tags_system_prompt()
 
                 history = [
@@ -438,13 +359,8 @@ class VacancyService(interface.IVacancyService):
                     temperature=1
                 )
 
-                response_data = self.extract_and_parse_json(llm_response)
+                response_data = self.__extract_and_parse_json(llm_response)
                 tags = response_data.get("tags", [])
-
-                self.logger.info("Tags generated successfully", {
-                    "tags_count": len(tags),
-                    "tags": tags
-                })
 
                 span.set_status(Status(StatusCode.OK))
                 return tags
@@ -470,16 +386,8 @@ class VacancyService(interface.IVacancyService):
                 }
         ) as span:
             try:
-                self.logger.info("Generating questions for vacancy", {
-                    "vacancy_id": vacancy_id,
-                    "questions_type": questions_type.value,
-                    "count_questions": count_questions
-                })
-
-                # Получаем данные вакансии
                 vacancy = (await self.vacancy_repo.get_vacancy_by_id(vacancy_id))[0]
 
-                # Генерируем промпт
                 question_generation_prompt = self.vacancy_prompt_generator.get_question_generation_prompt(
                     vacancy=vacancy,
                     count_questions=count_questions,
@@ -506,7 +414,7 @@ class VacancyService(interface.IVacancyService):
                     temperature=1
                 )
 
-                response_data = self.extract_and_parse_json(llm_response)
+                response_data = self.__extract_and_parse_json(llm_response)
                 questions_data = response_data.get("questions", [])
 
                 questions = []
@@ -522,11 +430,6 @@ class VacancyService(interface.IVacancyService):
                         created_at=datetime.now()
                     )
                     questions.append(question)
-
-                self.logger.info("Questions generated successfully", {
-                    "vacancy_id": vacancy_id,
-                    "generated_count": len(questions)
-                })
 
                 span.set_status(Status(StatusCode.OK))
                 return questions
@@ -548,7 +451,6 @@ class VacancyService(interface.IVacancyService):
             try:
                 vacancy = (await self.vacancy_repo.get_vacancy_by_id(vacancy_id))[0]
 
-                # Генерируем промпт для оценки резюме
                 system_prompt = self.vacancy_prompt_generator.get_resume_evaluation_system_prompt(
                     vacancy_description=vacancy.description,
                     vacancy_red_flags=vacancy.red_flags,
@@ -574,7 +476,6 @@ class VacancyService(interface.IVacancyService):
                         )
                     ]
 
-                    # Оцениваем резюме с помощью LLM
                     llm_response_str = await self.llm_client.generate(
                         history=history,
                         system_prompt=system_prompt,
@@ -582,12 +483,11 @@ class VacancyService(interface.IVacancyService):
                         temperature=1,
                         pdf_file=resume_content
                     )
-                    self.logger.info("LLM response", {"llm_response": llm_response_str})
 
                     try:
-                        evaluation_data = self.extract_and_parse_json(llm_response_str)
+                        evaluation_data = self.__extract_and_parse_json(llm_response_str)
                     except Exception as err:
-                        evaluation_data = await self.retry_llm_generate(
+                        evaluation_data = await self.__retry_llm_generate(
                             history=history,
                             system_prompt=system_prompt,
                             llm_response_str=llm_response_str,
@@ -596,23 +496,31 @@ class VacancyService(interface.IVacancyService):
 
                     accordance_xp_vacancy_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
                     accordance_skill_vacancy_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
+                    candidate_email = evaluation_data.get("candidate_email", "unknown@example.com")
+                    candidate_name = evaluation_data.get("candidate_name", "Unknown")
+                    candidate_telegram_login = evaluation_data.get("candidate_telegram_login", "Unknown")
+                    candidate_phone = evaluation_data.get("candidate_phone", "Unknown")
+                    message_to_candidate = evaluation_data.get("message_to_candidate", "")
+                    message_to_hr = evaluation_data.get("message_to_hr", "")
 
                     resume_weights = (await self.vacancy_repo.get_resume_weights(vacancy_id))[0]
 
-                    # Проверяем пороговые значения (4)
                     if (accordance_xp_vacancy_score >= resume_weights.accordance_xp_vacancy_score_threshold
                             and accordance_skill_vacancy_score >= resume_weights.accordance_skill_vacancy_score_threshold):
-                        # Сохраняем резюме в WeedFS
+
+                        self.logger.info("Кандидат прошел анализ резюме", {
+                            "vacancy_id": vacancy_id,
+                            "accordance_xp_vacancy_score": accordance_xp_vacancy_score,
+                            "accordance_skill_vacancy_score": accordance_skill_vacancy_score,
+                            "candidate_telegram_login": candidate_telegram_login,
+                            "candidate_name": candidate_name,
+                            "candidate_phone": candidate_phone,
+                        })
+
                         resume_file_io = io.BytesIO(resume_content)
                         upload_result = self.storage.upload(resume_file_io, resume_file.filename)
                         candidate_resume_fid = upload_result.fid
 
-                        candidate_email = evaluation_data.get("candidate_email", "unknown@example.com")
-                        candidate_name = evaluation_data.get("candidate_name", "Unknown")
-                        candidate_telegram_login = evaluation_data.get("candidate_telegram_login", "Unknown")
-                        candidate_phone = evaluation_data.get("candidate_phone", "Unknown")
-
-                        # Создаем интервью
                         interview_id = await self.interview_repo.create_interview(
                             vacancy_id=vacancy_id,
                             candidate_name=candidate_name,
@@ -626,20 +534,20 @@ class VacancyService(interface.IVacancyService):
                         )
 
                         # if candidate_email != "Unknown" and "@" in candidate_email:
-                        #     await self._send_interview_invitation(
+                        #     await self.__send_interview_invitation(
                         #         candidate_email=candidate_email,
                         #         candidate_name=candidate_name,
                         #         vacancy_name=vacancy.name,
                         #         interview_id=interview_id
                         #     )
-                        await self._send_interview_invitation_to_telegram(
-                            candidate_telegram_login=candidate_telegram_login,
-                            candidate_phone=candidate_phone,
-                            vacancy_name=vacancy.name,
-                            interview_id=interview_id,
-                            vacancy_id=vacancy_id,
-                            candidate_name=candidate_name,
-                        )
+                        # await self.__send_interview_invitation_to_telegram(
+                        #     candidate_telegram_login=candidate_telegram_login,
+                        #     candidate_phone=candidate_phone,
+                        #     vacancy_name=vacancy.name,
+                        #     interview_id=interview_id,
+                        #     vacancy_id=vacancy_id,
+                        #     candidate_name=candidate_name,
+                        # )
 
                         # Создаем объект Interview для возврата
                         interview = model.Interview(
@@ -664,25 +572,23 @@ class VacancyService(interface.IVacancyService):
                             approved_skills=[],
                             general_score=0.0,
                             general_result=model.GeneralResult.IN_PROCESS,
-                            message_to_candidate=evaluation_data.get("message_to_candidate", ""),
-                            message_to_hr=evaluation_data.get("message_to_hr", ""),
+                            message_to_candidate=message_to_candidate,
+                            message_to_hr=message_to_hr,
                             created_at=datetime.now()
                         )
 
                         created_interviews.append(interview)
-
-                        self.logger.info("Resume passed evaluation, interview created", {
-                            "interview_id": interview_id,
-                            "accordance_xp_vacancy_score": accordance_xp_vacancy_score,
-                            "accordance_skill_vacancy_score": accordance_skill_vacancy_score
-                        })
                     else:
-                        self.logger.info("Resume failed evaluation", {
+                        self.logger.info("Кандидат не прошел анализ резюме", {
+                            "vacancy_id": vacancy_id,
                             "accordance_xp_vacancy_score": accordance_xp_vacancy_score,
-                            "accordance_skill_vacancy_score": accordance_skill_vacancy_score
+                            "accordance_skill_vacancy_score": accordance_skill_vacancy_score,
+                            "candidate_telegram_login": candidate_telegram_login,
+                            "candidate_name": candidate_name,
+                            "candidate_phone": candidate_phone,
                         })
 
-                self.logger.info("Resume evaluation completed", {
+                self.logger.info("Все резюме проверены", {
                     "vacancy_id": vacancy_id,
                     "total_resumes": len(candidate_resume_files),
                     "created_interviews": len(created_interviews)
@@ -711,19 +617,8 @@ class VacancyService(interface.IVacancyService):
                 }
         ) as span):
             try:
-                self.logger.info("Processing candidate response", {
-                    "vacancy_id": vacancy_id,
-                    "candidate_email": candidate_email,
-                })
+                vacancy = (await self.vacancy_repo.get_vacancy_by_id(vacancy_id))[0]
 
-                # Получаем данные вакансии
-                vacancies = await self.vacancy_repo.get_vacancy_by_id(vacancy_id)
-                if not vacancies:
-                    raise ValueError(f"Vacancy with id {vacancy_id} not found")
-
-                vacancy = vacancies[0]
-
-                # Генерируем промпт для оценки резюме
                 system_prompt = self.vacancy_prompt_generator.get_resume_evaluation_system_prompt(
                     vacancy_description=vacancy.description,
                     vacancy_red_flags=vacancy.red_flags,
@@ -731,10 +626,8 @@ class VacancyService(interface.IVacancyService):
                     vacancy_tags=vacancy.tags
                 )
 
-                # Читаем файл резюме
                 resume_content = await candidate_resume_file.read()
 
-                # Создаем сообщение для LLM
                 history = [
                     model.InterviewMessage(
                         id=0,
@@ -747,7 +640,7 @@ class VacancyService(interface.IVacancyService):
                         created_at=datetime.now()
                     )
                 ]
-                # Оцениваем резюме с помощью LLM
+
                 llm_response_str = await self.llm_client.generate(
                     history=history,
                     system_prompt=system_prompt,
@@ -756,13 +649,10 @@ class VacancyService(interface.IVacancyService):
                     pdf_file=resume_content
                 )
 
-                self.logger.info("LLM response ", {"llm_response": llm_response_str})
-
-                # Парсим ответ LLM
                 try:
-                    evaluation_data = self.extract_and_parse_json(llm_response_str)
+                    evaluation_data = self.__extract_and_parse_json(llm_response_str)
                 except Exception as err:
-                    evaluation_data = await self.retry_llm_generate(
+                    evaluation_data = await self.__retry_llm_generate(
                         history=history,
                         system_prompt=system_prompt,
                         llm_response_str=llm_response_str,
@@ -771,20 +661,31 @@ class VacancyService(interface.IVacancyService):
 
                 accordance_xp_vacancy_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
                 accordance_skill_vacancy_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
+                candidate_email = evaluation_data.get("candidate_email", "unknown@example.com")
+                candidate_name = evaluation_data.get("candidate_name", "Unknown")
+                candidate_telegram_login = evaluation_data.get("candidate_telegram_login", "Unknown")
+                candidate_phone = evaluation_data.get("candidate_phone", "Unknown")
                 message_to_candidate = evaluation_data.get("message_to_candidate", "")
+                message_to_hr = evaluation_data.get("message_to_hr", "")
 
                 resume_weights = (await self.vacancy_repo.get_resume_weights(vacancy_id))[0]
 
                 if (accordance_xp_vacancy_score >= resume_weights.accordance_xp_vacancy_score_threshold
                         and accordance_skill_vacancy_score >= resume_weights.accordance_skill_vacancy_score_threshold):
-                    # Сохраняем резюме в WeedFS
+
+                    self.logger.info("Кандидат прошел анализ резюме", {
+                        "vacancy_id": vacancy_id,
+                        "accordance_xp_vacancy_score": accordance_xp_vacancy_score,
+                        "accordance_skill_vacancy_score": accordance_skill_vacancy_score,
+                        "candidate_telegram_login": candidate_telegram_login,
+                        "candidate_name": candidate_name,
+                        "candidate_phone": candidate_phone,
+                    })
+
                     resume_file_io = io.BytesIO(resume_content)
                     upload_result = self.storage.upload(resume_file_io, candidate_resume_file.filename)
                     candidate_resume_fid = upload_result.fid
 
-                    candidate_name = evaluation_data.get("candidate_name", "Unknown")
-                    candidate_telegram_login = evaluation_data.get("candidate_telegram_login", "Unknown")
-                    candidate_phone = evaluation_data.get("candidate_phone", "Unknown")
 
                     interview_id = await self.interview_repo.create_interview(
                         vacancy_id=vacancy_id,
@@ -807,33 +708,26 @@ class VacancyService(interface.IVacancyService):
                     #     vacancy_name=vacancy.name,
                     #     interview_id=interview_id
                     # )
-                    await self._send_interview_invitation_to_telegram(
-                        candidate_telegram_login=candidate_telegram_login,
-                        candidate_phone=candidate_phone,
-                        vacancy_name=vacancy.name,
-                        interview_id=interview_id,
-                        vacancy_id=vacancy_id,
-                        candidate_name=candidate_name,
-                    )
-
-                    self.logger.info("Candidate resume approved, interview created", {
-                        "vacancy_id": vacancy_id,
-                        "candidate_email": candidate_email,
-                        "interview_id": interview_id,
-                        "accordance_xp_vacancy_score": accordance_xp_vacancy_score,
-                        "accordance_skill_vacancy_score": accordance_skill_vacancy_score,
-                    })
+                    # await self.__send_interview_invitation_to_telegram(
+                    #     candidate_telegram_login=candidate_telegram_login,
+                    #     candidate_phone=candidate_phone,
+                    #     vacancy_name=vacancy.name,
+                    #     interview_id=interview_id,
+                    #     vacancy_id=vacancy_id,
+                    #     candidate_name=candidate_name,
+                    # )
 
                     span.set_status(Status(StatusCode.OK))
                     return interview_link, accordance_xp_vacancy_score, accordance_skill_vacancy_score, message_to_candidate
 
                 else:
-                    self.logger.info("Candidate resume rejected - scores below threshold", {
+                    self.logger.info("Кандидат не прошел анализ резюме", {
                         "vacancy_id": vacancy_id,
-                        "candidate_email": candidate_email,
                         "accordance_xp_vacancy_score": accordance_xp_vacancy_score,
                         "accordance_skill_vacancy_score": accordance_skill_vacancy_score,
-                        "min_threshold": 4,
+                        "candidate_telegram_login": candidate_telegram_login,
+                        "candidate_name": candidate_name,
+                        "candidate_phone": candidate_phone,
                     })
 
                     # Возвращаем пустую ссылку при отклонении
@@ -851,13 +745,7 @@ class VacancyService(interface.IVacancyService):
                 kind=SpanKind.INTERNAL,
         ) as span:
             try:
-                self.logger.info("Retrieving all vacancies")
-
                 vacancies = await self.vacancy_repo.get_all_vacancy()
-
-                self.logger.info("Successfully retrieved all vacancies", {
-                    "vacancies_count": len(vacancies)
-                })
 
                 span.set_status(Status(StatusCode.OK))
                 return vacancies
@@ -876,21 +764,7 @@ class VacancyService(interface.IVacancyService):
                 }
         ) as span:
             try:
-                self.logger.info("Retrieving all questions for vacancy", {
-                    "vacancy_id": vacancy_id
-                })
-
-                # Проверяем существование вакансии
-                vacancies = await self.vacancy_repo.get_vacancy_by_id(vacancy_id)
-                if not vacancies:
-                    raise ValueError(f"Vacancy with id {vacancy_id} not found")
-
                 questions = await self.vacancy_repo.get_all_question(vacancy_id)
-
-                self.logger.info("Successfully retrieved all questions for vacancy", {
-                    "vacancy_id": vacancy_id,
-                    "questions_count": len(questions)
-                })
 
                 span.set_status(Status(StatusCode.OK))
                 return questions
@@ -909,21 +783,7 @@ class VacancyService(interface.IVacancyService):
                 }
         ) as span:
             try:
-                self.logger.info("Retrieving question by ID", {
-                    "question_id": question_id
-                })
-
-                questions = await self.vacancy_repo.get_question_by_id(question_id)
-                if not questions:
-                    raise ValueError(f"Question with id {question_id} not found")
-
-                question = questions[0]
-
-                self.logger.info("Successfully retrieved question by ID", {
-                    "question_id": question_id,
-                    "vacancy_id": question.vacancy_id
-                })
-
+                question = (await self.vacancy_repo.get_question_by_id(question_id))[0]
                 span.set_status(Status(StatusCode.OK))
                 return question
 
@@ -941,16 +801,7 @@ class VacancyService(interface.IVacancyService):
                 }
         ) as span:
             try:
-                self.logger.info("Retrieving interview criterion weights for vacancy", {
-                    "vacancy_id": vacancy_id
-                })
-
                 weights = await self.vacancy_repo.get_interview_weights(vacancy_id)
-
-                self.logger.info("Successfully retrieved interview criterion weights", {
-                    "vacancy_id": vacancy_id,
-                    "weights_found": len(weights) > 0
-                })
 
                 span.set_status(Status(StatusCode.OK))
                 return weights
@@ -969,16 +820,7 @@ class VacancyService(interface.IVacancyService):
                 }
         ) as span:
             try:
-                self.logger.info("Retrieving resume criterion weights for vacancy", {
-                    "vacancy_id": vacancy_id
-                })
-
                 weights = await self.vacancy_repo.get_resume_weights(vacancy_id)
-
-                self.logger.info("Successfully retrieved resume criterion weights", {
-                    "vacancy_id": vacancy_id,
-                    "weights_found": len(weights) > 0
-                })
 
                 span.set_status(Status(StatusCode.OK))
                 return weights
@@ -988,25 +830,23 @@ class VacancyService(interface.IVacancyService):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    def extract_and_parse_json(self, text: str) -> dict:
+    def __extract_and_parse_json(self, text: str) -> dict:
         match = re.search(r"\{.*\}", text, re.DOTALL)
 
         json_str = match.group(0)
         data = json.loads(json_str)
         return data
 
-    async def _send_interview_invitation_to_email(
+    async def __send_interview_invitation_to_email(
             self,
             candidate_email: str,
             candidate_name: str,
             vacancy_name: str,
             interview_id: int
     ) -> bool:
-        """Отправляет приглашение на интервью кандидату"""
         try:
             subject = f"Приглашение на интервью - {vacancy_name}"
 
-            # Формируем HTML письмо
             body = f"""
 <html>
     <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
@@ -1054,7 +894,6 @@ class VacancyService(interface.IVacancyService):
 </html>
 """
 
-            # Отправляем email
             email_sent = await self.email_client.send_email(
                 to_email=candidate_email,
                 subject=subject,
@@ -1063,14 +902,14 @@ class VacancyService(interface.IVacancyService):
             )
 
             if email_sent:
-                self.logger.info("Interview invitation sent successfully", {
+                self.logger.info("Приглашение отправлено", {
                     "candidate_email": candidate_email,
                     "candidate_name": candidate_name,
                     "vacancy_name": vacancy_name,
                     "interview_id": interview_id
                 })
             else:
-                self.logger.warning("Failed to send interview invitation", {
+                self.logger.error("Ошибка отправки приглашения", {
                     "candidate_email": candidate_email,
                     "candidate_name": candidate_name,
                     "vacancy_name": vacancy_name,
@@ -1082,7 +921,7 @@ class VacancyService(interface.IVacancyService):
         except Exception as err:
             return False
 
-    async def _send_interview_invitation_to_telegram(
+    async def __send_interview_invitation_to_telegram(
             self,
             candidate_telegram_login: str,
             candidate_phone: str,
@@ -1122,13 +961,7 @@ class VacancyService(interface.IVacancyService):
 
 Удачи! 🍀"""
 
-                self.logger.info("Отправка Telegram уведомления", {
-                    "candidate_telegram_login": candidate_telegram_login,
-                    "candidate_phone": candidate_phone,
-                    "vacancy_name": vacancy_name,
-                })
 
-                # Отправляем сообщение
                 try:
                     await self.telegram_client.send_message_to_telegram(
                         tg_user_data=candidate_telegram_login,
@@ -1169,13 +1002,15 @@ class VacancyService(interface.IVacancyService):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    async def retry_llm_generate(
+    async def __retry_llm_generate(
             self,
             history: list[model.InterviewMessage],
             llm_response_str: str,
             system_prompt: str,
             pdf_file: bytes,
     ):
+        self.logger.warning("LLM потребовался retry", {"llm_response": llm_response_str})
+
         history.append(
             model.InterviewMessage(
                 id=0,
@@ -1207,6 +1042,6 @@ class VacancyService(interface.IVacancyService):
             temperature=1,
             pdf_file=pdf_file,
         )
-        llm_response = self.extract_and_parse_json(llm_response_str)
+        llm_response = self.__extract_and_parse_json(llm_response_str)
         return llm_response
 

@@ -7,7 +7,6 @@ from datetime import datetime
 from fastapi import UploadFile
 
 from internal import model, interface
-from internal.model import InterviewMessage
 
 
 class InterviewService(interface.IInterviewService):
@@ -29,13 +28,11 @@ class InterviewService(interface.IInterviewService):
         self.storage = storage
 
     async def start_interview(self, interview_id: int) -> tuple[str, int, int, str, str]:
-        # Получаем все необходимые данные
         interview = (await self.interview_repo.get_interview_by_id(interview_id))[0]
         vacancy = (await self.vacancy_repo.get_vacancy_by_id(interview.vacancy_id))[0]
         questions = await self.vacancy_repo.get_all_question(vacancy.id)
         current_question = questions[0]
 
-        # Создаем приветственное сообщение
         hello_interview_system_prompt = self.interview_prompt_generator.get_hello_interview_system_prompt(
             vacancy,
             questions,
@@ -63,17 +60,15 @@ class InterviewService(interface.IInterviewService):
         )
 
         try:
-            hello_interview = self.extract_and_parse_json(hello_interview_str)
+            hello_interview = self.__extract_and_parse_json(hello_interview_str)
         except Exception as e:
-            self.logger.warning("LLM вернула не JSON")
-            hello_interview = await self.retry_llm_generate(
+            hello_interview = await self.__retry_llm_generate(
                 history=history,
                 llm_response_str=hello_interview_str,
                 system_prompt=hello_interview_system_prompt,
             )
         message_to_candidate = hello_interview["message_to_candidate"]
 
-        # Создаем голосовое для кандидата
         llm_audio = await self.llm_client.text_to_speech(message_to_candidate)
         llm_audio_filename = f"hello_interview_{interview_id}_{current_question.id}.mp3"
         llm_audio_file_io = io.BytesIO(llm_audio)
@@ -152,15 +147,15 @@ class InterviewService(interface.IInterviewService):
 
             llm_response_str = await self.llm_client.generate(
                 history=interview_messages,
-                system_prompt=interview_management_system_prompt
+                system_prompt=interview_management_system_prompt,
+                llm_model="gpt-5",
+                temperature=1
             )
-            self.logger.info("Ответ от LLM", {"llm_response": llm_response_str})
 
             try:
-                llm_response = self.extract_and_parse_json(llm_response_str)
+                llm_response = self.__extract_and_parse_json(llm_response_str)
             except Exception as e:
-                self.logger.warning("LLM вернула не JSON")
-                llm_response = await self.retry_llm_generate(
+                llm_response = await self.__retry_llm_generate(
                     history=interview_messages,
                     llm_response_str=llm_response_str,
                     system_prompt=interview_management_system_prompt,
@@ -178,6 +173,7 @@ class InterviewService(interface.IInterviewService):
 
             # 7. Обрабатываем разные сценарии
             if action == "delve_into_question":
+                self.logger.info("Углубление в вопрос")
                 await self.__continue_question(
                     candidate_answer_id=candidate_answer.id,
                     interview_id=interview_id,
@@ -195,6 +191,7 @@ class InterviewService(interface.IInterviewService):
                 )
 
             elif action == "next_question" and current_question_order_number < len(questions):
+                self.logger.info("Переход к следующему вопросу")
                 next_question = await self.__next_question(
                     interview_id=interview_id,
                     llm_audio_filename=llm_audio_filename,
@@ -217,6 +214,8 @@ class InterviewService(interface.IInterviewService):
 
             elif action == "finish_interview" or action == "next_question" and current_question_order_number == len(
                     questions):
+                self.logger.info("Заканчиваем интервью")
+
                 interview = await self.__finish_interview(
                     interview_id=interview_id,
                     candidate_answer_id=candidate_answer.id,
@@ -322,6 +321,7 @@ class InterviewService(interface.IInterviewService):
             vacancy: model.Vacancy,
             current_question: model.VacancyQuestion
     ) -> model.Interview:
+        # Оцениваем ответ на последний вопрос
         llm_message_id = await self.interview_repo.create_interview_message(
             interview_id=interview_id,
             question_id=current_question.id,
@@ -370,7 +370,7 @@ class InterviewService(interface.IInterviewService):
             temperature=1
         )
 
-        interview_evaluation = self.extract_and_parse_json(interview_evaluation_str)
+        interview_evaluation = self.__extract_and_parse_json(interview_evaluation_str)
 
         interview_weights = (await self.vacancy_repo.get_interview_weights(vacancy.id))[0]
 
@@ -439,7 +439,6 @@ class InterviewService(interface.IInterviewService):
             )
         ]
 
-
         question_evaluation_str = await self.llm_client.generate(
             history=question_history,
             system_prompt=answer_evaluation_system_prompt,
@@ -448,10 +447,9 @@ class InterviewService(interface.IInterviewService):
         )
 
         try:
-            evaluation_data = self.extract_and_parse_json(question_evaluation_str)
+            evaluation_data = self.__extract_and_parse_json(question_evaluation_str)
         except Exception as e:
-            self.logger.warning("LLM вернула не JSON")
-            evaluation_data = await self.retry_llm_generate(
+            evaluation_data = await self.__retry_llm_generate(
                 history=question_history,
                 llm_response_str=question_evaluation_str,
                 system_prompt=answer_evaluation_system_prompt,
@@ -523,19 +521,7 @@ class InterviewService(interface.IInterviewService):
 
     async def get_interview_by_id(self, interview_id: int) -> model.Interview:
         try:
-            self.logger.info("Getting interview by ID", {"interview_id": interview_id})
-
-            interviews = await self.interview_repo.get_interview_by_id(interview_id)
-            if not interviews:
-                raise ValueError(f"Interview with id {interview_id} not found")
-
-            interview = interviews[0]
-
-            self.logger.info("Interview retrieved successfully", {
-                "interview_id": interview_id,
-                "vacancy_id": interview.vacancy_id,
-                "candidate_email": interview.candidate_email
-            })
+            interview = (await self.interview_repo.get_interview_by_id(interview_id))[0]
 
             return interview
 
@@ -553,19 +539,7 @@ class InterviewService(interface.IInterviewService):
 
     async def download_audio(self, audio_fid: str, audio_filename: str) -> tuple[io.BytesIO, str]:
         try:
-            self.logger.info("Downloading audio file from storage", {
-                "audio_fid": audio_fid,
-                "audio_filename": audio_filename
-            })
-
-            # Скачиваем файл из storage
             audio_stream, content_type = self.storage.download(audio_fid, audio_filename)
-
-            self.logger.info("Audio file downloaded successfully from storage", {
-                "audio_fid": audio_fid,
-                "audio_filename": audio_filename,
-                "content_type": content_type
-            })
 
             return audio_stream, content_type
 
@@ -574,38 +548,26 @@ class InterviewService(interface.IInterviewService):
 
     async def download_resume(self, resume_fid: str, resume_filename: str) -> tuple[io.BytesIO, str]:
         try:
-            self.logger.info("Downloading resume file from storage", {
-                "resume_fid": resume_fid,
-                "resume_filename": resume_filename
-            })
-
-            # Скачиваем файл из storage
             audio_stream, content_type = self.storage.download(resume_fid, resume_filename)
-
-            self.logger.info("resume file downloaded successfully from storage", {
-                "resume_fid": resume_fid,
-                "resume_filename": resume_filename,
-                "content_type": content_type
-            })
-
             return audio_stream, content_type
 
         except Exception as err:
             raise err
 
-    def extract_and_parse_json(self, text: str) -> dict:
+    def __extract_and_parse_json(self, text: str) -> dict:
         match = re.search(r"\{.*\}", text, re.DOTALL)
 
         json_str = match.group(0)
         data = json.loads(json_str)
         return data
 
-    async def retry_llm_generate(
+    async def __retry_llm_generate(
             self,
             history: list[model.InterviewMessage],
             llm_response_str: str,
             system_prompt: str
     ):
+        self.logger.warning("LLM ответила не JSON", {"llm_response": llm_response_str})
         history.append(
             model.InterviewMessage(
                 id=0,
@@ -636,5 +598,5 @@ class InterviewService(interface.IInterviewService):
             llm_model="gpt-5",
             temperature=1
         )
-        llm_response = self.extract_and_parse_json(llm_response_str)
+        llm_response = self.__extract_and_parse_json(llm_response_str)
         return llm_response
