@@ -1013,6 +1013,9 @@ class VacancyService(interface.IVacancyService):
 Удачи! 🍀"""
 
                 try:
+                    if candidate_telegram_login == "Unknown":
+                        raise Exception("")
+
                     await self.telegram_client.send_message_to_telegram(
                         tg_user_data=candidate_telegram_login,
                         text=message_text
