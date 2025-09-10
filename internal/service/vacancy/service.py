@@ -434,7 +434,8 @@ class VacancyService(interface.IVacancyService):
                 llm_response = await self.llm_client.generate(
                     history=history,
                     system_prompt=generation_tag_system_prompt,
-                    temperature=0.3
+                    llm_model="gpt-5",
+                    temperature=1
                 )
 
                 response_data = self.extract_and_parse_json(llm_response)
@@ -501,7 +502,8 @@ class VacancyService(interface.IVacancyService):
                 llm_response = await self.llm_client.generate(
                     history=history,
                     system_prompt=question_generation_prompt,
-                    temperature=0.7
+                    llm_model="gpt-5",
+                    temperature=1
                 )
 
                 response_data = self.extract_and_parse_json(llm_response)
@@ -576,6 +578,8 @@ class VacancyService(interface.IVacancyService):
                     llm_response_str = await self.llm_client.generate(
                         history=history,
                         system_prompt=system_prompt,
+                        llm_model="gpt-5",
+                        temperature=1,
                         pdf_file=resume_content
                     )
                     self.logger.info("LLM response", {"llm_response": llm_response_str})
@@ -747,6 +751,8 @@ class VacancyService(interface.IVacancyService):
                 llm_response_str = await self.llm_client.generate(
                     history=history,
                     system_prompt=system_prompt,
+                    llm_model="gpt-5",
+                    temperature=1,
                     pdf_file=resume_content
                 )
 
@@ -1197,6 +1203,8 @@ class VacancyService(interface.IVacancyService):
         llm_response_str = await self.llm_client.generate(
             history=history,
             system_prompt=system_prompt,
+            llm_model="gpt-5",
+            temperature=1,
             pdf_file=pdf_file,
         )
         llm_response = self.extract_and_parse_json(llm_response_str)

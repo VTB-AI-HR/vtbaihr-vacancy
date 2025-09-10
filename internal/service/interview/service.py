@@ -57,7 +57,9 @@ class InterviewService(interface.IInterviewService):
 
         hello_interview_str = await self.llm_client.generate(
             history=history,
-            system_prompt=hello_interview_system_prompt
+            system_prompt=hello_interview_system_prompt,
+            llm_model="gpt-5",
+            temperature=1
         )
 
         try:
@@ -363,7 +365,9 @@ class InterviewService(interface.IInterviewService):
 
         interview_evaluation_str = await self.llm_client.generate(
             history=interview_messages,
-            system_prompt=interview_summary_system_prompt
+            system_prompt=interview_summary_system_prompt,
+            llm_model="gpt-5",
+            temperature=1
         )
 
         interview_evaluation = self.extract_and_parse_json(interview_evaluation_str)
@@ -438,7 +442,9 @@ class InterviewService(interface.IInterviewService):
 
         question_evaluation_str = await self.llm_client.generate(
             history=question_history,
-            system_prompt=answer_evaluation_system_prompt
+            system_prompt=answer_evaluation_system_prompt,
+            llm_model="gpt-5",
+            temperature=1
         )
 
         try:
@@ -626,7 +632,9 @@ class InterviewService(interface.IInterviewService):
         )
         llm_response_str = await self.llm_client.generate(
             history=history,
-            system_prompt=system_prompt
+            system_prompt=system_prompt,
+            llm_model="gpt-5",
+            temperature=1
         )
         llm_response = self.extract_and_parse_json(llm_response_str)
         return llm_response
