@@ -1,7 +1,5 @@
 import asyncio
-import json
 import io
-import re
 from datetime import datetime
 from fastapi import UploadFile
 
@@ -353,15 +351,14 @@ class VacancyService(interface.IVacancyService):
                     )
                 ]
 
-                llm_response = await self.llm_client.generate(
+                tags_json = await self.llm_client.generate_json(
                     history=history,
                     system_prompt=generation_tag_system_prompt,
                     llm_model="gpt-5",
                     temperature=1
                 )
 
-                response_data = self.__extract_and_parse_json(llm_response)
-                tags = response_data.get("tags", [])
+                tags = tags_json.get("tags", [])
 
                 span.set_status(Status(StatusCode.OK))
                 return tags
@@ -408,15 +405,12 @@ class VacancyService(interface.IVacancyService):
                     )
                 ]
 
-                llm_response = await self.llm_client.generate(
+                questions_data = await self.llm_client.generate_json(
                     history=history,
                     system_prompt=question_generation_prompt,
                     llm_model="gpt-5",
                     temperature=1
                 )
-
-                response_data = self.__extract_and_parse_json(llm_response)
-                questions_data = response_data.get("questions", [])
 
                 questions = []
                 for q_data in questions_data:
@@ -532,24 +526,13 @@ class VacancyService(interface.IVacancyService):
             ]
 
             # Генерируем ответ от LLM
-            llm_response_str = await self.llm_client.generate(
+            evaluation_data = await self.llm_client.generate_json(
                 history=history,
                 system_prompt=system_prompt,
                 llm_model="gpt-5",
                 temperature=1,
                 pdf_file=resume_content
             )
-
-            # Парсим ответ
-            try:
-                evaluation_data = self.__extract_and_parse_json(llm_response_str)
-            except Exception as err:
-                evaluation_data = await self.__retry_llm_generate(
-                    history=history,
-                    system_prompt=system_prompt,
-                    llm_response_str=llm_response_str,
-                    pdf_file=resume_content
-                )
 
             accordance_xp_vacancy_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
             accordance_skill_vacancy_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
@@ -631,7 +614,6 @@ class VacancyService(interface.IVacancyService):
         except Exception as err:
             raise err
 
-
     async def respond(
             self,
             vacancy_id: int,
@@ -671,23 +653,13 @@ class VacancyService(interface.IVacancyService):
                     )
                 ]
 
-                llm_response_str = await self.llm_client.generate(
+                evaluation_data = await self.llm_client.generate_json(
                     history=history,
                     system_prompt=system_prompt,
                     llm_model="gpt-5",
                     temperature=1,
                     pdf_file=resume_content
                 )
-
-                try:
-                    evaluation_data = self.__extract_and_parse_json(llm_response_str)
-                except Exception as err:
-                    evaluation_data = await self.__retry_llm_generate(
-                        history=history,
-                        system_prompt=system_prompt,
-                        llm_response_str=llm_response_str,
-                        pdf_file=resume_content
-                    )
 
                 accordance_xp_vacancy_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
                 accordance_skill_vacancy_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
@@ -715,7 +687,6 @@ class VacancyService(interface.IVacancyService):
                     resume_file_io = io.BytesIO(resume_content)
                     upload_result = await self.storage.upload(resume_file_io, candidate_resume_file.filename)
                     candidate_resume_fid = upload_result.fid
-
 
                     interview_id = await self.interview_repo.create_interview(
                         vacancy_id=vacancy_id,
@@ -860,13 +831,6 @@ class VacancyService(interface.IVacancyService):
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
 
-    def __extract_and_parse_json(self, text: str) -> dict:
-        match = re.search(r"\{.*\}", text, re.DOTALL)
-
-        json_str = match.group(0)
-        data = json.loads(json_str)
-        return data
-
     async def __send_interview_invitation_to_email(
             self,
             candidate_email: str,
@@ -991,7 +955,6 @@ class VacancyService(interface.IVacancyService):
 
 Удачи! 🍀"""
 
-
                 try:
                     await self.telegram_client.send_message_to_telegram(
                         tg_user_data=candidate_telegram_login,
@@ -1031,47 +994,3 @@ class VacancyService(interface.IVacancyService):
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
-
-    async def __retry_llm_generate(
-            self,
-            history: list[model.InterviewMessage],
-            llm_response_str: str,
-            system_prompt: str,
-            pdf_file: bytes,
-    ):
-        self.logger.warning("LLM потребовался retry", {"llm_response": llm_response_str})
-
-        history.append(
-            model.InterviewMessage(
-                id=0,
-                interview_id=0,
-                question_id=0,
-                audio_name="0",
-                audio_fid="0",
-                role="assistant",
-                text=llm_response_str,
-                created_at=datetime.now()
-            )
-        )
-        history.append(
-            model.InterviewMessage(
-                id=0,
-                interview_id=0,
-                question_id=0,
-                audio_name="0",
-                audio_fid="0",
-                role="user",
-                text="Я же просил JSON формат, как в системно промпте, дай ответ в JSON формате",
-                created_at=datetime.now()
-            )
-        )
-        llm_response_str = await self.llm_client.generate(
-            history=history,
-            system_prompt=system_prompt,
-            llm_model="gpt-5",
-            temperature=1,
-            pdf_file=pdf_file,
-        )
-        llm_response = self.__extract_and_parse_json(llm_response_str)
-        return llm_response
-

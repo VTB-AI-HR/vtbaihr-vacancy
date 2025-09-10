@@ -1,5 +1,8 @@
 import base64
 import io
+import re
+from datetime import datetime
+from time import struct_time
 
 import httpx
 import pypdf
@@ -7,6 +10,7 @@ from pdf2image import convert_from_bytes
 
 import openai
 from opentelemetry.trace import Status, StatusCode, SpanKind
+from pydantic import json
 
 from internal import interface
 from internal import model
@@ -19,12 +23,14 @@ class GPTClient(interface.ILLMClient):
             api_key: str
     ):
         self.tracer = tel.tracer()
+        self.logger = tel.logger()
+
         self.client = openai.AsyncOpenAI(
             api_key=api_key,
             http_client=httpx.AsyncClient()
         )
 
-    async def generate(
+    async def generate_str(
             self,
             history: list[model.InterviewMessage],
             system_prompt: str,
@@ -33,7 +39,7 @@ class GPTClient(interface.ILLMClient):
             pdf_file: bytes = None,
     ) -> str:
         with self.tracer.start_as_current_span(
-                "GPTClient.generate",
+                "GPTClient.generate_str",
                 kind=SpanKind.CLIENT,
         ) as span:
             try:
@@ -88,6 +94,123 @@ class GPTClient(interface.ILLMClient):
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise
+
+    async def generate_json(
+            self,
+            history: list[model.InterviewMessage],
+            system_prompt: str,
+            temperature: float,
+            llm_model: str,
+            pdf_file: bytes = None,
+    ) -> dict:
+        with self.tracer.start_as_current_span(
+                "GPTClient.generate_json",
+                kind=SpanKind.CLIENT,
+        ) as span:
+            try:
+                if system_prompt != "":
+                    system_prompt = [{"role": "system", "content": system_prompt}]
+
+                history = [
+                    *system_prompt,
+                    *[
+                        {"role": message.role, "content": message.text}
+                        for message in history
+                    ]
+                ]
+
+                if pdf_file is not None:
+                    if llm_model in ["gpt-5", "gpt-4o", "gpt-4o-mini"]:
+                        # Подход 1: Конвертируем PDF в изображения (для vision моделей)
+                        images = self._pdf_to_images(pdf_file)
+
+                        content = [
+                            {"type": "text", "text": history[-1]["content"]}
+                        ]
+
+                        # Добавляем каждую страницу как изображение
+                        for i, img_base64 in enumerate(images):
+                            content.append({
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/png;base64,{img_base64}",
+                                    "detail": "high"
+                                }
+                            })
+
+                        history[-1]["content"] = content
+                    else:
+                        # Подход 2: Извлекаем текст из PDF
+                        pdf_text = self._extract_text_from_pdf(pdf_file)
+                        original_text = history[-1]["content"]
+                        history[-1]["content"] = f"{original_text}\n\nСодержимое PDF:\n{pdf_text}"
+
+                response = await self.client.chat.completions.create(
+                    model=llm_model,
+                    messages=history,
+                    temperature=temperature,
+                )
+                llm_response_str = response.choices[0].message.content
+
+                try:
+                    llm_response_json = self.__extract_and_parse_json(llm_response_str)
+                except Exception as err:
+                    llm_response_json = await self.__retry_llm_generate(
+                        history,
+                        llm_model,
+                        temperature,
+                        llm_response_str,
+                    )
+
+                span.set_status(Status(StatusCode.OK))
+                return llm_response_json
+
+            except Exception as err:
+                span.record_exception(err)
+                span.set_status(Status(StatusCode.ERROR, str(err)))
+                raise
+
+    async def __retry_llm_generate(
+            self,
+            history: list,
+            llm_model: str,
+            temperature: float,
+            llm_response_str: str,
+    ) -> dict:
+        self.logger.warning("LLM потребовался retry", {"llm_response": llm_response_str})
+
+        history.append(
+            model.InterviewMessage(
+                id=0,
+                interview_id=0,
+                question_id=0,
+                audio_name="0",
+                audio_fid="0",
+                role="assistant",
+                text=llm_response_str,
+                created_at=datetime.now()
+            )
+        )
+        history.append(
+            model.InterviewMessage(
+                id=0,
+                interview_id=0,
+                question_id=0,
+                audio_name="0",
+                audio_fid="0",
+                role="user",
+                text="Я же просил JSON формат, как в системно промпте, дай ответ в JSON формате",
+                created_at=datetime.now()
+            )
+        )
+        response = await self.client.chat.completions.create(
+            model=llm_model,
+            messages=history,
+            temperature=temperature,
+        )
+        llm_response_str = response.choices[0].message.content
+        llm_response_json = self.__extract_and_parse_json(llm_response_str)
+        return llm_response_json
 
     async def transcribe_audio(
             self,
@@ -184,3 +307,10 @@ class GPTClient(interface.ILLMClient):
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
+
+    def __extract_and_parse_json(self, text: str) -> dict:
+        match = re.search(r"\{.*\}", text, re.DOTALL)
+
+        json_str = match.group(0)
+        data = json.loads(json_str)
+        return data

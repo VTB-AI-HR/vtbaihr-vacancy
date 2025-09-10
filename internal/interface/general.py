@@ -106,7 +106,7 @@ class IDB(Protocol):
 
 class ILLMClient(Protocol):
     @abstractmethod
-    async def generate(
+    async def generate_str(
             self,
             history: list[model.InterviewMessage],
             system_prompt: str,
@@ -114,6 +114,16 @@ class ILLMClient(Protocol):
             llm_model: str,
             pdf_file: bytes = None,
     ) -> str: pass
+
+    @abstractmethod
+    async def generate_json(
+            self,
+            history: list[model.InterviewMessage],
+            system_prompt: str,
+            temperature: float,
+            llm_model: str,
+            pdf_file: bytes = None,
+    ) -> dict: pass
 
     @abstractmethod
     async def transcribe_audio(

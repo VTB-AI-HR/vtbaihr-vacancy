@@ -1,6 +1,4 @@
 import io
-import json
-import re
 import uuid
 from datetime import datetime
 
@@ -52,21 +50,13 @@ class InterviewService(interface.IInterviewService):
             )
         ]
 
-        hello_interview_str = await self.llm_client.generate(
+        hello_interview = await self.llm_client.generate_json(
             history=history,
             system_prompt=hello_interview_system_prompt,
             llm_model="gpt-5",
             temperature=1
         )
 
-        try:
-            hello_interview = self.__extract_and_parse_json(hello_interview_str)
-        except Exception as e:
-            hello_interview = await self.__retry_llm_generate(
-                history=history,
-                llm_response_str=hello_interview_str,
-                system_prompt=hello_interview_system_prompt,
-            )
         message_to_candidate = hello_interview["message_to_candidate"]
 
         llm_audio = await self.llm_client.text_to_speech(message_to_candidate)
@@ -145,21 +135,12 @@ class InterviewService(interface.IInterviewService):
             interview_messages[
                 0].text = transcribed_text + "\n\nНе забудь, что ответить надо в формате JSON как в системном промпте"
 
-            llm_response_str = await self.llm_client.generate(
+            llm_response = await self.llm_client.generate_json(
                 history=interview_messages,
                 system_prompt=interview_management_system_prompt,
                 llm_model="gpt-5",
                 temperature=1
             )
-
-            try:
-                llm_response = self.__extract_and_parse_json(llm_response_str)
-            except Exception as e:
-                llm_response = await self.__retry_llm_generate(
-                    history=interview_messages,
-                    llm_response_str=llm_response_str,
-                    system_prompt=interview_management_system_prompt,
-                )
 
             action = llm_response["action"]
             message_to_candidate: str = llm_response["message_to_candidate"]
@@ -363,14 +344,12 @@ class InterviewService(interface.IInterviewService):
             )
         ]
 
-        interview_evaluation_str = await self.llm_client.generate(
+        interview_evaluation = await self.llm_client.generate_json(
             history=interview_messages,
             system_prompt=interview_summary_system_prompt,
             llm_model="gpt-5",
             temperature=1
         )
-
-        interview_evaluation = self.__extract_and_parse_json(interview_evaluation_str)
 
         interview_weights = (await self.vacancy_repo.get_interview_weights(vacancy.id))[0]
 
@@ -439,21 +418,12 @@ class InterviewService(interface.IInterviewService):
             )
         ]
 
-        question_evaluation_str = await self.llm_client.generate(
+        evaluation_data = await self.llm_client.generate_json(
             history=question_history,
             system_prompt=answer_evaluation_system_prompt,
             llm_model="gpt-5",
             temperature=1
         )
-
-        try:
-            evaluation_data = self.__extract_and_parse_json(question_evaluation_str)
-        except Exception as e:
-            evaluation_data = await self.__retry_llm_generate(
-                history=question_history,
-                llm_response_str=question_evaluation_str,
-                system_prompt=answer_evaluation_system_prompt,
-            )
 
         score = evaluation_data["score"]
         message_to_candidate = evaluation_data["message_to_candidate"]
@@ -553,50 +523,3 @@ class InterviewService(interface.IInterviewService):
 
         except Exception as err:
             raise err
-
-    def __extract_and_parse_json(self, text: str) -> dict:
-        match = re.search(r"\{.*\}", text, re.DOTALL)
-
-        json_str = match.group(0)
-        data = json.loads(json_str)
-        return data
-
-    async def __retry_llm_generate(
-            self,
-            history: list[model.InterviewMessage],
-            llm_response_str: str,
-            system_prompt: str
-    ):
-        self.logger.warning("LLM ответила не JSON", {"llm_response": llm_response_str})
-        history.append(
-            model.InterviewMessage(
-                id=0,
-                interview_id=0,
-                question_id=0,
-                audio_name="0",
-                audio_fid="0",
-                role="assistant",
-                text=llm_response_str,
-                created_at=datetime.now()
-            )
-        )
-        history.append(
-            model.InterviewMessage(
-                id=0,
-                interview_id=0,
-                question_id=0,
-                audio_name="0",
-                audio_fid="0",
-                role="user",
-                text="Я же просил JSON формат, как в системно промпте, дай ответ в JSON формате",
-                created_at=datetime.now()
-            )
-        )
-        llm_response_str = await self.llm_client.generate(
-            history=history,
-            system_prompt=system_prompt,
-            llm_model="gpt-5",
-            temperature=1
-        )
-        llm_response = self.__extract_and_parse_json(llm_response_str)
-        return llm_response
