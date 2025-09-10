@@ -7,7 +7,6 @@ from fastapi.responses import JSONResponse
 from opentelemetry.metrics import Meter
 from opentelemetry.trace import Tracer
 from starlette.responses import StreamingResponse
-from infrastructure.weedfs.weedfs import AsyncWeedOperationResponse
 
 from internal import model
 
@@ -71,7 +70,7 @@ class IStorage(Protocol):
     async def download(self, fid: str, name: str) -> tuple[io.BytesIO, str]: pass
 
     @abstractmethod
-    async def upload(self, file: io.BytesIO, name: str) -> AsyncWeedOperationResponse: pass
+    async def upload(self, file: io.BytesIO, name: str) -> model.AsyncWeedOperationResponse: pass
 
     @abstractmethod
     async def update(self, file: io.BytesIO, fid: str, name: str): pass

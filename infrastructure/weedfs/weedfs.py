@@ -6,18 +6,7 @@ from dataclasses import dataclass
 import aiohttp
 from aiohttp import ClientSession
 
-from internal import interface
-
-
-@dataclass
-class AsyncWeedOperationResponse:
-    status_code: int
-    content: bytes
-    content_type: str
-    headers: dict
-    fid: Optional[str] = None
-    url: Optional[str] = None
-    size: Optional[int] = None
+from internal import interface, model
 
 
 class AsyncWeed(interface.IStorage):
@@ -57,7 +46,7 @@ class AsyncWeed(interface.IStorage):
         volume_id, file_key = fid.split(',', 1)
         return volume_id, file_key
 
-    async def upload(self, file: io.BytesIO, name: str) -> AsyncWeedOperationResponse:
+    async def upload(self, file: io.BytesIO, name: str) -> model.AsyncWeedOperationResponse:
         """Загрузить файл в SeaweedFS"""
         try:
             # Получаем ключ для загрузки
@@ -82,7 +71,7 @@ class AsyncWeed(interface.IStorage):
                 if response.status not in [200, 201]:
                     raise Exception(f"Upload failed: {response.status}, {content.decode()}")
 
-                return AsyncWeedOperationResponse(
+                return model.AsyncWeedOperationResponse(
                     status_code=response.status,
                     content=content,
                     content_type=response.headers.get('Content-Type', ''),
@@ -126,7 +115,7 @@ class AsyncWeed(interface.IStorage):
         except Exception as e:
             raise Exception(f"Failed to download file: {str(e)}")
 
-    async def delete(self, fid: str, name: str) -> AsyncWeedOperationResponse:
+    async def delete(self, fid: str, name: str) -> model.AsyncWeedOperationResponse:
         try:
             volume_id, file_key = self._parse_fid(fid)
 
@@ -150,7 +139,7 @@ class AsyncWeed(interface.IStorage):
                 if response.status not in [200, 202, 204]:
                     raise Exception(f"Delete failed: {response.status}, {content.decode()}")
 
-                return AsyncWeedOperationResponse(
+                return model.AsyncWeedOperationResponse(
                     status_code=response.status,
                     content=content,
                     content_type=response.headers.get('Content-Type', ''),
@@ -161,7 +150,7 @@ class AsyncWeed(interface.IStorage):
         except Exception as e:
             raise Exception(f"Failed to delete file: {str(e)}")
 
-    async def update(self, file: io.BytesIO, fid: str, name: str) -> AsyncWeedOperationResponse:
+    async def update(self, file: io.BytesIO, fid: str, name: str) -> model.AsyncWeedOperationResponse:
         """Обновить файл в SeaweedFS"""
         try:
             volume_id, file_key = self._parse_fid(fid)
@@ -191,7 +180,7 @@ class AsyncWeed(interface.IStorage):
                 if response.status not in [200, 201]:
                     raise Exception(f"Update failed: {response.status}, {content.decode()}")
 
-                return AsyncWeedOperationResponse(
+                return model.AsyncWeedOperationResponse(
                     status_code=response.status,
                     content=content,
                     content_type=response.headers.get('Content-Type', ''),
