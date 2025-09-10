@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from opentelemetry.metrics import Meter
 from opentelemetry.trace import Tracer
 from starlette.responses import StreamingResponse
-from weed.util import WeedOperationResponse
+from infrastructure.weedfs.weedfs import AsyncWeedOperationResponse
 
 from internal import model
 
@@ -65,16 +65,16 @@ class IRedis(Protocol):
 
 class IStorage(Protocol):
     @abstractmethod
-    def delete(self, fid: str, name: str): pass
+    async def delete(self, fid: str, name: str): pass
 
     @abstractmethod
-    def download(self, fid: str, name: str) -> tuple[io.BytesIO, str]: pass
+    async def download(self, fid: str, name: str) -> tuple[io.BytesIO, str]: pass
 
     @abstractmethod
-    def upload(self, file: io.BytesIO, name: str) -> WeedOperationResponse: pass
+    async def upload(self, file: io.BytesIO, name: str) -> AsyncWeedOperationResponse: pass
 
     @abstractmethod
-    def update(self, file: io.BytesIO, fid: str, name: str): pass
+    async def update(self, file: io.BytesIO, fid: str, name: str): pass
 
 class IEmailClient(Protocol):
     @abstractmethod

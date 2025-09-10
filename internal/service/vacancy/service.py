@@ -573,7 +573,7 @@ class VacancyService(interface.IVacancyService):
                 })
 
                 resume_file_io = io.BytesIO(resume_content)
-                upload_result = self.storage.upload(resume_file_io, resume_file.filename)
+                upload_result = await self.storage.upload(resume_file_io, resume_file.filename)
                 candidate_resume_fid = upload_result.fid
 
                 interview_id = await self.interview_repo.create_interview(
@@ -713,7 +713,7 @@ class VacancyService(interface.IVacancyService):
                     })
 
                     resume_file_io = io.BytesIO(resume_content)
-                    upload_result = self.storage.upload(resume_file_io, candidate_resume_file.filename)
+                    upload_result = await self.storage.upload(resume_file_io, candidate_resume_file.filename)
                     candidate_resume_fid = upload_result.fid
 
 

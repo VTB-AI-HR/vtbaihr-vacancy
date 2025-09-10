@@ -72,7 +72,7 @@ class InterviewService(interface.IInterviewService):
         llm_audio = await self.llm_client.text_to_speech(message_to_candidate)
         llm_audio_filename = f"hello_interview_{interview_id}_{current_question.id}.mp3"
         llm_audio_file_io = io.BytesIO(llm_audio)
-        upload_response = self.storage.upload(llm_audio_file_io, llm_audio_filename)
+        upload_response = await self.storage.upload(llm_audio_file_io, llm_audio_filename)
         llm_audio_fid = upload_response.fid
 
         llm_message_id = await self.interview_repo.create_interview_message(
@@ -118,7 +118,7 @@ class InterviewService(interface.IInterviewService):
 
             # 3. Сохраняем аудио в storage
             audio_file_io = io.BytesIO(audio_content)
-            upload_response = self.storage.upload(audio_file_io, audio_file.filename)
+            upload_response = await self.storage.upload(audio_file_io, audio_file.filename)
             audio_fid = upload_response.fid
 
             # 4. Создаем сообщение от кандидата
@@ -168,7 +168,7 @@ class InterviewService(interface.IInterviewService):
             llm_audio = await self.llm_client.text_to_speech(message_to_candidate)
             llm_audio_filename = f"message_to_candidate_{interview_id}_{current_question.id}_{uuid.uuid4()}.mp3"
             llm_audio_file_io = io.BytesIO(llm_audio)
-            upload_response = self.storage.upload(llm_audio_file_io, llm_audio_filename)
+            upload_response = await self.storage.upload(llm_audio_file_io, llm_audio_filename)
             llm_audio_fid = upload_response.fid
 
             # 7. Обрабатываем разные сценарии
