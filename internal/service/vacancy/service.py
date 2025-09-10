@@ -413,7 +413,7 @@ class VacancyService(interface.IVacancyService):
                 )
 
                 questions = []
-                for q_data in questions_data:
+                for q_data in questions_data["questions"]:
                     question = model.VacancyQuestion(
                         id=0,
                         vacancy_id=vacancy_id,
