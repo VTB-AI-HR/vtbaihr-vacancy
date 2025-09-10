@@ -1,5 +1,8 @@
 import base64
 import io
+import re
+from typing import Union, Optional
+
 import segno
 import asyncio
 
@@ -37,6 +40,7 @@ class LTelegramClient(interface.ITelegramClient):
         self.qr_session: model.QrSession = None
         self.userbot: TelegramClient = None
         self._auth_lock = asyncio.Lock()
+        self.phone_formatter = RussianPhoneFormatter()
 
     async def generate_qr_code(self) -> io.BytesIO:
         with self.tracer.start_as_current_span(
@@ -226,6 +230,9 @@ class LTelegramClient(interface.ITelegramClient):
                     if not self.userbot.is_connected():
                         await self.userbot.connect()
 
+                    if self.phone_formatter.is_valid_russian_number(tg_user_data):
+                        tg_user_data = self.phone_formatter.format_telethon(tg_user_data)
+
                     await self.userbot.send_message(tg_user_data, text)
 
 
@@ -250,3 +257,79 @@ class LTelegramClient(interface.ITelegramClient):
             self.logger.info("Telegram клиент отключен")
         except Exception as err:
             raise err
+
+
+class RussianPhoneFormatter:
+    def __init__(self):
+        # Паттерны для очистки номера
+        self.cleanup_pattern = re.compile(r'[^\d+]')
+
+        # Паттерны для различных форматов российских номеров
+        self.patterns = [
+            # +7XXXXXXXXXX
+            re.compile(r'^\+?7(\d{10})$'),
+            # 8XXXXXXXXXX
+            re.compile(r'^8(\d{10})$'),
+            # 7XXXXXXXXXX
+            re.compile(r'^7(\d{10})$'),
+            # XXXXXXXXXX (10 цифр без кода страны)
+            re.compile(r'^(\d{10})$'),
+        ]
+
+    def is_valid_russian_number(self, phone: str) -> bool:
+        """Проверяет, является ли номер валидным российским номером"""
+        cleaned = self.clean_number(phone)
+
+        for pattern in self.patterns:
+            if pattern.match(cleaned):
+                return True
+        return False
+
+    def clean_number(self, phone: Union[str, int]) -> str:
+        phone_str = str(phone).strip()
+        return self.cleanup_pattern.sub('', phone_str)
+
+    def extract_main_number(self, phone: str) -> Optional[str]:
+        cleaned = self.clean_number(phone)
+
+        for pattern in self.patterns:
+            match = pattern.match(cleaned)
+            if match:
+                return match.group(1)
+        return None
+
+    def format_international(self, phone: Union[str, int]) -> Optional[str]:
+        """
+        Форматирует в международный формат: +7 XXX XXX-XX-XX
+        """
+        main_number = self.extract_main_number(str(phone))
+        if not main_number:
+            return None
+
+        return f"+7 {main_number[:3]} {main_number[3:6]}-{main_number[6:8]}-{main_number[8:]}"
+
+    def format_national(self, phone: Union[str, int]) -> Optional[str]:
+        """
+        Форматирует в национальный формат: 8 (XXX) XXX-XX-XX
+        """
+        main_number = self.extract_main_number(str(phone))
+        if not main_number:
+            return None
+
+        return f"8 ({main_number[:3]}) {main_number[3:6]}-{main_number[6:8]}-{main_number[8:]}"
+
+    def format_compact_international(self, phone: Union[str, int]) -> Optional[str]:
+        """
+        Форматирует в компактный международный формат: +7XXXXXXXXXX
+        """
+        main_number = self.extract_main_number(str(phone))
+        if not main_number:
+            return None
+
+        return f"+7{main_number}"
+
+    def format_telethon(self, phone: Union[str, int]) -> Optional[str]:
+        """
+        Форматирует специально для Telethon (международный формат без пробелов)
+        """
+        return self.format_compact_international(phone)

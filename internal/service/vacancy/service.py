@@ -1027,6 +1027,7 @@ class VacancyService(interface.IVacancyService):
                             tg_user_data=candidate_phone,
                             text=message_text
                         )
+                        telegram_sent = True
                     except Exception as err:
                         span.record_exception(err)
                         span.set_status(Status(StatusCode.ERROR, str(err)))
