@@ -1,3 +1,4 @@
+import asyncio
 import json
 import io
 import re
@@ -449,7 +450,9 @@ class VacancyService(interface.IVacancyService):
                 }
         ) as span:
             try:
+                # Получаем данные вакансии один раз для всех резюме
                 vacancy = (await self.vacancy_repo.get_vacancy_by_id(vacancy_id))[0]
+                resume_weights = (await self.vacancy_repo.get_resume_weights(vacancy_id))[0]
 
                 system_prompt = self.vacancy_prompt_generator.get_resume_evaluation_system_prompt(
                     vacancy_description=vacancy.description,
@@ -458,149 +461,176 @@ class VacancyService(interface.IVacancyService):
                     vacancy_tags=vacancy.tags
                 )
 
-                created_interviews = []
-
+                # Создаем задачи для параллельной обработки
+                tasks = []
                 for resume_file in candidate_resume_files:
-                    resume_content = await resume_file.read()
-
-                    history = [
-                        model.InterviewMessage(
-                            id=0,
-                            interview_id=0,
-                            question_id=0,
-                            audio_name="0",
-                            audio_fid="",
-                            role="user",
-                            text="Оцени это резюме любой ценой",
-                            created_at=datetime.now()
-                        )
-                    ]
-
-                    llm_response_str = await self.llm_client.generate(
-                        history=history,
+                    task = self.__process_single_resume(
+                        resume_file=resume_file,
+                        vacancy_id=vacancy_id,
+                        vacancy=vacancy,
                         system_prompt=system_prompt,
-                        llm_model="gpt-5",
-                        temperature=1,
-                        pdf_file=resume_content
+                        resume_weights=resume_weights
                     )
+                    tasks.append(task)
 
-                    try:
-                        evaluation_data = self.__extract_and_parse_json(llm_response_str)
-                    except Exception as err:
-                        evaluation_data = await self.__retry_llm_generate(
-                            history=history,
-                            system_prompt=system_prompt,
-                            llm_response_str=llm_response_str,
-                            pdf_file=resume_content
-                        )
+                # Выполняем все задачи параллельно
+                results = await asyncio.gather(*tasks, return_exceptions=True)
 
-                    accordance_xp_vacancy_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
-                    accordance_skill_vacancy_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
-                    candidate_email = evaluation_data.get("candidate_email", "unknown@example.com")
-                    candidate_name = evaluation_data.get("candidate_name", "Unknown")
-                    candidate_telegram_login = evaluation_data.get("candidate_telegram_login", "Unknown")
-                    candidate_phone = evaluation_data.get("candidate_phone", "Unknown")
-                    message_to_candidate = evaluation_data.get("message_to_candidate", "")
-                    message_to_hr = evaluation_data.get("message_to_hr", "")
+                # Фильтруем успешные результаты и ошибки
+                created_interviews = []
+                errors = []
 
-                    resume_weights = (await self.vacancy_repo.get_resume_weights(vacancy_id))[0]
-
-                    if (accordance_xp_vacancy_score >= resume_weights.accordance_xp_vacancy_score_threshold
-                            and accordance_skill_vacancy_score >= resume_weights.accordance_skill_vacancy_score_threshold):
-
-                        self.logger.info("Кандидат прошел анализ резюме", {
-                            "vacancy_id": vacancy_id,
-                            "accordance_xp_vacancy_score": accordance_xp_vacancy_score,
-                            "accordance_skill_vacancy_score": accordance_skill_vacancy_score,
-                            "candidate_telegram_login": candidate_telegram_login,
-                            "candidate_name": candidate_name,
-                            "candidate_phone": candidate_phone,
+                for i, result in enumerate(results):
+                    if isinstance(result, Exception):
+                        self.logger.error(f"Ошибка при обработке резюме {candidate_resume_files[i].filename}", {
+                            "error": str(result),
+                            "filename": candidate_resume_files[i].filename
                         })
-
-                        resume_file_io = io.BytesIO(resume_content)
-                        upload_result = self.storage.upload(resume_file_io, resume_file.filename)
-                        candidate_resume_fid = upload_result.fid
-
-                        interview_id = await self.interview_repo.create_interview(
-                            vacancy_id=vacancy_id,
-                            candidate_name=candidate_name,
-                            candidate_email=candidate_email,
-                            candidate_phone=candidate_phone,
-                            candidate_telegram_login=candidate_telegram_login,
-                            candidate_resume_fid=candidate_resume_fid,
-                            candidate_resume_filename=resume_file.filename,
-                            accordance_xp_vacancy_score=accordance_xp_vacancy_score,
-                            accordance_skill_vacancy_score=accordance_skill_vacancy_score
-                        )
-
-                        # if candidate_email != "Unknown" and "@" in candidate_email:
-                        #     await self.__send_interview_invitation(
-                        #         candidate_email=candidate_email,
-                        #         candidate_name=candidate_name,
-                        #         vacancy_name=vacancy.name,
-                        #         interview_id=interview_id
-                        #     )
-                        # await self.__send_interview_invitation_to_telegram(
-                        #     candidate_telegram_login=candidate_telegram_login,
-                        #     candidate_phone=candidate_phone,
-                        #     vacancy_name=vacancy.name,
-                        #     interview_id=interview_id,
-                        #     vacancy_id=vacancy_id,
-                        #     candidate_name=candidate_name,
-                        # )
-
-                        # Создаем объект Interview для возврата
-                        interview = model.Interview(
-                            id=interview_id,
-                            vacancy_id=vacancy_id,
-                            candidate_name=candidate_name,
-                            candidate_email=candidate_email,
-                            candidate_phone=candidate_phone,
-                            candidate_telegram_login=candidate_telegram_login,
-                            candidate_resume_fid=candidate_resume_fid,
-                            candidate_resume_filename=resume_file.filename,
-                            accordance_xp_vacancy_score=accordance_xp_vacancy_score,
-                            accordance_skill_vacancy_score=accordance_skill_vacancy_score,
-                            red_flag_score=0,
-                            hard_skill_score=0,
-                            soft_skill_score=0,
-                            logic_structure_score=0,
-                            accordance_xp_resume_score=0,
-                            accordance_skill_resume_score=0,
-                            strong_areas="",
-                            weak_areas="",
-                            approved_skills=[],
-                            general_score=0.0,
-                            general_result=model.GeneralResult.IN_PROCESS,
-                            message_to_candidate=message_to_candidate,
-                            message_to_hr=message_to_hr,
-                            created_at=datetime.now()
-                        )
-
-                        created_interviews.append(interview)
-                    else:
-                        self.logger.info("Кандидат не прошел анализ резюме", {
-                            "vacancy_id": vacancy_id,
-                            "accordance_xp_vacancy_score": accordance_xp_vacancy_score,
-                            "accordance_skill_vacancy_score": accordance_skill_vacancy_score,
-                            "candidate_telegram_login": candidate_telegram_login,
-                            "candidate_name": candidate_name,
-                            "candidate_phone": candidate_phone,
+                        errors.append({
+                            "filename": candidate_resume_files[i].filename,
+                            "error": str(result)
                         })
+                    elif result is not None:
+                        created_interviews.append(result)
 
                 self.logger.info("Все резюме проверены", {
                     "vacancy_id": vacancy_id,
                     "total_resumes": len(candidate_resume_files),
-                    "created_interviews": len(created_interviews)
+                    "created_interviews": len(created_interviews),
+                    "errors_count": len(errors)
                 })
 
                 span.set_status(Status(StatusCode.OK))
                 return created_interviews
-
             except Exception as err:
                 span.record_exception(err)
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 raise err
+
+    async def __process_single_resume(
+            self,
+            resume_file: UploadFile,
+            vacancy_id: int,
+            vacancy,
+            system_prompt: str,
+            resume_weights
+    ) -> model.Interview | None:
+        try:
+            resume_content = await resume_file.read()
+
+            history = [
+                model.InterviewMessage(
+                    id=0,
+                    interview_id=0,
+                    question_id=0,
+                    audio_name="0",
+                    audio_fid="",
+                    role="user",
+                    text="Оцени это резюме любой ценой",
+                    created_at=datetime.now()
+                )
+            ]
+
+            # Генерируем ответ от LLM
+            llm_response_str = await self.llm_client.generate(
+                history=history,
+                system_prompt=system_prompt,
+                llm_model="gpt-5",
+                temperature=1,
+                pdf_file=resume_content
+            )
+
+            # Парсим ответ
+            try:
+                evaluation_data = self.__extract_and_parse_json(llm_response_str)
+            except Exception as err:
+                evaluation_data = await self.__retry_llm_generate(
+                    history=history,
+                    system_prompt=system_prompt,
+                    llm_response_str=llm_response_str,
+                    pdf_file=resume_content
+                )
+
+            accordance_xp_vacancy_score = evaluation_data.get("accordance_xp_vacancy_score", 0)
+            accordance_skill_vacancy_score = evaluation_data.get("accordance_skill_vacancy_score", 0)
+            candidate_email = evaluation_data.get("candidate_email", "unknown@example.com")
+            candidate_name = evaluation_data.get("candidate_name", "Unknown")
+            candidate_telegram_login = evaluation_data.get("candidate_telegram_login", "Unknown")
+            candidate_phone = evaluation_data.get("candidate_phone", "Unknown")
+            message_to_candidate = evaluation_data.get("message_to_candidate", "")
+            message_to_hr = evaluation_data.get("message_to_hr", "")
+
+            if (accordance_xp_vacancy_score >= resume_weights.accordance_xp_vacancy_score_threshold
+                    and accordance_skill_vacancy_score >= resume_weights.accordance_skill_vacancy_score_threshold):
+
+                self.logger.info("Кандидат прошел анализ резюме", {
+                    "vacancy_id": vacancy_id,
+                    "accordance_xp_vacancy_score": accordance_xp_vacancy_score,
+                    "accordance_skill_vacancy_score": accordance_skill_vacancy_score,
+                    "candidate_telegram_login": candidate_telegram_login,
+                    "candidate_name": candidate_name,
+                    "candidate_phone": candidate_phone,
+                })
+
+                resume_file_io = io.BytesIO(resume_content)
+                upload_result = self.storage.upload(resume_file_io, resume_file.filename)
+                candidate_resume_fid = upload_result.fid
+
+                interview_id = await self.interview_repo.create_interview(
+                    vacancy_id=vacancy_id,
+                    candidate_name=candidate_name,
+                    candidate_email=candidate_email,
+                    candidate_phone=candidate_phone,
+                    candidate_telegram_login=candidate_telegram_login,
+                    candidate_resume_fid=candidate_resume_fid,
+                    candidate_resume_filename=resume_file.filename,
+                    accordance_xp_vacancy_score=accordance_xp_vacancy_score,
+                    accordance_skill_vacancy_score=accordance_skill_vacancy_score
+                )
+
+                # Создаем объект Interview для возврата
+                interview = model.Interview(
+                    id=interview_id,
+                    vacancy_id=vacancy_id,
+                    candidate_name=candidate_name,
+                    candidate_email=candidate_email,
+                    candidate_phone=candidate_phone,
+                    candidate_telegram_login=candidate_telegram_login,
+                    candidate_resume_fid=candidate_resume_fid,
+                    candidate_resume_filename=resume_file.filename,
+                    accordance_xp_vacancy_score=accordance_xp_vacancy_score,
+                    accordance_skill_vacancy_score=accordance_skill_vacancy_score,
+                    red_flag_score=0,
+                    hard_skill_score=0,
+                    soft_skill_score=0,
+                    logic_structure_score=0,
+                    accordance_xp_resume_score=0,
+                    accordance_skill_resume_score=0,
+                    strong_areas="",
+                    weak_areas="",
+                    approved_skills=[],
+                    general_score=0.0,
+                    general_result=model.GeneralResult.IN_PROCESS,
+                    message_to_candidate=message_to_candidate,
+                    message_to_hr=message_to_hr,
+                    created_at=datetime.now()
+                )
+
+                return interview
+            else:
+                self.logger.info("Кандидат не прошел анализ резюме", {
+                    "vacancy_id": vacancy_id,
+                    "accordance_xp_vacancy_score": accordance_xp_vacancy_score,
+                    "accordance_skill_vacancy_score": accordance_skill_vacancy_score,
+                    "candidate_telegram_login": candidate_telegram_login,
+                    "candidate_name": candidate_name,
+                    "candidate_phone": candidate_phone,
+                })
+                return None
+
+        except Exception as err:
+            raise err
+
 
     async def respond(
             self,
