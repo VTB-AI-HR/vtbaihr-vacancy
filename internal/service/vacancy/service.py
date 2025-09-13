@@ -760,12 +760,12 @@ class VacancyService(interface.IVacancyService):
                     # Генерируем ссылку на интервью
                     interview_link = f"/interview/start/{interview_id}"
 
-                    # email_sent = await self._send_interview_invitation(
-                    #     candidate_email=candidate_email,
-                    #     candidate_name=evaluation_data.get("candidate_name", "Unknown"),
-                    #     vacancy_name=vacancy.name,
-                    #     interview_id=interview_id
-                    # )
+                    email_sent = await self.__send_interview_invitation_to_email(
+                        candidate_email=candidate_email,
+                        candidate_name=candidate_name,
+                        vacancy_name=vacancy.name,
+                        interview_id=interview_id
+                    )
                     await self.__send_interview_invitation_to_telegram(
                         candidate_telegram_login=candidate_telegram_login,
                         candidate_phone=candidate_phone,
