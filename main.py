@@ -37,7 +37,8 @@ alert_manager = AlertManager(
     cfg.monitoring_redis_host,
     cfg.monitoring_redis_port,
     cfg.monitoring_redis_db,
-    cfg.monitoring_redis_password
+    cfg.monitoring_redis_password,
+    cfg.openai_api_key
 )
 
 tel = Telemetry(
@@ -55,6 +56,7 @@ tel = Telemetry(
 db = PG(tel, cfg.db_user, cfg.db_pass, cfg.db_host, cfg.db_port, cfg.db_name)
 storage = AsyncWeed(cfg.weed_master_host, cfg.weed_master_port)
 llm_client = GPTClient(tel, cfg.openai_api_key)
+
 email_client = EmailClient(
     tel=tel,
     smtp_host=cfg.smtp_host,
