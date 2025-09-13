@@ -509,7 +509,7 @@ class InterviewService(interface.IInterviewService):
 
     async def download_audio(self, audio_fid: str, audio_filename: str) -> tuple[io.BytesIO, str]:
         try:
-            audio_stream, content_type = self.storage.download(audio_fid, audio_filename)
+            audio_stream, content_type = await self.storage.download(audio_fid, audio_filename)
 
             return audio_stream, content_type
 
@@ -518,7 +518,7 @@ class InterviewService(interface.IInterviewService):
 
     async def download_resume(self, resume_fid: str, resume_filename: str) -> tuple[io.BytesIO, str]:
         try:
-            audio_stream, content_type = self.storage.download(resume_fid, resume_filename)
+            audio_stream, content_type = await self.storage.download(resume_fid, resume_filename)
             return audio_stream, content_type
 
         except Exception as err:
